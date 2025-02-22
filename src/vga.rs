@@ -23,6 +23,10 @@ pub fn _print(args: fmt::Arguments) {
     });
 }
 
+pub fn set_color(foreground: u8, background: u8) {
+    WRITER.lock().set_color(foreground, background);
+}
+
 pub fn clear_screen() {
     for _ in 0..100 {
         println!("");
@@ -39,7 +43,7 @@ impl fmt::Write for Writer {
 lazy_static! {
     pub static ref WRITER: Mutex<Writer> = Mutex::new(Writer {
         column_position: 0,
-        color_code: ColorCode::new(Color::Pink, Color::White),
+        color_code: ColorCode::new_color(Color::Pink, Color::White),
         buffer: unsafe { &mut *(0xb8000 as *mut Buffer) },
     });
 }
@@ -71,8 +75,11 @@ pub enum Color {
 struct ColorCode(u8);
 
 impl ColorCode {
-    fn new(foreground: Color, background: Color) -> ColorCode {
+    fn new_color(foreground: Color, background: Color) -> ColorCode {
         ColorCode((background as u8) << 4 | (foreground as u8))
+    }
+    fn new_base(foreground: u8, background: u8) -> ColorCode {
+        ColorCode(background << 4 | foreground)
     }
 }
 
@@ -148,5 +155,9 @@ impl Writer {
             }
 
         }
+    }
+
+    pub fn set_color(&mut self, foreground: u8, background: u8) {
+        self.color_code = ColorCode::new_base(foreground, background);
     }
 }

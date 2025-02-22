@@ -1,5 +1,6 @@
 use crate::println;
 use crate::print;
+use crate::vga;
 use spin::Mutex;
 
 lazy_static::lazy_static! {
@@ -41,27 +42,40 @@ pub fn add_key(character: usize) -> bool {
 
 #[allow(dead_code)]
 pub fn match_commands() {
+    let commands = ["info", "ping", "color"];
+
     print!("\n");
-    let info_command = "info".bytes();
-    let command_length = info_command.len();
-    let command_written = get_text();
-    let mut is_command = true;
 
-    let mut i = 0;
-    for byte in info_command {
-        if i + 1 == command_length && command_written[i + 1] != 0 {
-            is_command = false;
+    for command in commands {
+        let command_bytes = command.bytes();
+        let command_length = command_bytes.len();
+        let command_written = get_text();
+        let mut is_command = true;
+
+        let mut i = 0;
+        for byte in command_bytes {
+            if i + 1 == command_length && command_written[i + 1] != 0 {
+                is_command = false;
+            }
+            if byte != command_written[i] as u8 {
+                is_command = false;
+            }
+            i += 1;
         }
-        if byte != command_written[i] as u8 {
-            is_command = false;
+
+        if is_command {
+            match command {
+                "info" => println!("We have some general commands like the amazing command [ping]"),
+                "ping" => println!("Pong"),
+                "color" => {
+                    println!("Changed the color to black");
+                    vga::set_color(13, 0);
+                },
+                _ => println!("This command is unimplemented :C")
+            }
         }
-        i += 1;
     }
 
-    if is_command {
-        println!("Niceee you found the info command");
-    }
-    
     print!("-> ");
 
     {
