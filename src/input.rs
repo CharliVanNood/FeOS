@@ -42,7 +42,7 @@ pub fn add_key(character: usize) -> bool {
 
 #[allow(dead_code)]
 pub fn match_commands() {
-    let commands = ["info", "ping", "color"];
+    let commands = ["info", "ping", "color", "help"];
 
     print!("\n");
 
@@ -65,11 +65,13 @@ pub fn match_commands() {
 
         if is_command {
             match command {
-                "info" => println!("We have some general commands like the amazing command [ping]"),
+                "info" => println!("We have some general commands like the amazing command [ping] and [color]"),
+                "help" => println!("We have some general commands like the amazing command [ping] and [color]"),
                 "ping" => println!("Pong"),
                 "color" => {
-                    println!("Changed the color to black");
+                    print!("Changed the color to black");
                     vga::set_color(13, 0);
+                    print!("\n");
                 },
                 _ => println!("This command is unimplemented :C")
             }
