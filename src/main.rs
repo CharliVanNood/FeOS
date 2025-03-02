@@ -6,6 +6,7 @@
 
 mod vga;
 mod input;
+mod python;
 
 use core::panic::PanicInfo;
 

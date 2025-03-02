@@ -100,7 +100,7 @@ extern "x86-interrupt" fn keyboard_interrupt_handler(
                 },
                 DecodedKey::RawKey(key) => {
                     if input::add_key(scancode as usize) {
-                        print!("{:?}", key)
+                        //print!("{:?}", key)
                     }
                 },
             }

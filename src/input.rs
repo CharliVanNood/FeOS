@@ -1,6 +1,7 @@
 use crate::println;
 use crate::print;
 use crate::vga;
+use crate::python;
 use spin::Mutex;
 
 lazy_static::lazy_static! {
@@ -26,9 +27,15 @@ pub fn add_key(character: usize) -> bool {
         10 => {
             match_commands();
             return false;
-        }
+        },
         8 => {
             remove_byte();
+            return false;
+        }
+        42 => {
+            return false;
+        }
+        54 => {
             return false;
         }
         _ => {}
@@ -60,7 +67,7 @@ fn remove_byte() {
 
 #[allow(dead_code)]
 pub fn match_commands() {
-    let commands = ["info", "ping", "color", "help"];
+    let commands = ["info", "ping", "color", "help", "python"];
 
     print!("\n");
 
@@ -72,7 +79,7 @@ pub fn match_commands() {
 
         let mut i = 0;
         for byte in command_bytes {
-            if i + 1 == command_length && command_written[i + 1] != 0 {
+            if i + 1 == command_length && command_written[i + 1] != 0 && command_written[i + 1] != 32 {
                 is_command = false;
             }
             if byte != command_written[i] as u8 {
@@ -91,6 +98,7 @@ pub fn match_commands() {
                     vga::set_color(13, 0);
                     print!("\n");
                 },
+                "python" => python::exec(command_written),
                 _ => println!("This command is unimplemented :C")
             }
         }
