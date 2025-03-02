@@ -98,11 +98,7 @@ extern "x86-interrupt" fn keyboard_interrupt_handler(
                         print!("{}", character)
                     }
                 },
-                DecodedKey::RawKey(key) => {
-                    if input::add_key(scancode as usize) {
-                        //print!("{:?}", key)
-                    }
-                },
+                DecodedKey::RawKey(_) => {},
             }
         }
     }
