@@ -22,9 +22,16 @@ pub fn get_text() -> [usize; 255] {
 
 #[allow(dead_code)]
 pub fn add_key(character: usize) -> bool {
-    if character == 10 {
-        match_commands();
-        return false;
+    match character {
+        10 => {
+            match_commands();
+            return false;
+        }
+        8 => {
+            vga::remove_byte();
+            return false;
+        }
+        _ => {}
     }
 
     let mut text = CURRENT_TEXT.lock();

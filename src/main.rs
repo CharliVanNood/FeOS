@@ -1,7 +1,7 @@
 #![no_std]
 #![no_main]
 #![feature(custom_test_frameworks)]
-#![test_runner(FemDOS::test_runner)]
+#![test_runner(fem_dos::test_runner)]
 #![reexport_test_harness_main = "test_main"]
 
 mod vga;
@@ -22,7 +22,7 @@ pub extern "C" fn _start() -> ! {
 
     println!("Done testing!");
 
-    FemDOS::init();
+    fem_dos::init();
 
     println!("Done initializing components!");
 
@@ -30,18 +30,18 @@ pub extern "C" fn _start() -> ! {
     println!("| Yippee FemDOS has booted!          |");
     println!("--------------------------------------");
 
-    FemDOS::hlt_loop();
+    fem_dos::hlt_loop();
 }
 
 #[cfg(not(test))]
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
     println!("{}", info);
-    FemDOS::hlt_loop();
+    fem_dos::hlt_loop();
 }
 
 #[cfg(test)]
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
-    FemDOS::test_panic_handler(info)
+    fem_dos::test_panic_handler(info)
 }

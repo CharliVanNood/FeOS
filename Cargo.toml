@@ -1,5 +1,5 @@
 [package]
-name = "FemDOS"
+name = "fem_dos"
 version = "0.1.0"
 edition = "2018"
 

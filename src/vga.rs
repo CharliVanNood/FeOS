@@ -27,6 +27,10 @@ pub fn set_color(foreground: u8, background: u8) {
     WRITER.lock().set_color(foreground, background);
 }
 
+pub fn remove_byte() {
+    WRITER.lock().remove_byte();
+}
+
 pub fn clear_screen() {
     for _ in 0..100 {
         println!("");
@@ -124,6 +128,18 @@ impl Writer {
                 self.column_position += 1;
             }
         }
+    }
+    pub fn remove_byte(&mut self) {
+        self.column_position -= 1;
+
+        let row: usize = BUFFER_HEIGHT - 1;
+        let col = self.column_position;
+
+        let color_code = self.color_code;
+        self.buffer.chars[row][col].write(ScreenChar {
+            ascii_character: 0,
+            color_code,
+        });
     }
 
     fn new_line(&mut self) {
