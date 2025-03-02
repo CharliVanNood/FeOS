@@ -4,7 +4,11 @@ pub fn exec(input: [usize; 255]) {
     let tokenized_code = tokenize(input);
 
     for token in tokenized_code {
-        print!("{} ", token.0);
+        if token.1 == 0 {
+            print!("{} ", token.0);
+        } else {
+            print!("{}({}) ", token.0, token.1);
+        }
     }
     print!("\n");
 
@@ -15,7 +19,11 @@ fn run_tokens(tokens: [(i8, i32); 255]) {
     let tokens_after_math = run_tokens_math(tokens);
 
     for token in tokens_after_math {
-        print!("{} ", token.0);
+        if token.1 == 0 {
+            print!("{} ", token.0);
+        } else {
+            print!("{}({}) ", token.0, token.1);
+        }
     }
     print!("\n");
 }
@@ -81,6 +89,27 @@ fn match_token(token: [i8; 64]) -> (i8, i32) {
         if !is_command { continue; }
 
         return (tokens_keys[command_index], 0)
+    }
+
+    let mut is_int = true;
+    let mut int_len = 0;
+    for byte in token {
+        if byte == 0 { break; }
+        if byte < 48 || byte > 57 {
+            is_int = false;
+            break;
+        }
+        int_len += 1;
+    }
+    if is_int {
+        let mut int_val = 0;
+
+        for i in 0..int_len {
+            let byte_number = token[i] as i32 - 48;
+            int_val += byte_number * 10_i32.pow((int_len - i) as u32 - 1);
+        }
+
+        return (1, int_val)
     }
 
     (-1, 0)
