@@ -130,6 +130,7 @@ impl Writer {
         }
     }
     pub fn remove_byte(&mut self) {
+        if self.column_position == 0 { return }
         self.column_position -= 1;
 
         let row: usize = BUFFER_HEIGHT - 1;

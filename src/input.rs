@@ -28,7 +28,7 @@ pub fn add_key(character: usize) -> bool {
             return false;
         }
         8 => {
-            vga::remove_byte();
+            remove_byte();
             return false;
         }
         _ => {}
@@ -44,6 +44,17 @@ pub fn add_key(character: usize) -> bool {
     } else {
         println!("You're at the typing limit :c");
         false
+    }
+}
+
+fn remove_byte() {
+    let mut text = CURRENT_TEXT.lock();
+    let mut text_end = CURRENT_TEXT_END.lock();
+    
+    if *text_end > 0 {
+        *text_end -= 1;
+        text[*text_end] = 0;
+        vga::remove_byte();
     }
 }
 
