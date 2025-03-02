@@ -67,7 +67,7 @@ fn remove_byte() {
 
 #[allow(dead_code)]
 pub fn match_commands() {
-    let commands = ["info", "ping", "color", "help", "python"];
+    let commands = ["info", "ping", "color", "clear", "help", "python"];
 
     print!("\n");
 
@@ -90,12 +90,29 @@ pub fn match_commands() {
 
         if is_command {
             match command {
-                "info" => println!("We have some general commands like the amazing command [ping] and [color]"),
-                "help" => println!("We have some general commands like the amazing command [ping] and [color]"),
+                "info" => {
+                    println!("We have these general commands");
+                    println!("[ping]           - Just a simple test command");
+                    println!("[python] [code]  - Run python commands");
+                    println!("[color]          - Toggle the background color");
+                    println!("[clear]          - Clear the screen");
+                },
+                "help" => {
+                    println!("We have these general commands");
+                    println!("[ping]           - Just a simple test command");
+                    println!("[python] [code]  - Run python commands");
+                    println!("[color]          - Toggle the background color");
+                    println!("[clear]          - Clear the screen");
+                },
                 "ping" => println!("Pong"),
                 "color" => {
                     print!("Changed the color to black");
                     vga::set_color(13, 0);
+                    print!("\n");
+                },
+                "clear" => {
+                    vga::clear_screen();
+                    print!("The screen has been cleared");
                     print!("\n");
                 },
                 "python" => python::exec(command_written),
