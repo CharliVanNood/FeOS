@@ -4,14 +4,67 @@ pub fn exec(input: [usize; 255]) {
     let tokenized_code = tokenize(input);
 
     for token in tokenized_code {
-        print!("{} ", token);
+        print!("{} ", token.0);
+    }
+    print!("\n");
+
+    run_tokens(tokenized_code);
+}
+
+fn run_tokens(tokens: [(i8, i32); 255]) {
+    let tokens_after_math = run_tokens_math(tokens);
+
+    for token in tokens_after_math {
+        print!("{} ", token.0);
     }
     print!("\n");
 }
 
-fn match_token(token: [i8; 64]) -> i8 {
-    let tokens_val = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "print", "+", "-", "/", "*", "(", ")"];
-    let tokens_keys = [ 0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,       11,  12,  13,  14,  15,  16];
+fn run_tokens_math(tokens: [(i8, i32); 255]) -> [(i8, i32); 255] {
+    let mut tokens_return: [(i8, i32); 255] = [(0, 0); 255];
+    let mut tokens_return_index = 0;
+
+    for token_index in 0..255 {
+        let token = tokens[token_index];
+
+        match token.0 {
+            11 => {
+                println!("addition");
+            },
+            12 => {
+                println!("subtraction");
+            },
+            13 => {
+                println!("division");
+            },
+            14 => {
+                println!("multiplication");
+            },
+            _ => {
+                if token_index > 0 && token_index < 254 && tokens[token_index + 1].0 != 11 && tokens[token_index + 1].0 != 12 && tokens[token_index + 1].0 != 13 && 
+                    tokens[token_index + 1].0 != 14 && tokens[token_index - 1].0 != 11 && tokens[token_index - 1].0 != 12 && 
+                    tokens[token_index - 1].0 != 13 && tokens[token_index - 1].0 != 14 {
+                    tokens_return[tokens_return_index] = tokens[token_index];
+                    tokens_return_index += 1;
+                } else if token_index == 0 && tokens[token_index + 1].0 != 11 && tokens[token_index + 1].0 != 12 && tokens[token_index + 1].0 != 13 && 
+                    tokens[token_index + 1].0 != 14 {
+                    tokens_return[tokens_return_index] = tokens[token_index];
+                    tokens_return_index += 1;
+                } else if token_index == 254 && tokens[token_index - 1].0 != 11 && tokens[token_index - 1].0 != 12 && tokens[token_index - 1].0 != 13 && 
+                    tokens[token_index - 1].0 != 14 {
+                    tokens_return[tokens_return_index] = tokens[token_index];
+                    tokens_return_index += 1;
+                }
+            }
+        }
+    }
+
+    tokens_return
+}
+
+fn match_token(token: [i8; 64]) -> (i8, i32) {
+    let tokens_val = ["print", "+", "-", "/", "*", "(", ")"];
+    let tokens_keys  = [ 10,      11,  12,  13,  14,  15,  16];
 
     for command_index in 0..tokens_val.len() {
         let command = tokens_val[command_index];
@@ -27,14 +80,14 @@ fn match_token(token: [i8; 64]) -> i8 {
         }
         if !is_command { continue; }
 
-        return tokens_keys[command_index]
+        return (tokens_keys[command_index], 0)
     }
 
-    -1
+    (-1, 0)
 }
 
-fn tokenize(input: [usize; 255]) -> [i8; 255] {
-    let mut tokens: [i8; 255] = [0; 255];
+fn tokenize(input: [usize; 255]) -> [(i8, i32); 255] {
+    let mut tokens: [(i8, i32); 255] = [(0, 0); 255];
     let mut tokens_index = 0;
 
     println!("tokenizing code");

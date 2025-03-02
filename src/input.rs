@@ -32,9 +32,6 @@ pub fn add_key(character: usize) -> bool {
             remove_byte();
             return false;
         }
-        42 => {
-            return false;
-        }
         54 => {
             return false;
         }
