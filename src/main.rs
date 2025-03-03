@@ -8,6 +8,7 @@ mod vga;
 mod input;
 mod python;
 mod vec;
+mod filesystem;
 
 use core::panic::PanicInfo;
 
@@ -25,6 +26,8 @@ pub extern "C" fn _start() -> ! {
     println!("Done testing!");
 
     fem_dos::init();
+    let filesystem = filesystem::FileSystem::init();
+    filesystem.create_file();
 
     println!("Done initializing components!");
 

@@ -63,12 +63,13 @@ fn print_help_command() {
     println!("   [ping]           - Just a simple test command");
     println!("   [python] [code]  - Run python commands");
     println!("   [color]          - Toggle the background color");
-    println!("   [clear]          - Clear the screen\n");
+    println!("   [clear]          - Clear the screen");
+    println!("   [dir/ls]         - Show the items in the current directory\n");
 }
 
 #[allow(dead_code)]
 pub fn match_commands() {
-    let commands = ["info", "ping", "color", "clear", "help", "python"];
+    let commands = ["info", "ping", "color", "clear", "help", "python", "dir", "ls"];
 
     print!("\n");
 
@@ -112,6 +113,8 @@ pub fn match_commands() {
                     print!("\n");
                 },
                 "python" => python::exec(command_written),
+                "ls" => warnln!("No file system set up yet"),
+                "dir" => warnln!("No file system set up yet"),
                 _ => warnln!("This command is unimplemented :C")
             }
         }

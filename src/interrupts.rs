@@ -1,5 +1,6 @@
 use x86_64::structures::idt::{InterruptDescriptorTable, InterruptStackFrame, PageFaultErrorCode};
 use crate::hlt_loop;
+use crate::warnln;
 use lazy_static::lazy_static;
 use pic8259::ChainedPics;
 use spin;
@@ -7,7 +8,6 @@ use spin::Mutex;
 use pc_keyboard::{layouts, DecodedKey, HandleControl, Keyboard, ScancodeSet1};
 use x86_64::instructions::port::Port;
 
-use crate::println;
 use crate::print;
 use crate::gdt;
 use crate::input;
@@ -43,7 +43,7 @@ pub fn init_idt() {
 extern "x86-interrupt" fn breakpoint_handler(
     stack_frame: InterruptStackFrame)
 {
-    println!("EXCEPTION: BREAKPOINT\n{:#?}", stack_frame);
+    warnln!("EXCEPTION: BREAKPOINT\n{:#?}", stack_frame);
 }
 
 extern "x86-interrupt" fn double_fault_handler(
@@ -67,10 +67,10 @@ extern "x86-interrupt" fn page_fault_handler(
 ) {
     use x86_64::registers::control::Cr2;
 
-    println!("EXCEPTION: PAGE FAULT");
-    println!("Accessed Address: {:?}", Cr2::read());
-    println!("Error Code: {:?}", error_code);
-    println!("{:#?}", stack_frame);
+    warnln!("EXCEPTION: PAGE FAULT");
+    warnln!("Accessed Address: {:?}", Cr2::read());
+    warnln!("Error Code: {:?}", error_code);
+    warnln!("{:#?}", stack_frame);
     hlt_loop();
 }
 
