@@ -58,6 +58,14 @@ fn remove_byte() {
     }
 }
 
+fn print_help_command() {
+    println!("\nWe have these general commands");
+    println!("   [ping]           - Just a simple test command");
+    println!("   [python] [code]  - Run python commands");
+    println!("   [color]          - Toggle the background color");
+    println!("   [clear]          - Clear the screen\n");
+}
+
 #[allow(dead_code)]
 pub fn match_commands() {
     let commands = ["info", "ping", "color", "clear", "help", "python"];
@@ -85,20 +93,8 @@ pub fn match_commands() {
         if is_command {
             command_processed = true;
             match command {
-                "info" => {
-                    println!("\nWe have these general commands");
-                    println!("   [ping]           - Just a simple test command");
-                    println!("   [python] [code]  - Run python commands");
-                    println!("   [color]          - Toggle the background color");
-                    println!("   [clear]          - Clear the screen\n");
-                },
-                "help" => {
-                    println!("\nWe have these general commands");
-                    println!("   [ping]           - Just a simple test command");
-                    println!("   [python] [code]  - Run python commands");
-                    println!("   [color]          - Toggle the background color");
-                    println!("   [clear]          - Clear the screen\n");
-                },
+                "info" => print_help_command(),
+                "help" => print_help_command(),
                 "ping" => println!("Pong"),
                 "color" => {
                     print!("Changed the color to black");
