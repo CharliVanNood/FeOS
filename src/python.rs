@@ -33,8 +33,8 @@ fn run_tokens_fact(mut tokens: [(i8, i32); 255]) -> [(i8, i32); 255] {
         match token.0 {
             13 => {
                 if tokens[token_index - 1].0 == 1 && tokens[token_index + 1].0 == 1 {
-                    let operation_result = (1, tokens[token_index - 1].1 / tokens[token_index + 1].1);
-                    tokens[token_index - 1] = operation_result;
+                    let operation_result: f32 = tokens[token_index - 1].1 as f32 / tokens[token_index + 1].1 as f32 * 100.0;
+                    tokens[token_index - 1] = (2, operation_result as i32);
                     tokens = shift_list(tokens, token_index, 2);
                     token_index -= 1;
                 }
@@ -96,6 +96,9 @@ fn run_tokens_top(mut tokens: [(i8, i32); 255]) -> [(i8, i32); 255] {
             10 => {
                 if tokens[token_index + 1].0 == 1 {
                     println!("{}", tokens[token_index + 1].1);
+                    tokens = shift_list(tokens, token_index, 2);
+                } else if tokens[token_index + 1].0 == 2 {
+                    println!("{}", tokens[token_index + 1].1 as f32 / 100.0);
                     tokens = shift_list(tokens, token_index, 2);
                 }
             },
