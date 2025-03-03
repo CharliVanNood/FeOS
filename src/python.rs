@@ -23,7 +23,8 @@ fn run_tokens(tokens: [(i8, i32); 255]) {
     let tokens_after_fact = run_tokens_fact(tokens);
     let tokens_after_math = run_tokens_math(tokens_after_fact);
     let tokens_after_bool = run_tokens_boolean(tokens_after_math);
-    let _tokens_after_top = run_tokens_top(tokens_after_bool);
+    let tokens_after_first = run_tokens_first(tokens_after_bool);
+    let _tokens_after_last = run_tokens_last(tokens_after_first);
 }
 
 fn run_tokens_fact(mut tokens: [(i8, i32); 255]) -> [(i8, i32); 255] {
@@ -359,7 +360,34 @@ fn run_tokens_boolean(mut tokens: [(i8, i32); 255]) -> [(i8, i32); 255] {
     tokens
 }
 
-fn run_tokens_top(mut tokens: [(i8, i32); 255]) -> [(i8, i32); 255] {
+fn run_tokens_first(mut tokens: [(i8, i32); 255]) -> [(i8, i32); 255] {
+    let mut token_index = 0;
+    for _ in 0..255 {
+        let token = tokens[token_index];
+
+        match token.0 {
+            22 => {
+                if tokens[token_index + 1].0 == 3 {
+                    if tokens[token_index + 1].1 == 0 {
+                        tokens[token_index] = (3, 1);
+                    } else {
+                        tokens[token_index] = (3, 0);
+                    }
+                    tokens = shift_list(tokens, token_index + 1, 1);
+                } else {
+                    println!("This is an unsupported type conversion");
+                }
+            },
+            _ => {}
+        }
+
+        token_index += 1;
+    }
+
+    tokens
+}
+
+fn run_tokens_last(mut tokens: [(i8, i32); 255]) -> [(i8, i32); 255] {
     let mut token_index = 0;
     for _ in 0..255 {
         let token = tokens[token_index];
@@ -396,8 +424,8 @@ fn run_tokens_top(mut tokens: [(i8, i32); 255]) -> [(i8, i32); 255] {
 }
 
 fn match_token(token: [i8; 64]) -> (i8, i32) {
-    let tokens_val = ["print", "+", "-", "/", "*", "(", ")", "==", ">=", "<=", ">", "<", "true", "false"];
-    let tokens_keys  = [ 10,      11,  12,  13,  14,  15,  16,  17,   20,   21,   18,  19,  3,      3];
+    let tokens_val = ["print", "+", "-", "/", "*", "(", ")", "==", ">=", "<=", ">", "<", "true", "false", "not"];
+    let tokens_keys  = [ 10,      11,  12,  13,  14,  15,  16,  17,   20,   21,   18,  19,  3,      3,       22];
 
     for command_index in 0..tokens_val.len() {
         let command = tokens_val[command_index];
