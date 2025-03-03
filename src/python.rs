@@ -387,8 +387,8 @@ fn run_tokens_top(mut tokens: [(i8, i32); 255]) -> [(i8, i32); 255] {
 }
 
 fn match_token(token: [i8; 64]) -> (i8, i32) {
-    let tokens_val = ["print", "+", "-", "/", "*", "(", ")", "==", ">=", "<=", ">", "<"];
-    let tokens_keys  = [ 10,      11,  12,  13,  14,  15,  16,  17,   20,   21,   18,  19];
+    let tokens_val = ["print", "+", "-", "/", "*", "(", ")", "==", ">=", "<=", ">", "<", "true", "false"];
+    let tokens_keys  = [ 10,      11,  12,  13,  14,  15,  16,  17,   20,   21,   18,  19,  3,      3];
 
     for command_index in 0..tokens_val.len() {
         let command = tokens_val[command_index];
@@ -404,6 +404,7 @@ fn match_token(token: [i8; 64]) -> (i8, i32) {
         }
         if !is_command { continue; }
 
+        if tokens_val[command_index] == "true" { return (tokens_keys[command_index], 1) }
         return (tokens_keys[command_index], 0)
     }
 
