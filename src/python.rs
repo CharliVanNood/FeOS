@@ -63,19 +63,37 @@ fn run_tokens_math(mut tokens: [(i8, i32); 255]) -> [(i8, i32); 255] {
 
         match token.0 {
             11 => {
-                if tokens[token_index - 1].0 == 1 && tokens[token_index + 1].0 == 1 {
-                    let operation_result = (1, tokens[token_index - 1].1 + tokens[token_index + 1].1);
-                    tokens[token_index - 1] = operation_result;
-                    tokens = shift_list(tokens, token_index, 2);
-                    token_index -= 1;
+                match (tokens[token_index - 1].0, tokens[token_index + 1].0) {
+                    (1, 1) => {
+                        let operation_result = (1, tokens[token_index - 1].1 + tokens[token_index + 1].1);
+                        tokens[token_index - 1] = operation_result;
+                        tokens = shift_list(tokens, token_index, 2);
+                        token_index -= 1;
+                    }
+                    (2, 1) => {
+                        let operation_result = (2, tokens[token_index - 1].1 + tokens[token_index + 1].1 * 100);
+                        tokens[token_index - 1] = operation_result;
+                        tokens = shift_list(tokens, token_index, 2);
+                        token_index -= 1;
+                    }
+                    _ => println!("This is an unsupported type conversion")
                 }
             },
             12 => {
-                if tokens[token_index - 1].0 == 1 && tokens[token_index + 1].0 == 1 {
-                    let operation_result = (1, tokens[token_index - 1].1 - tokens[token_index + 1].1);
-                    tokens[token_index - 1] = operation_result;
-                    tokens = shift_list(tokens, token_index, 2);
-                    token_index -= 1;
+                match (tokens[token_index - 1].0, tokens[token_index + 1].0) {
+                    (1, 1) => {
+                        let operation_result = (1, tokens[token_index - 1].1 - tokens[token_index + 1].1);
+                        tokens[token_index - 1] = operation_result;
+                        tokens = shift_list(tokens, token_index, 2);
+                        token_index -= 1;
+                    }
+                    (2, 1) => {
+                        let operation_result = (2, tokens[token_index - 1].1 - tokens[token_index + 1].1 * 100);
+                        tokens[token_index - 1] = operation_result;
+                        tokens = shift_list(tokens, token_index, 2);
+                        token_index -= 1;
+                    }
+                    _ => println!("This is an unsupported type conversion")
                 }
             },
             _ => {}
