@@ -174,6 +174,15 @@ fn run_tokens_boolean(mut tokens: [(i8, i32); 255]) -> [(i8, i32); 255] {
                         tokens = shift_list(tokens, token_index, 2);
                         token_index -= 1;
                     }
+                    (3, 3) => {
+                        let mut operation_result = 0;
+                        if tokens[token_index - 1].1 == tokens[token_index + 1].1 {
+                            operation_result = 1;
+                        }
+                        tokens[token_index - 1] = (3, operation_result);
+                        tokens = shift_list(tokens, token_index, 2);
+                        token_index -= 1;
+                    }
                     _ => println!("This is an unsupported type conversion")
                 }
             },
