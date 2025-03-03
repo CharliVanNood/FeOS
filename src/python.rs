@@ -15,14 +15,14 @@ pub fn exec(input: [usize; 255]) {
     run_tokens(tokenized_code);
 }
 
-fn shift_list(list: [(i8, i32); 255], index: usize) -> [(i8, i32); 255] {
+fn shift_list(list: [(i8, i32); 255], index: usize, length: usize) -> [(i8, i32); 255] {
     let mut return_list = [(0, 0); 255];
 
     for i in 0..255 {
         if i < index {
             return_list[i] = list[i];
-        } else if i < 254 {
-            return_list[i] = list[i + 1];
+        } else if i < 255 - length {
+            return_list[i] = list[i + length];
         }
     }
 
@@ -63,8 +63,7 @@ fn run_tokens_fact(mut tokens: [(i8, i32); 255]) -> [(i8, i32); 255] {
                 if tokens[token_index - 1].0 == 1 && tokens[token_index + 1].0 == 1 {
                     let operation_result = (1, tokens[token_index - 1].1 / tokens[token_index + 1].1);
                     tokens[token_index - 1] = operation_result;
-                    tokens = shift_list(tokens, token_index);
-                    tokens = shift_list(tokens, token_index);
+                    tokens = shift_list(tokens, token_index, 2);
                     token_index -= 1;
                 }
             },
@@ -72,8 +71,7 @@ fn run_tokens_fact(mut tokens: [(i8, i32); 255]) -> [(i8, i32); 255] {
                 if tokens[token_index - 1].0 == 1 && tokens[token_index + 1].0 == 1 {
                     let operation_result = (1, tokens[token_index - 1].1 * tokens[token_index + 1].1);
                     tokens[token_index - 1] = operation_result;
-                    tokens = shift_list(tokens, token_index);
-                    tokens = shift_list(tokens, token_index);
+                    tokens = shift_list(tokens, token_index, 2);
                     token_index -= 1;
                 }
             },
@@ -96,8 +94,7 @@ fn run_tokens_math(mut tokens: [(i8, i32); 255]) -> [(i8, i32); 255] {
                 if tokens[token_index - 1].0 == 1 && tokens[token_index + 1].0 == 1 {
                     let operation_result = (1, tokens[token_index - 1].1 + tokens[token_index + 1].1);
                     tokens[token_index - 1] = operation_result;
-                    tokens = shift_list(tokens, token_index);
-                    tokens = shift_list(tokens, token_index);
+                    tokens = shift_list(tokens, token_index, 2);
                     token_index -= 1;
                 }
             },
@@ -105,8 +102,7 @@ fn run_tokens_math(mut tokens: [(i8, i32); 255]) -> [(i8, i32); 255] {
                 if tokens[token_index - 1].0 == 1 && tokens[token_index + 1].0 == 1 {
                     let operation_result = (1, tokens[token_index - 1].1 - tokens[token_index + 1].1);
                     tokens[token_index - 1] = operation_result;
-                    tokens = shift_list(tokens, token_index);
-                    tokens = shift_list(tokens, token_index);
+                    tokens = shift_list(tokens, token_index, 2);
                     token_index -= 1;
                 }
             },
