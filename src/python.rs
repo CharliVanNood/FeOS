@@ -76,6 +76,18 @@ fn run_tokens_math(mut tokens: [(i8, i32); 255]) -> [(i8, i32); 255] {
                         tokens = shift_list(tokens, token_index, 2);
                         token_index -= 1;
                     }
+                    (1, 2) => {
+                        let operation_result = (2, tokens[token_index - 1].1 * 100 + tokens[token_index + 1].1);
+                        tokens[token_index - 1] = operation_result;
+                        tokens = shift_list(tokens, token_index, 2);
+                        token_index -= 1;
+                    }
+                    (2, 2) => {
+                        let operation_result = (2, tokens[token_index - 1].1 + tokens[token_index + 1].1);
+                        tokens[token_index - 1] = operation_result;
+                        tokens = shift_list(tokens, token_index, 2);
+                        token_index -= 1;
+                    }
                     _ => println!("This is an unsupported type conversion")
                 }
             },
@@ -89,6 +101,18 @@ fn run_tokens_math(mut tokens: [(i8, i32); 255]) -> [(i8, i32); 255] {
                     }
                     (2, 1) => {
                         let operation_result = (2, tokens[token_index - 1].1 - tokens[token_index + 1].1 * 100);
+                        tokens[token_index - 1] = operation_result;
+                        tokens = shift_list(tokens, token_index, 2);
+                        token_index -= 1;
+                    }
+                    (1, 2) => {
+                        let operation_result = (2, tokens[token_index - 1].1 * 100 - tokens[token_index + 1].1);
+                        tokens[token_index - 1] = operation_result;
+                        tokens = shift_list(tokens, token_index, 2);
+                        token_index -= 1;
+                    }
+                    (2, 2) => {
+                        let operation_result = (2, tokens[token_index - 1].1 - tokens[token_index + 1].1);
                         tokens[token_index - 1] = operation_result;
                         tokens = shift_list(tokens, token_index, 2);
                         token_index -= 1;
