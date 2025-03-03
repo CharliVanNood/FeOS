@@ -1,5 +1,4 @@
-use crate::println;
-use crate::print;
+use crate::{println, print, warnln};
 use crate::vga;
 use crate::python;
 use spin::Mutex;
@@ -65,6 +64,7 @@ pub fn match_commands() {
 
     print!("\n");
 
+    let mut command_processed = false;
     for command in commands {
         let command_bytes = command.bytes();
         let command_length = command_bytes.len();
@@ -83,25 +83,31 @@ pub fn match_commands() {
         }
 
         if is_command {
+            command_processed = true;
             match command {
                 "info" => {
-                    println!("We have these general commands");
-                    println!("[ping]           - Just a simple test command");
-                    println!("[python] [code]  - Run python commands");
-                    println!("[color]          - Toggle the background color");
-                    println!("[clear]          - Clear the screen");
+                    println!("\nWe have these general commands");
+                    println!("   [ping]           - Just a simple test command");
+                    println!("   [python] [code]  - Run python commands");
+                    println!("   [color]          - Toggle the background color");
+                    println!("   [clear]          - Clear the screen\n");
                 },
                 "help" => {
-                    println!("We have these general commands");
-                    println!("[ping]           - Just a simple test command");
-                    println!("[python] [code]  - Run python commands");
-                    println!("[color]          - Toggle the background color");
-                    println!("[clear]          - Clear the screen");
+                    println!("\nWe have these general commands");
+                    println!("   [ping]           - Just a simple test command");
+                    println!("   [python] [code]  - Run python commands");
+                    println!("   [color]          - Toggle the background color");
+                    println!("   [clear]          - Clear the screen\n");
                 },
                 "ping" => println!("Pong"),
                 "color" => {
                     print!("Changed the color to black");
-                    vga::set_color(13, 0);
+                    let color = vga::get_color();
+                    if color == 15 {
+                        vga::set_color(13, 0);
+                    } else {
+                        vga::set_color(13, 15);
+                    }
                     print!("\n");
                 },
                 "clear" => {
@@ -110,9 +116,12 @@ pub fn match_commands() {
                     print!("\n");
                 },
                 "python" => python::exec(command_written),
-                _ => println!("This command is unimplemented :C")
+                _ => warnln!("This command is unimplemented :C")
             }
         }
+    }
+    if !command_processed {
+        warnln!("This command does not seem to exist :C");
     }
 
     print!("-> ");

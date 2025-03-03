@@ -11,9 +11,20 @@ macro_rules! print {
 }
 
 #[macro_export]
+macro_rules! warn {
+    ($($arg:tt)*) => ($crate::vga::_warn(format_args!($($arg)*)));
+}
+
+#[macro_export]
 macro_rules! println {
     () => ($crate::print!("\n"));
     ($($arg:tt)*) => ($crate::print!("{}\n", format_args!($($arg)*)));
+}
+
+#[macro_export]
+macro_rules! warnln {
+    () => ($crate::warn!("\n"));
+    ($($arg:tt)*) => ($crate::warn!("{}\n", format_args!($($arg)*)));
 }
 
 #[doc(hidden)]
@@ -23,6 +34,21 @@ pub fn _print(args: fmt::Arguments) {
     });
 }
 
+#[doc(hidden)]
+pub fn _warn(args: fmt::Arguments) {
+    interrupts::without_interrupts(|| {
+        let color = {
+            WRITER.lock().back_color
+        };
+        WRITER.lock().set_color(4, color);
+        WRITER.lock().write_fmt(args).unwrap();
+        WRITER.lock().set_color(13, color);
+    });
+}
+
+pub fn get_color() -> u8 {
+    WRITER.lock().back_color
+}
 pub fn set_color(foreground: u8, background: u8) {
     WRITER.lock().set_color(foreground, background);
 }
@@ -49,6 +75,8 @@ lazy_static! {
         column_position: 0,
         color_code: ColorCode::new_color(Color::Pink, Color::White),
         buffer: unsafe { &mut *(0xb8000 as *mut Buffer) },
+        text_color: 13,
+        back_color: 15
     });
 }
 
@@ -106,6 +134,8 @@ pub struct Writer {
     column_position: usize,
     color_code: ColorCode,
     buffer: &'static mut Buffer,
+    text_color: u8,
+    back_color: u8,
 }
 
 impl Writer {
@@ -175,6 +205,8 @@ impl Writer {
     }
 
     pub fn set_color(&mut self, foreground: u8, background: u8) {
+        self.text_color = foreground;
+        self.back_color = background;
         self.color_code = ColorCode::new_base(foreground, background);
     }
 }

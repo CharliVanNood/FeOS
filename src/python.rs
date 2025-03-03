@@ -1,4 +1,4 @@
-use crate::println;
+use crate::{println, warnln};
 
 pub fn exec(input: [usize; 255]) {
     let tokenized_code = tokenize(input);
@@ -22,9 +22,9 @@ fn shift_list(list: [(i8, i32); 255], index: usize, length: usize) -> [(i8, i32)
 fn run_tokens(tokens: [(i8, i32); 255]) {
     let tokens_after_fact = run_tokens_fact(tokens);
     let tokens_after_math = run_tokens_math(tokens_after_fact);
-    let tokens_after_bool = run_tokens_boolean(tokens_after_math);
-    let tokens_after_first = run_tokens_first(tokens_after_bool);
-    let _tokens_after_last = run_tokens_last(tokens_after_first);
+    let tokens_after_first = run_tokens_first(tokens_after_math);
+    let tokens_after_bool = run_tokens_boolean(tokens_after_first);
+    let _tokens_after_last = run_tokens_last(tokens_after_bool);
 }
 
 fn run_tokens_fact(mut tokens: [(i8, i32); 255]) -> [(i8, i32); 255] {
@@ -90,7 +90,7 @@ fn run_tokens_math(mut tokens: [(i8, i32); 255]) -> [(i8, i32); 255] {
                         tokens = shift_list(tokens, token_index, 2);
                         token_index -= 1;
                     }
-                    _ => println!("This is an unsupported type conversion")
+                    _ => warnln!("This is an unsupported type conversion")
                 }
             },
             12 => {
@@ -119,7 +119,7 @@ fn run_tokens_math(mut tokens: [(i8, i32); 255]) -> [(i8, i32); 255] {
                         tokens = shift_list(tokens, token_index, 2);
                         token_index -= 1;
                     }
-                    _ => println!("This is an unsupported type conversion")
+                    _ => warnln!("This is an unsupported type conversion")
                 }
             },
             _ => {}
@@ -184,7 +184,7 @@ fn run_tokens_boolean(mut tokens: [(i8, i32); 255]) -> [(i8, i32); 255] {
                         tokens = shift_list(tokens, token_index, 2);
                         token_index -= 1;
                     }
-                    _ => println!("This is an unsupported type conversion")
+                    _ => warnln!("This is an unsupported type conversion")
                 }
             },
             18 => {
@@ -225,7 +225,7 @@ fn run_tokens_boolean(mut tokens: [(i8, i32); 255]) -> [(i8, i32); 255] {
                         tokens = shift_list(tokens, token_index, 2);
                         token_index -= 1;
                     }
-                    _ => println!("This is an unsupported type conversion")
+                    _ => warnln!("This is an unsupported type conversion")
                 }
             },
             19 => {
@@ -266,7 +266,7 @@ fn run_tokens_boolean(mut tokens: [(i8, i32); 255]) -> [(i8, i32); 255] {
                         tokens = shift_list(tokens, token_index, 2);
                         token_index -= 1;
                     }
-                    _ => println!("This is an unsupported type conversion")
+                    _ => warnln!("This is an unsupported type conversion")
                 }
             },
             20 => {
@@ -307,7 +307,7 @@ fn run_tokens_boolean(mut tokens: [(i8, i32); 255]) -> [(i8, i32); 255] {
                         tokens = shift_list(tokens, token_index, 2);
                         token_index -= 1;
                     }
-                    _ => println!("This is an unsupported type conversion")
+                    _ => warnln!("This is an unsupported type conversion")
                 }
             },
             21 => {
@@ -348,7 +348,7 @@ fn run_tokens_boolean(mut tokens: [(i8, i32); 255]) -> [(i8, i32); 255] {
                         tokens = shift_list(tokens, token_index, 2);
                         token_index -= 1;
                     }
-                    _ => println!("This is an unsupported type conversion")
+                    _ => warnln!("This is an unsupported type conversion")
                 }
             },
             _ => {}
@@ -375,7 +375,7 @@ fn run_tokens_first(mut tokens: [(i8, i32); 255]) -> [(i8, i32); 255] {
                     }
                     tokens = shift_list(tokens, token_index + 1, 1);
                 } else {
-                    println!("This is an unsupported type conversion");
+                    warnln!("This is an unsupported type conversion");
                 }
             },
             _ => {}
@@ -411,7 +411,28 @@ fn run_tokens_last(mut tokens: [(i8, i32); 255]) -> [(i8, i32); 255] {
                         }
                         tokens = shift_list(tokens, token_index, 2);
                     }
-                    _ => println!("This is an unsupported type conversion")
+                    _ => warnln!("This is an unsupported type conversion")
+                }
+            },
+            23 => {
+                match tokens[token_index + 1].0 {
+                    1 => {
+                        warnln!("{}", tokens[token_index + 1].1);
+                        tokens = shift_list(tokens, token_index, 2);
+                    }
+                    2 => {
+                        warnln!("{}", tokens[token_index + 1].1 as f32 / 100.0);
+                        tokens = shift_list(tokens, token_index, 2);
+                    }
+                    3 => {
+                        if tokens[token_index + 1].1 == 0 {
+                            warnln!("false");
+                        } else {
+                            warnln!("true");
+                        }
+                        tokens = shift_list(tokens, token_index, 2);
+                    }
+                    _ => warnln!("This is an unsupported type conversion")
                 }
             },
             _ => {}
@@ -424,8 +445,8 @@ fn run_tokens_last(mut tokens: [(i8, i32); 255]) -> [(i8, i32); 255] {
 }
 
 fn match_token(token: [i8; 64]) -> (i8, i32) {
-    let tokens_val = ["print", "+", "-", "/", "*", "(", ")", "==", ">=", "<=", ">", "<", "true", "false", "not"];
-    let tokens_keys  = [ 10,      11,  12,  13,  14,  15,  16,  17,   20,   21,   18,  19,  3,      3,       22];
+    let tokens_val = ["print", "+", "-", "/", "*", "(", ")", "==", ">=", "<=", ">", "<", "true", "false", "not", "warn"];
+    let tokens_keys  = [ 10,      11,  12,  13,  14,  15,  16,  17,   20,   21,   18,  19,  3,      3,       22,    23];
 
     for command_index in 0..tokens_val.len() {
         let command = tokens_val[command_index];
