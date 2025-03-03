@@ -1,27 +1,17 @@
-use crate::{print, println};
+use crate::println;
 
 pub fn exec(input: [usize; 255]) {
     let tokenized_code = tokenize(input);
-
-    for token in tokenized_code {
-        if token.1 == 0 {
-            print!("{} ", token.0);
-        } else {
-            print!("{}({}) ", token.0, token.1);
-        }
-    }
-    print!("\n");
-
     run_tokens(tokenized_code);
 }
 
 fn shift_list(list: [(i8, i32); 255], index: usize, length: usize) -> [(i8, i32); 255] {
     let mut return_list = [(0, 0); 255];
 
-    for i in 0..255 {
+    for i in 0..255 - length {
         if i < index {
             return_list[i] = list[i];
-        } else if i < 255 - length {
+        } else {
             return_list[i] = list[i + length];
         }
     }
@@ -31,26 +21,8 @@ fn shift_list(list: [(i8, i32); 255], index: usize, length: usize) -> [(i8, i32)
 
 fn run_tokens(tokens: [(i8, i32); 255]) {
     let tokens_after_fact = run_tokens_fact(tokens);
-
-    for token in tokens_after_fact {
-        if token.1 == 0 {
-            print!("{} ", token.0);
-        } else {
-            print!("{}({}) ", token.0, token.1);
-        }
-    }
-    print!("\n");
-
     let tokens_after_math = run_tokens_math(tokens_after_fact);
-
-    for token in tokens_after_math {
-        if token.1 == 0 {
-            print!("{} ", token.0);
-        } else {
-            print!("{}({}) ", token.0, token.1);
-        }
-    }
-    print!("\n");
+    let _tokens_after_top = run_tokens_top(tokens_after_math);
 }
 
 fn run_tokens_fact(mut tokens: [(i8, i32); 255]) -> [(i8, i32); 255] {
@@ -115,6 +87,27 @@ fn run_tokens_math(mut tokens: [(i8, i32); 255]) -> [(i8, i32); 255] {
     tokens
 }
 
+fn run_tokens_top(mut tokens: [(i8, i32); 255]) -> [(i8, i32); 255] {
+    let mut token_index = 0;
+    for _ in 0..255 {
+        let token = tokens[token_index];
+
+        match token.0 {
+            10 => {
+                if tokens[token_index + 1].0 == 1 {
+                    println!("{}", tokens[token_index + 1].1);
+                    tokens = shift_list(tokens, token_index, 2);
+                }
+            },
+            _ => {}
+        }
+
+        token_index += 1;
+    }
+
+    tokens
+}
+
 fn match_token(token: [i8; 64]) -> (i8, i32) {
     let tokens_val = ["print", "+", "-", "/", "*", "(", ")"];
     let tokens_keys  = [ 10,      11,  12,  13,  14,  15,  16];
@@ -163,8 +156,6 @@ fn match_token(token: [i8; 64]) -> (i8, i32) {
 fn tokenize(input: [usize; 255]) -> [(i8, i32); 255] {
     let mut tokens: [(i8, i32); 255] = [(0, 0); 255];
     let mut tokens_index = 0;
-
-    println!("tokenizing code");
 
     // this creates a max token length of 64
     let mut temp_token = [0; 64];

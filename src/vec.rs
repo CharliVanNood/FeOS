@@ -1,0 +1,6 @@
+/*struct Vec {
+
+}
+impl Vec {
+
+}*/
