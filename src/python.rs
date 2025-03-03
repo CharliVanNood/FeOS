@@ -174,7 +174,171 @@ fn run_tokens_boolean(mut tokens: [(i8, i32); 255]) -> [(i8, i32); 255] {
                         tokens = shift_list(tokens, token_index, 2);
                         token_index -= 1;
                     }
-                    _ => {}
+                    _ => println!("This is an unsupported type conversion")
+                }
+            },
+            18 => {
+                match (tokens[token_index - 1].0, tokens[token_index + 1].0) {
+                    (1, 1) => {
+                        let mut operation_result = 0;
+                        if tokens[token_index - 1].1 > tokens[token_index + 1].1 {
+                            operation_result = 1;
+                        }
+                        tokens[token_index - 1] = (3, operation_result);
+                        tokens = shift_list(tokens, token_index, 2);
+                        token_index -= 1;
+                    }
+                    (1, 2) => {
+                        let mut operation_result = 0;
+                        if tokens[token_index - 1].1 * 100 > tokens[token_index + 1].1 {
+                            operation_result = 1;
+                        }
+                        tokens[token_index - 1] = (3, operation_result);
+                        tokens = shift_list(tokens, token_index, 2);
+                        token_index -= 1;
+                    }
+                    (2, 1) => {
+                        let mut operation_result = 0;
+                        if tokens[token_index - 1].1 > tokens[token_index + 1].1 * 100 {
+                            operation_result = 1;
+                        }
+                        tokens[token_index - 1] = (3, operation_result);
+                        tokens = shift_list(tokens, token_index, 2);
+                        token_index -= 1;
+                    }
+                    (2, 2) => {
+                        let mut operation_result = 0;
+                        if tokens[token_index - 1].1 > tokens[token_index + 1].1 {
+                            operation_result = 1;
+                        }
+                        tokens[token_index - 1] = (3, operation_result);
+                        tokens = shift_list(tokens, token_index, 2);
+                        token_index -= 1;
+                    }
+                    _ => println!("This is an unsupported type conversion")
+                }
+            },
+            19 => {
+                match (tokens[token_index - 1].0, tokens[token_index + 1].0) {
+                    (1, 1) => {
+                        let mut operation_result = 0;
+                        if tokens[token_index - 1].1 < tokens[token_index + 1].1 {
+                            operation_result = 1;
+                        }
+                        tokens[token_index - 1] = (3, operation_result);
+                        tokens = shift_list(tokens, token_index, 2);
+                        token_index -= 1;
+                    }
+                    (1, 2) => {
+                        let mut operation_result = 0;
+                        if tokens[token_index - 1].1 * 100 < tokens[token_index + 1].1 {
+                            operation_result = 1;
+                        }
+                        tokens[token_index - 1] = (3, operation_result);
+                        tokens = shift_list(tokens, token_index, 2);
+                        token_index -= 1;
+                    }
+                    (2, 1) => {
+                        let mut operation_result = 0;
+                        if tokens[token_index - 1].1 < tokens[token_index + 1].1 * 100 {
+                            operation_result = 1;
+                        }
+                        tokens[token_index - 1] = (3, operation_result);
+                        tokens = shift_list(tokens, token_index, 2);
+                        token_index -= 1;
+                    }
+                    (2, 2) => {
+                        let mut operation_result = 0;
+                        if tokens[token_index - 1].1 < tokens[token_index + 1].1 {
+                            operation_result = 1;
+                        }
+                        tokens[token_index - 1] = (3, operation_result);
+                        tokens = shift_list(tokens, token_index, 2);
+                        token_index -= 1;
+                    }
+                    _ => println!("This is an unsupported type conversion")
+                }
+            },
+            20 => {
+                match (tokens[token_index - 1].0, tokens[token_index + 1].0) {
+                    (1, 1) => {
+                        let mut operation_result = 0;
+                        if tokens[token_index - 1].1 >= tokens[token_index + 1].1 {
+                            operation_result = 1;
+                        }
+                        tokens[token_index - 1] = (3, operation_result);
+                        tokens = shift_list(tokens, token_index, 2);
+                        token_index -= 1;
+                    }
+                    (1, 2) => {
+                        let mut operation_result = 0;
+                        if tokens[token_index - 1].1 * 100 >= tokens[token_index + 1].1 {
+                            operation_result = 1;
+                        }
+                        tokens[token_index - 1] = (3, operation_result);
+                        tokens = shift_list(tokens, token_index, 2);
+                        token_index -= 1;
+                    }
+                    (2, 1) => {
+                        let mut operation_result = 0;
+                        if tokens[token_index - 1].1 >= tokens[token_index + 1].1 * 100 {
+                            operation_result = 1;
+                        }
+                        tokens[token_index - 1] = (3, operation_result);
+                        tokens = shift_list(tokens, token_index, 2);
+                        token_index -= 1;
+                    }
+                    (2, 2) => {
+                        let mut operation_result = 0;
+                        if tokens[token_index - 1].1 >= tokens[token_index + 1].1 {
+                            operation_result = 1;
+                        }
+                        tokens[token_index - 1] = (3, operation_result);
+                        tokens = shift_list(tokens, token_index, 2);
+                        token_index -= 1;
+                    }
+                    _ => println!("This is an unsupported type conversion")
+                }
+            },
+            21 => {
+                match (tokens[token_index - 1].0, tokens[token_index + 1].0) {
+                    (1, 1) => {
+                        let mut operation_result = 0;
+                        if tokens[token_index - 1].1 <= tokens[token_index + 1].1 {
+                            operation_result = 1;
+                        }
+                        tokens[token_index - 1] = (3, operation_result);
+                        tokens = shift_list(tokens, token_index, 2);
+                        token_index -= 1;
+                    }
+                    (1, 2) => {
+                        let mut operation_result = 0;
+                        if tokens[token_index - 1].1 * 100 <= tokens[token_index + 1].1 {
+                            operation_result = 1;
+                        }
+                        tokens[token_index - 1] = (3, operation_result);
+                        tokens = shift_list(tokens, token_index, 2);
+                        token_index -= 1;
+                    }
+                    (2, 1) => {
+                        let mut operation_result = 0;
+                        if tokens[token_index - 1].1 <= tokens[token_index + 1].1 * 100 {
+                            operation_result = 1;
+                        }
+                        tokens[token_index - 1] = (3, operation_result);
+                        tokens = shift_list(tokens, token_index, 2);
+                        token_index -= 1;
+                    }
+                    (2, 2) => {
+                        let mut operation_result = 0;
+                        if tokens[token_index - 1].1 <= tokens[token_index + 1].1 {
+                            operation_result = 1;
+                        }
+                        tokens[token_index - 1] = (3, operation_result);
+                        tokens = shift_list(tokens, token_index, 2);
+                        token_index -= 1;
+                    }
+                    _ => println!("This is an unsupported type conversion")
                 }
             },
             _ => {}
@@ -223,8 +387,8 @@ fn run_tokens_top(mut tokens: [(i8, i32); 255]) -> [(i8, i32); 255] {
 }
 
 fn match_token(token: [i8; 64]) -> (i8, i32) {
-    let tokens_val = ["print", "+", "-", "/", "*", "(", ")", "=="];
-    let tokens_keys  = [ 10,      11,  12,  13,  14,  15,  16,  17];
+    let tokens_val = ["print", "+", "-", "/", "*", "(", ")", "==", ">=", "<=", ">", "<"];
+    let tokens_keys  = [ 10,      11,  12,  13,  14,  15,  16,  17,   20,   21,   18,  19];
 
     for command_index in 0..tokens_val.len() {
         let command = tokens_val[command_index];
@@ -284,7 +448,7 @@ fn match_token(token: [i8; 64]) -> (i8, i32) {
             if token[i] == 46 {
                 continue;
             }
-            if i > 1 && token[i - 3] == 46 { break; }
+            if i > 2 && token[i - 3] == 46 { break; }
             let byte_number = token[i] as i32 - 48;
             if i < dec_place { int_val += byte_number * 10_i32.pow((int_len - i) as u32 - decimals); }
             else { int_val += byte_number * 10_i32.pow((int_len - i) as u32 - (decimals - 1)); }
