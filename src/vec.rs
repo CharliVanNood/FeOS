@@ -1,6 +1,6 @@
-/*struct Vec {
-
+pub struct Vec {
+    
 }
 impl Vec {
 
-}*/
+}
