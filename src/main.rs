@@ -6,7 +6,7 @@
 
 mod vga;
 mod input;
-mod python;
+mod applications;
 mod vec;
 mod filesystem;
 

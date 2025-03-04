@@ -1,6 +1,6 @@
 use crate::{println, print, warnln};
 use crate::vga;
-use crate::python;
+use crate::applications;
 use spin::Mutex;
 
 lazy_static::lazy_static! {
@@ -112,7 +112,7 @@ pub fn match_commands() {
                     print!("The screen has been cleared");
                     print!("\n");
                 },
-                "python" => python::exec(command_written),
+                "python" => applications::python::exec(command_written),
                 "ls" => warnln!("No file system set up yet"),
                 "dir" => warnln!("No file system set up yet"),
                 _ => warnln!("This command is unimplemented :C")

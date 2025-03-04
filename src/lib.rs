@@ -9,7 +9,7 @@ pub mod vga;
 pub mod interrupts;
 pub mod gdt;
 pub mod input;
-pub mod python;
+pub mod applications;
 pub mod filesystem;
 
 use core::panic::PanicInfo;
