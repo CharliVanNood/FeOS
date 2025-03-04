@@ -527,7 +527,7 @@ fn tokenize(input: [usize; 255]) -> [(i8, i32); 255] {
     let mut temp_token = [0; 64];
     let mut temp_token_index = 0;
 
-    for char_index in 7..255 {
+    for char_index in 5..255 {
         let char = input[char_index];
         if char == 0 { continue; }
         if char == 32 {

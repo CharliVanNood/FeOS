@@ -26,8 +26,8 @@ pub extern "C" fn _start() -> ! {
     println!("Done testing!");
 
     fem_dos::init();
-    //let mut filesystem = filesystem::FileSystem::init();
-    //filesystem.create_file(0, (0, 128), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+    let mut filesystem = filesystem::FileSystem::init();
+    filesystem.create_file(0, (0, 128), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
 
     println!("Done initializing components!");
 
@@ -41,7 +41,7 @@ pub extern "C" fn _start() -> ! {
 #[cfg(not(test))]
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
-    println!("{}", info);
+    warnln!("{}", info);
     fem_dos::hlt_loop();
 }
 
