@@ -12,11 +12,21 @@ impl FileSystem {
         }
     }
 
-    pub fn create_file(&mut self, parent: i32, range: (u32, u32), filename: [u8; 20]) {
-        self.files.add((self.files.len() as i32, parent, range, filename));
+    pub fn create_file(&mut self, parent: u32, range: (u32, u32), filename: [u8; 20]) {
+        self.files.add((self.files.len() as u32, parent, range, filename));
     }
 
     pub fn set_dir(&mut self, dir: i32) {
         self.directory = dir;
+    }
+
+    // this being a list of 20 is the max amount of files that will be returned, why 20? sounds good to me tbh :3
+    pub fn get_file_from_parent(parent: i32) -> [(u32, u32, (u32, u32), [u8; 20]); 20] {
+        let files_returning = [(0, 0, (0, 1), [1; 20]); 20];
+        files_returning
+    }
+
+    pub fn print_current_dir_files() {
+        
     }
 }
