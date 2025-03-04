@@ -61,7 +61,7 @@ fn remove_byte() {
 fn print_help_command() {
     println!("\nWe have these general commands");
     println!("   [ping]           - Just a simple test command");
-    println!("   [python] [code]  - Run python commands");
+    println!("   [femc] [code]    - Run femc commands");
     println!("   [color]          - Toggle the background color");
     println!("   [clear]          - Clear the screen");
     println!("   [dir/ls]         - Show the items in the current directory\n");
@@ -69,7 +69,7 @@ fn print_help_command() {
 
 #[allow(dead_code)]
 pub fn match_commands() {
-    let commands = ["info", "ping", "color", "clear", "help", "python", "dir", "ls"];
+    let commands = ["info", "ping", "color", "clear", "help", "femc", "dir", "ls"];
 
     print!("\n");
 
@@ -112,7 +112,7 @@ pub fn match_commands() {
                     print!("The screen has been cleared");
                     print!("\n");
                 },
-                "python" => applications::python::exec(command_written),
+                "femc" => applications::femc::exec(command_written),
                 "ls" => warnln!("No file system set up yet"),
                 "dir" => warnln!("No file system set up yet"),
                 _ => warnln!("This command is unimplemented :C")

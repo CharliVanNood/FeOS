@@ -11,6 +11,7 @@ pub mod gdt;
 pub mod input;
 pub mod applications;
 pub mod filesystem;
+pub mod vec;
 
 use core::panic::PanicInfo;
 
