@@ -1,6 +1,7 @@
-use crate::{println, print, warnln};
+use crate::{print, println, warnln};
 use crate::vga;
 use crate::applications;
+use crate::filesystem;
 use spin::Mutex;
 
 lazy_static::lazy_static! {
@@ -60,16 +61,17 @@ fn remove_byte() {
 
 fn print_help_command() {
     println!("\nWe have these general commands");
-    println!("   [ping]           - Just a simple test command");
-    println!("   [femc] [code]    - Run femc commands");
-    println!("   [color]          - Toggle the background color");
-    println!("   [clear]          - Clear the screen");
-    println!("   [dir/ls]         - Show the items in the current directory\n");
+    println!("   [ping]             - Just a simple test command");
+    println!("   [femc] [code]      - Run femc commands");
+    println!("   [color]            - Toggle the background color");
+    println!("   [clear]            - Clear the screen");
+    println!("   [fl]               - Show the items in the current flow");
+    println!("   [go] [flow name]   - Change to a different flow\n");
 }
 
 #[allow(dead_code)]
 pub fn match_commands() {
-    let commands = ["info", "ping", "color", "clear", "help", "femc", "dir", "ls"];
+    let commands = ["info", "ping", "color", "clear", "help", "femc", "fl", "go"];
 
     print!("\n");
 
@@ -113,8 +115,11 @@ pub fn match_commands() {
                     print!("\n");
                 },
                 "femc" => applications::femc::exec(command_written),
-                "ls" => warnln!("No file system set up yet"),
-                "dir" => warnln!("No file system set up yet"),
+                "fl" => filesystem::print_current_dir_files(),
+                "go" => {
+                    let name = [0; 20];
+                    filesystem::change_flow(name);
+                },
                 _ => warnln!("This command is unimplemented :C")
             }
         }

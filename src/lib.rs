@@ -12,7 +12,7 @@ pub mod input;
 pub mod applications;
 pub mod filesystem;
 pub mod vec;
-pub mod disk;
+//pub mod disk;
 
 use core::panic::PanicInfo;
 
@@ -74,6 +74,11 @@ pub fn hlt_loop() -> ! {
 }
 
 pub fn init() {
+    filesystem::create_file(-1, (0, 100), "root");
+    filesystem::create_file(1, (100, 101), "file1");
+    filesystem::create_file(1, (101, 102), "file2");
+    filesystem::create_file(1, (102, 103), "file3");
+
     println!("Enabling Global Descriptor Table");
     gdt::init();
     println!("Enabling CPU interrupts");

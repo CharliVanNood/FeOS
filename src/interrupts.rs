@@ -11,7 +11,7 @@ use x86_64::instructions::port::Port;
 use crate::print;
 use crate::gdt;
 use crate::input;
-use crate::disk;
+//use crate::disk;
 
 pub const PIC_1_OFFSET: u8 = 32;
 pub const PIC_2_OFFSET: u8 = PIC_1_OFFSET + 8;
@@ -65,10 +65,6 @@ extern "x86-interrupt" fn timer_interrupt_handler(
 
 extern "x86-interrupt" fn ata_irq_handler(_stack_frame: InterruptStackFrame) {
     warnln!("ATA Interrupt!");
-
-    unsafe {
-        disk::outb(0x20, 0x20);
-    }
 }
 
 extern "x86-interrupt" fn page_fault_handler(
