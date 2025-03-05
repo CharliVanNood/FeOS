@@ -9,6 +9,7 @@ mod input;
 mod applications;
 mod vec;
 mod filesystem;
+mod disk;
 
 use core::panic::PanicInfo;
 
@@ -26,6 +27,8 @@ pub extern "C" fn _start() -> ! {
     println!("Done testing!");
 
     fem_dos::init();
+    // dissabled, this is not working for me yet
+    // disk::check_mbr();
     let mut filesystem = filesystem::FileSystem::init();
     filesystem.create_file(0, (0, 128), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
 

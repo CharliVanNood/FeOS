@@ -12,6 +12,7 @@ pub mod input;
 pub mod applications;
 pub mod filesystem;
 pub mod vec;
+pub mod disk;
 
 use core::panic::PanicInfo;
 
@@ -73,8 +74,11 @@ pub fn hlt_loop() -> ! {
 }
 
 pub fn init() {
+    println!("Enabling Global Descriptor Table");
     gdt::init();
+    println!("Enabling CPU interrupts");
     interrupts::init_idt();
     unsafe { interrupts::PICS.lock().initialize() };
     x86_64::instructions::interrupts::enable();
+    println!("Interrupts have been initialized :D");
 }

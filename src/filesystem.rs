@@ -1,4 +1,4 @@
-use crate::vec::FileVec;
+use crate::{println, vec::FileVec};
 
 pub struct FileSystem {
     files: FileVec,
@@ -6,6 +6,7 @@ pub struct FileSystem {
 }
 impl FileSystem {
     pub fn init() -> Self {
+        println!("Initializing the FileSystem");
         Self {
             files: FileVec::new(),
             directory: 0
@@ -14,6 +15,7 @@ impl FileSystem {
 
     pub fn create_file(&mut self, parent: u32, range: (u32, u32), filename: [u8; 20]) {
         self.files.add((self.files.len() as u32, parent, range, filename));
+        println!("Created a new file with id {}", self.files.len() as u32 - 1);
     }
 
     pub fn set_dir(&mut self, dir: i32) {

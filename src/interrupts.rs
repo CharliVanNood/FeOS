@@ -11,6 +11,7 @@ use x86_64::instructions::port::Port;
 use crate::print;
 use crate::gdt;
 use crate::input;
+use crate::disk;
 
 pub const PIC_1_OFFSET: u8 = 32;
 pub const PIC_2_OFFSET: u8 = PIC_1_OFFSET + 8;
@@ -31,6 +32,7 @@ lazy_static! {
         idt[InterruptIndex::Keyboard.as_usize()]
             .set_handler_fn(keyboard_interrupt_handler);
         idt.page_fault.set_handler_fn(page_fault_handler);
+        idt[46].set_handler_fn(ata_irq_handler);
 
         idt
     };
@@ -58,6 +60,14 @@ extern "x86-interrupt" fn timer_interrupt_handler(
     unsafe {
         PICS.lock()
             .notify_end_of_interrupt(InterruptIndex::Timer.as_u8());
+    }
+}
+
+extern "x86-interrupt" fn ata_irq_handler(_stack_frame: InterruptStackFrame) {
+    warnln!("ATA Interrupt!");
+
+    unsafe {
+        disk::outb(0x20, 0x20);
     }
 }
 
