@@ -71,7 +71,7 @@ fn print_help_command() {
 
 #[allow(dead_code)]
 pub fn match_commands() {
-    let commands = ["info", "ping", "color", "clear", "help", "femc", "fl", "go"];
+    let commands = ["info", "ping", "color", "clear", "help", "femc", "fl", "go", "install"];
 
     print!("\n");
 
@@ -129,6 +129,7 @@ pub fn match_commands() {
 
                     filesystem::change_flow(name);
                 },
+                "install" => filesystem::install_base_os(),
                 _ => warnln!("This command is unimplemented :C")
             }
         }

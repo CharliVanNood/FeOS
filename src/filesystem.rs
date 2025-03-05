@@ -1,4 +1,4 @@
-use crate::{print, println, vec::FileVec};
+use crate::{print, println, vec::FileVec, info};
 
 use lazy_static::lazy_static;
 use spin::Mutex;
@@ -8,9 +8,28 @@ pub struct FileSystem {
     flow: i32
 }
 impl FileSystem {
+    fn _get_item_name(&self, id: u32) -> [u8; 20] {
+        self.files.iter()[id as usize].3
+    }
+
+    fn print_path(&self, id: u32) {
+        let file = self.files.iter()[id as usize];
+        if file.1 != -1 {
+            self.print_path(file.1 as u32);
+            info!("/");
+        }
+        for byte in file.3 {
+            if byte == 0 { break; }
+            info!("{}", byte as char);
+        }
+    }
+
     pub fn create_file(&mut self, parent: i32, range: (u32, u32), filename: [u8; 20]) {
         self.files.add((self.files.len() as u32, parent, range, filename));
-        println!("Created a new file with id {}", self.files.len() as u32 - 1);
+        print!("Created a new file with path ");
+        info!("/");
+        self.print_path(self.files.len() as u32 - 1);
+        print!("\n");
     }
 
     pub fn set_flow(&mut self, flow: i32) {
@@ -75,4 +94,14 @@ pub fn create_file(parent: i32, range: (u32, u32), filename: &str) {
         filename_bytes_len += 1;
     }
     FILESYSTEM.lock().create_file(parent, range, filename_bytes);
+}
+
+pub fn install_base_os() {
+    println!("Installing FemDOS");
+    create_file(1, (100, 101), "file1");
+    create_file(1, (101, 102), "file2");
+    create_file(1, (102, 103), "file3");
+    create_file(1, (0, 0), "flow1");
+    create_file(1, (0, 0), "flow2");
+    create_file(6, (103, 104), "hidden file");
 }

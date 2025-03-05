@@ -16,6 +16,11 @@ macro_rules! warn {
 }
 
 #[macro_export]
+macro_rules! info {
+    ($($arg:tt)*) => ($crate::vga::_info(format_args!($($arg)*)));
+}
+
+#[macro_export]
 macro_rules! println {
     () => ($crate::print!("\n"));
     ($($arg:tt)*) => ($crate::print!("{}\n", format_args!($($arg)*)));
@@ -25,6 +30,12 @@ macro_rules! println {
 macro_rules! warnln {
     () => ($crate::warn!("\n"));
     ($($arg:tt)*) => ($crate::warn!("{}\n", format_args!($($arg)*)));
+}
+
+#[macro_export]
+macro_rules! infoln {
+    () => ($crate::info!("\n"));
+    ($($arg:tt)*) => ($crate::info!("{}\n", format_args!($($arg)*)));
 }
 
 #[doc(hidden)]
@@ -41,6 +52,18 @@ pub fn _warn(args: fmt::Arguments) {
             WRITER.lock().back_color
         };
         WRITER.lock().set_color(4, color);
+        WRITER.lock().write_fmt(args).unwrap();
+        WRITER.lock().set_color(13, color);
+    });
+}
+
+#[doc(hidden)]
+pub fn _info(args: fmt::Arguments) {
+    interrupts::without_interrupts(|| {
+        let color = {
+            WRITER.lock().back_color
+        };
+        WRITER.lock().set_color(5, color);
         WRITER.lock().write_fmt(args).unwrap();
         WRITER.lock().set_color(13, color);
     });
