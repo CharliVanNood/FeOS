@@ -54,8 +54,15 @@ pub fn print_current_dir_files() {
     }
 }
 
-pub fn change_flow(_name: [u8; 20]) {
-    FILESYSTEM.lock().set_flow(2);
+pub fn change_flow(name: [u8; 20]) {
+    let files = {
+        FILESYSTEM.lock().get_file_from_current_parent()
+    };
+    for file in files {
+        if file.3 == name {
+            FILESYSTEM.lock().set_flow(file.0 as i32);
+        }
+    }
 }
 
 #[allow(dead_code)]

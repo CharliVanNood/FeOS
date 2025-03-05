@@ -78,6 +78,9 @@ pub fn init() {
     filesystem::create_file(1, (100, 101), "file1");
     filesystem::create_file(1, (101, 102), "file2");
     filesystem::create_file(1, (102, 103), "file3");
+    filesystem::create_file(1, (0, 0), "flow1");
+    filesystem::create_file(1, (0, 0), "flow2");
+    filesystem::create_file(6, (103, 104), "hidden file");
 
     println!("Enabling Global Descriptor Table");
     gdt::init();

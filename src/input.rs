@@ -117,7 +117,16 @@ pub fn match_commands() {
                 "femc" => applications::femc::exec(command_written),
                 "fl" => filesystem::print_current_dir_files(),
                 "go" => {
-                    let name = [0; 20];
+                    let mut name = [0; 20];
+                    let mut name_len = 0;
+
+                    for byte_index in 3..23 {
+                        let byte = command_written[byte_index];
+                        if byte == 0 { break; }
+                        name[name_len] = byte as u8;
+                        name_len += 1;
+                    }
+
                     filesystem::change_flow(name);
                 },
                 _ => warnln!("This command is unimplemented :C")
