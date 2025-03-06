@@ -66,12 +66,13 @@ fn print_help_command() {
     println!("   [color]            - Toggle the background color");
     println!("   [clear]            - Clear the screen");
     println!("   [fl]               - Show the items in the current flow");
-    println!("   [go] [flow name]   - Change to a different flow\n");
+    println!("   [go] [flow name]   - Change to a different flow");
+    println!("   [pong]             - The game pong\n");
 }
 
 #[allow(dead_code)]
 pub fn match_commands() {
-    let commands = ["info", "ping", "color", "clear", "help", "femc", "fl", "go", "install"];
+    let commands = ["info", "ping", "color", "clear", "help", "femc", "fl", "go", "install", "pong"];
 
     print!("\n");
 
@@ -130,6 +131,7 @@ pub fn match_commands() {
                     filesystem::change_flow(name);
                 },
                 "install" => filesystem::install_base_os(),
+                "pong" => applications::pong::play(),
                 _ => warnln!("This command is unimplemented :C")
             }
         }
