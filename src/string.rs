@@ -44,14 +44,16 @@ pub fn replace_64b(mut string_in: [u8; 64], key: &str, replacement: &str) -> [u8
         key_bytes_parsed
     };
 
-    for i in 0..5 {
+    for i in 0..10 {
         if i < string_in.len() - key_bytes_len {
             let mut matches = true;
             for j in 0..key_bytes_len {
                 if key_bytes_parsed[j] != string_in[i + j] {
                     matches = false;
+                } else {
+                    println!("{} to {}", key_bytes_parsed[j], string_in[i + j]);
                 }
-                println!("{} to {}", key_bytes_parsed[j], string_in[i + j]);
+                //println!("{} to {}", key_bytes_parsed[j], string_in[i + j]);
             }
             if matches {
                 for byte in string_in {
