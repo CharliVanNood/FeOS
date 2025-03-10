@@ -68,11 +68,12 @@ fn print_help_command() {
     println!("   [fl]               - Show the items in the current flow");
     println!("   [go] [flow name]   - Change to a different flow");
     println!("   [pong]             - The game pong\n");
+    println!("   [cat]              - Read a file\n");
 }
 
 #[allow(dead_code)]
 pub fn match_commands() {
-    let commands = ["info", "ping", "color", "clear", "help", "femc", "fl", "go", "install", "pong"];
+    let commands = ["info", "ping", "color", "clear", "help", "femc", "fl", "go", "install", "pong", "cat", "run"];
 
     print!("\n");
 
@@ -132,6 +133,32 @@ pub fn match_commands() {
                 },
                 "install" => filesystem::install_base_os(),
                 "pong" => applications::pong::play(),
+                "cat" => {
+                    let mut name = [0; 20];
+                    let mut name_len = 0;
+
+                    for byte_index in 4..23 {
+                        let byte = command_written[byte_index];
+                        if byte == 0 { break; }
+                        name[name_len] = byte as u8;
+                        name_len += 1;
+                    }
+
+                    filesystem::read_file(name);
+                },
+                "run" => {
+                    let mut name = [0; 20];
+                    let mut name_len = 0;
+
+                    for byte_index in 4..23 {
+                        let byte = command_written[byte_index];
+                        if byte == 0 { break; }
+                        name[name_len] = byte as u8;
+                        name_len += 1;
+                    }
+
+                    filesystem::run_file(name);
+                },
                 _ => warnln!("This command is unimplemented :C")
             }
         }

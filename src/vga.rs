@@ -96,10 +96,10 @@ impl fmt::Write for Writer {
 lazy_static! {
     pub static ref WRITER: Mutex<Writer> = Mutex::new(Writer {
         column_position: 0,
-        color_code: ColorCode::new_color(Color::Pink, Color::White),
+        color_code: ColorCode::new_color(Color::Pink, Color::Black),
         buffer: unsafe { &mut *(0xb8000 as *mut Buffer) },
         text_color: 13,
-        back_color: 15
+        back_color: 0
     });
 }
 

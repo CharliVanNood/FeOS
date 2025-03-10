@@ -1,11 +1,11 @@
-use crate::{println, warnln};
+use crate::{println, string, warnln};
 
 pub fn exec(input: [usize; 255]) {
     let tokenized_code = tokenize(input);
     run_tokens(tokenized_code);
 }
 
-fn shift_list(list: [(i8, i32); 255], index: usize, length: usize) -> [(i8, i32); 255] {
+fn shift_list(list: [(u8, i32); 255], index: usize, length: usize) -> [(u8, i32); 255] {
     let mut return_list = [(0, 0); 255];
 
     for i in 0..255 - length {
@@ -19,7 +19,7 @@ fn shift_list(list: [(i8, i32); 255], index: usize, length: usize) -> [(i8, i32)
     return_list
 }
 
-fn run_tokens(tokens: [(i8, i32); 255]) {
+fn run_tokens(tokens: [(u8, i32); 255]) {
     let tokens_after_fact = run_tokens_fact(tokens);
     let tokens_after_math = run_tokens_math(tokens_after_fact);
     let tokens_after_first = run_tokens_first(tokens_after_math);
@@ -27,7 +27,7 @@ fn run_tokens(tokens: [(i8, i32); 255]) {
     let _tokens_after_last = run_tokens_last(tokens_after_bool);
 }
 
-fn run_tokens_fact(mut tokens: [(i8, i32); 255]) -> [(i8, i32); 255] {
+fn run_tokens_fact(mut tokens: [(u8, i32); 255]) -> [(u8, i32); 255] {
     let mut token_index = 0;
     for _ in 0..255 {
         let token = tokens[token_index];
@@ -58,7 +58,7 @@ fn run_tokens_fact(mut tokens: [(i8, i32); 255]) -> [(i8, i32); 255] {
     tokens
 }
 
-fn run_tokens_math(mut tokens: [(i8, i32); 255]) -> [(i8, i32); 255] {
+fn run_tokens_math(mut tokens: [(u8, i32); 255]) -> [(u8, i32); 255] {
     let mut token_index = 0;
     for _ in 0..255 {
         let token = tokens[token_index];
@@ -131,7 +131,7 @@ fn run_tokens_math(mut tokens: [(i8, i32); 255]) -> [(i8, i32); 255] {
     tokens
 }
 
-fn run_tokens_boolean(mut tokens: [(i8, i32); 255]) -> [(i8, i32); 255] {
+fn run_tokens_boolean(mut tokens: [(u8, i32); 255]) -> [(u8, i32); 255] {
     let mut token_index = 0;
     for _ in 0..255 {
         let token = tokens[token_index];
@@ -360,7 +360,7 @@ fn run_tokens_boolean(mut tokens: [(i8, i32); 255]) -> [(i8, i32); 255] {
     tokens
 }
 
-fn run_tokens_first(mut tokens: [(i8, i32); 255]) -> [(i8, i32); 255] {
+fn run_tokens_first(mut tokens: [(u8, i32); 255]) -> [(u8, i32); 255] {
     let mut token_index = 0;
     for _ in 0..255 {
         let token = tokens[token_index];
@@ -387,7 +387,7 @@ fn run_tokens_first(mut tokens: [(i8, i32); 255]) -> [(i8, i32); 255] {
     tokens
 }
 
-fn run_tokens_last(mut tokens: [(i8, i32); 255]) -> [(i8, i32); 255] {
+fn run_tokens_last(mut tokens: [(u8, i32); 255]) -> [(u8, i32); 255] {
     let mut token_index = 0;
     for _ in 0..255 {
         let token = tokens[token_index];
@@ -444,9 +444,15 @@ fn run_tokens_last(mut tokens: [(i8, i32); 255]) -> [(i8, i32); 255] {
     tokens
 }
 
-fn match_token(token: [i8; 64]) -> (i8, i32) {
-    let tokens_val = ["say", "+", "-", "/", "*", "(", ")", "==", ">=", "<=", ">", "<", "true", "false", "not", "yell"];
-    let tokens_keys  = [ 10,    11,  12,  13,  14,  15,  16,  17,   20,   21,   18,  19,  3,      3,       22,    23];
+fn match_token(token: [u8; 64]) -> (u8, i32) {
+    let tokens_val = [
+        "say", "print", "+", "-", "/", "*", "(", ")", "==", 
+        ">=", "<=", ">", "<", "true", "false", "not", "yell", 
+        "warn", "\n"];
+    let tokens_keys  = [
+         10,    10,      11,  12,  13,  14,  15,  16,  17,   
+         20,   21,   18,  19,  3,      3,       22,    23,
+         23,     8];
 
     for command_index in 0..tokens_val.len() {
         let command = tokens_val[command_index];
@@ -516,31 +522,33 @@ fn match_token(token: [i8; 64]) -> (i8, i32) {
         return (2, int_val)
     }
 
-    (-1, 0)
+    (0, 0)
 }
 
-fn tokenize(input: [usize; 255]) -> [(i8, i32); 255] {
-    let mut tokens: [(i8, i32); 255] = [(0, 0); 255];
+fn tokenize(input: [usize; 255]) -> [(u8, i32); 255] {
+    let mut tokens: [(u8, i32); 255] = [(0, 0); 255];
     let mut tokens_index = 0;
 
     // this creates a max token length of 64
     let mut temp_token = [0; 64];
     let mut temp_token_index = 0;
 
-    for char_index in 5..255 {
+    for char_index in 0..255 {
         let char = input[char_index];
         if char == 0 { continue; }
         if char == 32 {
+            let temp_tokens = string::replace_64b(temp_token, "\n", " \n ");
             tokens[tokens_index] = match_token(temp_token);
             tokens_index += 1;
             temp_token = [0; 64];
             temp_token_index = 0;
         } else {
-            temp_token[temp_token_index] = char as i8;
+            temp_token[temp_token_index] = char as u8;
             temp_token_index += 1;
         }
     }
-    tokens[tokens_index] = match_token(temp_token);
+    let temp_tokens = string::replace_64b(temp_token, "\n", " \n ");
+    tokens[tokens_index] = match_token(temp_tokens);
 
     tokens
 }

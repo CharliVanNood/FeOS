@@ -9,7 +9,8 @@ mod input;
 mod applications;
 mod vec;
 mod filesystem;
-//mod disk;
+mod disk;
+mod string;
 
 use core::panic::PanicInfo;
 

@@ -1,8 +1,7 @@
-use core::arch::asm;
+use lazy_static::lazy_static;
+use spin::Mutex;
 
-use crate::{print, println, warnln};
-
-pub unsafe fn outb(port: u16, value: u8) {
+/*pub unsafe fn outb(port: u16, value: u8) {
     asm!("out dx, al", in("dx") port, in("al") value, options(nostack, nomem));
 }
 
@@ -105,4 +104,30 @@ pub fn check_mbr() -> bool {
     }
 
     signature == (0x55, 0xAA)
+}*/
+
+pub struct DiskLoaded {
+    data: [u8; 10000]
+}
+impl DiskLoaded {
+    pub fn get_byte(&self, index: u32) -> u8 {
+        self.data[index as usize]
+    }
+
+    pub fn set_byte(&mut self, index: u32, value: u8) {
+        self.data[index as usize] = value;
+    }
+}
+
+lazy_static! {
+    pub static ref DISKLOADED: Mutex<DiskLoaded> = Mutex::new(DiskLoaded {
+        data: [0; 10000]
+    });
+}
+
+pub fn get_byte_in_ram(index: u32) -> u8 {
+    DISKLOADED.lock().get_byte(index)
+}
+pub fn set_byte_in_ram(index: u32, value: u8) {
+    DISKLOADED.lock().set_byte(index, value);
 }

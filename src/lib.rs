@@ -12,7 +12,8 @@ pub mod input;
 pub mod applications;
 pub mod filesystem;
 pub mod vec;
-//pub mod disk;
+pub mod disk;
+pub mod string;
 
 use core::panic::PanicInfo;
 
@@ -75,7 +76,7 @@ pub fn hlt_loop() -> ! {
 
 pub fn init() {
     println!("Creating root directory");
-    filesystem::create_file(-1, (0, 100), "root");
+    filesystem::create_file(-1, (0, 100), "root", "");
 
     println!("Enabling Global Descriptor Table");
     gdt::init();

@@ -1,18 +1,18 @@
 use crate::{print, vga};
 
 pub struct Pong {
-    ball_velocity: [i8; 2],
+    _ball_velocity: [i8; 2],
     ball_position: [i8; 2],
     pos_left: i8,
-    pos_right: i8,
+    _pos_right: i8,
 }
 impl Pong {
     pub fn init() -> Self {
         Self {
-            ball_velocity: [2, 1],
+            _ball_velocity: [2, 1],
             ball_position: [0; 2],
             pos_left: 0,
-            pos_right: 0,
+            _pos_right: 0,
         }
     }
 
