@@ -1,5 +1,7 @@
 # Installation
-- Make sure you have Rustup installed, if not install it like so: `winget install Rustlang.Rustup`  
+- Make sure you have Rustup installed, if not install it like so:  
+Windows: `winget install Rustlang.Rustup`  
+Arch: `pacman -S rustup`  
 - Install Rust Nightly  
 `rustup install nightly`
 - Set nightly as default in this project  
