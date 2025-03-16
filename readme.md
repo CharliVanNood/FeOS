@@ -1,7 +1,8 @@
 # Installation
 - Make sure you have Rustup installed, if not install it like so:  
 Windows: `winget install Rustlang.Rustup`  
-Arch: `pacman -S rustup`  
+Arch: `sudo pacman -S rustup`  
+Ubuntu: `sudo apt install rustc`  
 - Install Rust Nightly  
 `rustup install nightly`
 - Set nightly as default in this project  
@@ -16,7 +17,8 @@ Arch: `pacman -S rustup`
 - Install QEMU (virtual machine, after compiling it gets called directly)  
 Win32: https://qemu.weilnetz.de/w32/  
 Win64: https://qemu.weilnetz.de/w64/  
-Arch: `pacman -S qemu`  
+Arch: `sudo pacman -S qemu`  
+Ubuntu: `sudo apt install qemu`  
 
 # Continue if you're on Windows
 - Add QEMU to the enviroment variables  
