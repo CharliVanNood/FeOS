@@ -28,11 +28,11 @@ impl FileVec {
     }
 }
 
-pub struct Vec {
+pub struct _Vec {
 
 }
-impl Vec {
-    pub fn new() {
+impl _Vec {
+    pub fn _new() {
         
     }
 }

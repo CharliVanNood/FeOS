@@ -537,7 +537,7 @@ fn tokenize(input: [usize; 255]) -> [(u8, i32); 255] {
         let char = input[char_index];
         if char == 0 { continue; }
         if char == 32 {
-            let temp_tokens = string::replace_64b(temp_token, "\n", " \n ");
+            let _temp_tokens = string::replace_64b(temp_token, "\n", " \n ");
             tokens[tokens_index] = match_token(temp_token);
             tokens_index += 1;
             temp_token = [0; 64];

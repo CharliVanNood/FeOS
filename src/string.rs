@@ -31,7 +31,7 @@ fn insert_64b(list: [u8; 64], index: usize, value: u8) -> [u8; 64] {
     return_list
 }
 
-pub fn replace_64b(mut string_in: [u8; 64], key: &str, replacement: &str) -> [u8; 64] {
+pub fn replace_64b(mut string_in: [u8; 64], key: &str, _replacement: &str) -> [u8; 64] {
     let key_bytes = key.bytes();
     let key_bytes_len = key.bytes().count();
     let key_bytes_parsed = {

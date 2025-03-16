@@ -13,9 +13,8 @@ mod disk;
 mod string;
 mod alloc;
 
-use core::{panic::PanicInfo, ptr};
+use core::panic::PanicInfo;
 use bootloader::BootInfo;
-use x86_64::VirtAddr;
 
 use alloc::{read_byte, write_byte};
 

@@ -4,7 +4,7 @@ use core::ptr;
 use lazy_static::lazy_static;
 use spin::Mutex;
 
-use crate::{println, warnln};
+use crate::warnln;
 
 pub struct Allocator {
     heap_start: usize,
@@ -27,7 +27,7 @@ impl Allocator {
         self.next = AtomicUsize::new(heap_start);
     }
 
-    pub fn alloc(&mut self, layout: Layout) -> *mut u8 {
+    pub fn _alloc(&mut self, layout: Layout) -> *mut u8 {
         let align = layout.align();
         let size = layout.size();
 

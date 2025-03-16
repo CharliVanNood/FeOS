@@ -17,8 +17,6 @@ pub mod string;
 pub mod alloc;
 
 use core::panic::PanicInfo;
-use lazy_static::lazy_static;
-use spin::Mutex;
 
 pub fn test_runner(tests: &[&dyn Testable]) {
     println!("Heyyy we're quickly gonna do {} tests", tests.len());
