@@ -2,7 +2,7 @@
 FemDOS is my hobby operating system, it's based on the operating system in rust tutorial. I followed the first part and left off from there, now I'm trying to make it into a full operating system. Why? I was bored.
 
 # Features
-- FemC
+- FemC  
 FemC is the built in programming language for FemDOS, it's an interperated language initially based on python syntax but now more towards C. The name FemC should be pronounced kinda like fancy.
 
 # Compiling
