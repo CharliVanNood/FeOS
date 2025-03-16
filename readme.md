@@ -1,4 +1,4 @@
-# Installation
+# Compiling
 - Make sure you have Rustup installed, if not install it like so:  
 Windows: `winget install Rustlang.Rustup`  
 Arch: `sudo pacman -S rustup`  
