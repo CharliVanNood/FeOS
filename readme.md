@@ -5,12 +5,12 @@ Arch: `pacman -S rustup`
 - Install Rust Nightly  
 `rustup install nightly`
 - Set nightly as default in this project  
-`rustup override set nightly`
-`rustup component add rust-src --toolchain nightly`
-`rustup component add llvm-tools-preview --toolchain nightly`
-`rustup component add rust-src`
+`rustup override set nightly`  
+`rustup component add rust-src --toolchain nightly`  
+`rustup component add llvm-tools-preview --toolchain nightly`  
+`rustup component add rust-src`  
 - Install bootimage  
-`cargo install cargo-xbuild`
+`cargo install cargo-xbuild`  
 `cargo install bootimage`  
 
 - Install QEMU (virtual machine, after compiling it gets called directly)  
