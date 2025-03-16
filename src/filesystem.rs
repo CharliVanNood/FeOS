@@ -1,4 +1,4 @@
-use crate::{alloc, applications::femc, disk, info, print, println, vec::FileVec};
+use crate::{applications::femc, disk, info, print, println, vec::FileVec};
 
 use lazy_static::lazy_static;
 use spin::Mutex;
