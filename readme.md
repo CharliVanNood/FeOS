@@ -15,6 +15,8 @@
 Win32: https://qemu.weilnetz.de/w32/  
 Win64: https://qemu.weilnetz.de/w64/  
 Arch: `pacman -S qemu`  
+
+# Continue if you're on Windows
 - Add QEMU to the enviroment variables  
 First find the path, normally this is in `C:\Program Files\qemu`
 In powershell you could run the command `[System.Environment]::SetEnvironmentVariable("Path", $env:Path + ";C:\Program Files\qemu", [System.EnvironmentVariableTarget]::Machine)`  
