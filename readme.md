@@ -17,8 +17,8 @@ Ubuntu: `sudo apt install rustc`
 - Install QEMU (virtual machine, after compiling it gets called directly)  
 Win32: https://qemu.weilnetz.de/w32/  
 Win64: https://qemu.weilnetz.de/w64/  
-Arch: `sudo pacman -S qemu`  
-Ubuntu: `sudo apt install qemu`  
+Arch: `sudo pacman -S qemu` (system, not base)  
+Ubuntu: `sudo apt install qemu-system`  
 
 # Continue if you're on Windows
 - Add QEMU to the enviroment variables  
