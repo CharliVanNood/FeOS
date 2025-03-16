@@ -27,3 +27,12 @@ impl FileVec {
         self.data
     }
 }
+
+pub struct Vec {
+
+}
+impl Vec {
+    pub fn new() {
+        
+    }
+}
