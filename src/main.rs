@@ -17,6 +17,9 @@ use core::panic::PanicInfo;
 use bootloader::BootInfo;
 
 use alloc::{read_byte, write_byte};
+use fem_dos::vec::Vec;
+
+const VERSION: &str = env!("VERSION");
 
 #[no_mangle]
 pub extern "C" fn _start(boot_info: &'static BootInfo) -> ! {
@@ -26,21 +29,26 @@ pub extern "C" fn _start(boot_info: &'static BootInfo) -> ! {
     println!("| FemDOS!                            |");
     println!("|                                    |");
     println!("| Data:                              |");
-    println!("| Memory offset: 0x{:x}", boot_info.physical_memory_offset);
+    println!("| Version: {}                    |", VERSION);
+    println!("| Memory offset: 0x{:x}       |", boot_info.physical_memory_offset);
     println!("--------------------------------------");
 
-    alloc::ALLOCATOR.lock().set_heap(boot_info.physical_memory_offset as usize, 0x100000);
+    alloc::ALLOCATOR.lock().set_heap(boot_info.physical_memory_offset as usize, 0x5000000);
 
     #[cfg(test)]
     test_main();
 
-    write_byte(0x100000, 255);
-    let test_byte = read_byte(0x100000);
+    write_byte(0x5000000, 255);
+    let test_byte = read_byte(0x5000000);
     if test_byte == 255 {
         println!("[YAY] Ram test was successfull :D");
     } else {
         warnln!("[AWW] Ram test failed :c");
     }
+
+    let mut test_vec = Vec::new();
+    test_vec.add(10);
+    println!("test vec length: {}", test_vec.len());
 
     println!("Done testing!");
 

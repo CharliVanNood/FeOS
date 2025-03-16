@@ -1,6 +1,6 @@
 use crate::println;
 
-// the max number of files is 19000
+// the max number of files is 5000
 pub struct FileVec {
     data: [(u32, i32, (u32, u32), [u8; 20]); 5000],
     size: usize,
@@ -28,11 +28,27 @@ impl FileVec {
     }
 }
 
-pub struct _Vec {
-
+#[allow(dead_code)]
+pub struct Vec {
+    size: usize,
+    heap_start: usize
 }
-impl _Vec {
-    pub fn _new() {
-        
+impl Vec {
+    #[allow(dead_code)]
+    pub fn new() -> Self {
+        Self {
+            size: 0,
+            heap_start: 0
+        }
+    }
+
+    #[allow(dead_code)]
+    pub fn add(&mut self, _value: u8) {
+        self.size += 1;
+    }
+
+    #[allow(dead_code)]
+    pub fn len(&self) -> usize {
+        self.size
     }
 }

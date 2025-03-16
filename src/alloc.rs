@@ -51,26 +51,26 @@ lazy_static! {
     pub static ref ALLOCATOR: Mutex<Allocator> = Mutex::new(Allocator::new(0, 0));
 }
 
-pub fn write_byte(address: usize, value: u8) {
+pub fn write_byte(address: usize, value: u32) {
     unsafe {
         let heap_start = { ALLOCATOR.lock().heap_start };
         let heap_end = { ALLOCATOR.lock().heap_end };
         if address + heap_start > heap_end {
             warnln!("Address 0x{:x} is out of range! :C", address + heap_start);
         } else {
-            ptr::write((address + heap_start) as *mut u8, value);
+            ptr::write((address + heap_start) as *mut u32, value);
         }
     }
 }
 
-pub fn read_byte(address: usize) -> u8 {
+pub fn read_byte(address: usize) -> u32 {
     unsafe {
         let heap_start = { ALLOCATOR.lock().heap_start };
         let heap_end = { ALLOCATOR.lock().heap_end };
         if address + heap_start > heap_end {
             warnln!("Address 0x{:x} is out of range! :C", address + heap_start);
         } else {
-            return ptr::read((address + heap_start) as *mut u8);
+            return ptr::read((address + heap_start) as *mut u32);
         }
     }
 

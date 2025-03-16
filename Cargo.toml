@@ -2,6 +2,7 @@
 name = "fem_dos"
 version = "0.1.0"
 edition = "2018"
+build = "build.rs"
 
 [dependencies]
 bootloader = { version = "0.9", features = ["map_physical_memory"]}
