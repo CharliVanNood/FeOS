@@ -1,54 +1,52 @@
-use core::alloc::Layout;
-use core::sync::atomic::{AtomicUsize, Ordering};
 use core::ptr;
 use lazy_static::lazy_static;
 use spin::Mutex;
 
-use crate::warnln;
+use crate::{println, warnln};
 
 pub struct Allocator {
     heap_start: usize,
     heap_end: usize,
-    next: AtomicUsize,
+    next: usize,
 }
 
 impl Allocator {
-    pub const fn new(heap_start: usize, heap_size: usize) -> Self {
+    pub fn new(heap_start: usize, heap_size: usize) -> Self {
         Self {
             heap_start,
             heap_end: heap_start + heap_size,
-            next: AtomicUsize::new(heap_start),
+            next: heap_start,
         }
     }
 
-    pub fn set_heap(&mut self, heap_start: usize, heap_size: usize) {
+    fn set_heap(&mut self, heap_start: usize, heap_size: usize) {
         self.heap_start = heap_start;
         self.heap_end = heap_start + heap_size;
-        self.next = AtomicUsize::new(heap_start);
+        self.next = heap_start;
     }
 
-    pub fn _alloc(&mut self, layout: Layout) -> *mut u8 {
-        let align = layout.align();
-        let size = layout.size();
-
-        let current = self.next.load(Ordering::Relaxed);
-
-        let aligned = (current + (align - 1)) & !(align - 1);
-
-        let new_next = aligned + size;
-        if new_next > self.heap_end {
-            warnln!("Address 0x{:x} is out of range", new_next);
-            return ptr::null_mut();
+    pub fn alloc(&mut self, size: usize) -> usize {
+        println!("ALLOCATING {} to {}", self.next, self.next + size);
+        if self.next + size > self.heap_end {
+            warnln!("Address 0x{:x} is out of range", self.next + size);
+            return 0;
         }
 
-        self.next.store(new_next, Ordering::Relaxed);
-
-        aligned as *mut u8
+        self.next += size;
+        self.next
     }
 }
 
 lazy_static! {
     pub static ref ALLOCATOR: Mutex<Allocator> = Mutex::new(Allocator::new(0, 0));
+}
+
+pub fn set_heap(heap_start: usize, heap_size: usize) {
+    ALLOCATOR.lock().set_heap(heap_start, heap_size);
+}
+
+pub fn alloc(size: usize) -> usize{
+    ALLOCATOR.lock().alloc(size)
 }
 
 pub fn write_byte(address: usize, value: u32) {

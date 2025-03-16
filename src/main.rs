@@ -29,17 +29,22 @@ pub extern "C" fn _start(boot_info: &'static BootInfo) -> ! {
     println!("| FemDOS!                            |");
     println!("|                                    |");
     println!("| Data:                              |");
-    println!("| Version: {}                    |", VERSION);
+    println!("| Version: {}                   |", VERSION);
     println!("| Memory offset: 0x{:x}       |", boot_info.physical_memory_offset);
     println!("--------------------------------------");
 
-    alloc::ALLOCATOR.lock().set_heap(boot_info.physical_memory_offset as usize, 0x5000000);
+    // dissabled, this is not working for me yet
+    // disk::check_mbr();
+    alloc::set_heap(boot_info.physical_memory_offset as usize, 0x5000000);
+    fem_dos::init(boot_info);
+
+    println!("Done initializing components!");
 
     #[cfg(test)]
     test_main();
 
-    write_byte(0x5000000, 255);
-    let test_byte = read_byte(0x5000000);
+    write_byte(0x1000000, 255);
+    let test_byte = read_byte(0x1000000);
     if test_byte == 255 {
         println!("[YAY] Ram test was successfull :D");
     } else {
@@ -47,16 +52,12 @@ pub extern "C" fn _start(boot_info: &'static BootInfo) -> ! {
     }
 
     let mut test_vec = Vec::new();
+    let _test_vec1 = Vec::new();
+    let _test_vec2 = Vec::new();
     test_vec.add(10);
     println!("test vec length: {}", test_vec.len());
 
     println!("Done testing!");
-
-    // dissabled, this is not working for me yet
-    // disk::check_mbr();
-    fem_dos::init();
-
-    println!("Done initializing components!");
 
     println!("--------------------------------------");
     println!("| Yippee FemDOS has booted!          |");

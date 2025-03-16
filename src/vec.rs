@@ -1,4 +1,4 @@
-use crate::println;
+use crate::{alloc, println};
 
 // the max number of files is 5000
 pub struct FileVec {
@@ -31,14 +31,17 @@ impl FileVec {
 #[allow(dead_code)]
 pub struct Vec {
     size: usize,
-    heap_start: usize
+    heap_start: usize,
+    heap_size: usize
 }
 impl Vec {
     #[allow(dead_code)]
     pub fn new() -> Self {
+        let heap_start = alloc::alloc(1024);
         Self {
             size: 0,
-            heap_start: 0
+            heap_start: heap_start,
+            heap_size: 1024
         }
     }
 

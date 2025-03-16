@@ -18,6 +18,8 @@ pub mod alloc;
 
 use core::panic::PanicInfo;
 
+use bootloader::BootInfo;
+
 pub fn test_runner(tests: &[&dyn Testable]) {
     println!("Heyyy we're quickly gonna do {} tests", tests.len());
 
@@ -56,8 +58,8 @@ fn test_breakpoint_exception() {
 
 #[cfg(test)]
 #[no_mangle]
-pub extern "C" fn _start() -> ! {
-    init();
+pub extern "C" fn _start(boot_info: &'static BootInfo) -> ! {
+    init(boot_info);
     test_main();
     hlt_loop();
 }
@@ -75,7 +77,10 @@ pub fn hlt_loop() -> ! {
     }
 }
 
-pub fn init() {
+pub fn init(boot_info: &'static BootInfo) {
+    println!("Setting heap offset");
+    alloc::set_heap(boot_info.physical_memory_offset as usize, 0x5000000);
+
     println!("Creating root directory");
     filesystem::create_file(-1, (0, 100), "root", "");
 
