@@ -1,7 +1,13 @@
 //use lazy_static::lazy_static;
 //use spin::Mutex;
 
-/*pub unsafe fn outb(port: u16, value: u8) {
+use core::arch::asm;
+use crate::{infoln, print, println, warnln};
+use x86_64::instructions::port::Port;
+use volatile::Volatile;
+use core::ptr;
+
+pub unsafe fn outb(port: u16, value: u8) {
     asm!("out dx, al", in("dx") port, in("al") value, options(nostack, nomem));
 }
 
@@ -104,4 +110,60 @@ pub fn check_mbr() -> bool {
     }
 
     signature == (0x55, 0xAA)
-}*/
+}
+
+pub fn test() {
+    let mut port = Port::new(0x1F0);
+    print!("Identifying drive... ");
+    identify_device();
+    println!("Waiting for drive... ");
+    wait_for_ready();
+    write_test_data(&mut port);
+}
+
+fn identify_device() {
+    unsafe {
+        Port::new(0x1F7).write(0xEC as u8);
+    }
+
+    loop {
+        unsafe {
+            let status: u8 = Port::new(0x1F7).read();
+            print!("{:#x} ", status);
+            if status & 0x80 == 0 {
+                if status & 0x01 != 0 {
+                    let error: u8 = Port::new(0x1F1).read();
+                    warnln!("\nError while identifying device: {:#x}", error);
+                    break;
+                } else {
+                    infoln!("\nStorage device identified successfully.");
+                    break;
+                }
+            }
+        }
+    }
+}
+
+fn wait_for_ready() {
+    loop {
+        unsafe {
+            let status: u8 = Port::new(0x1F7).read();
+            println!("{:#x} ", status);
+
+            // Check if the BSY (bit 7) is clear (drive is not busy)
+            // and DRQ (bit 3) is set (data request is ready)
+            if (status & 0x80) == 0 && (status & 0x08) != 0 {
+                break;
+            }
+        }
+    }
+}
+
+fn write_test_data(port: &mut Port<u16>) {
+    for _ in 0..512 / 2 {
+        let word = u16::from_le_bytes([0, 0]);
+        unsafe {
+            port.write(word);
+        }
+    }
+}
