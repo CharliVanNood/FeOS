@@ -17,7 +17,7 @@ use core::panic::PanicInfo;
 use bootloader::BootInfo;
 
 use alloc::{read_byte, write_byte};
-use fem_dos::vec::Vec;
+use fem_dos::{alloc::alloc, vec::Vec};
 
 const VERSION: &str = env!("VERSION");
 
@@ -43,10 +43,11 @@ pub extern "C" fn _start(boot_info: &'static BootInfo) -> ! {
     #[cfg(test)]
     test_main();
 
-    write_byte(0x1000000, 255);
-    let test_byte = read_byte(0x1000000);
+    let address = alloc::alloc(1);
+    write_byte(address.0, 255);
+    let test_byte = read_byte(address.0);
     if test_byte == 255 {
-        println!("[YAY] Ram test was successfull :D");
+        infoln!("[YAY] Ram test was successfull :D");
     } else {
         warnln!("[AWW] Ram test failed :c");
     }

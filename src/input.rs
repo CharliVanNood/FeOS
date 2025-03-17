@@ -163,7 +163,7 @@ pub fn match_commands() {
                 },
                 "per" => {
                     let ram_usage = alloc::get_usage();
-                    println!("\n   Ram:");
+                    println!("\n   Ram: {:.2}%", (ram_usage.0 as f32 / ram_usage.1 as f32) * 100.0);
                     println!("   {} Bytes / {} Bytes", ram_usage.0, ram_usage.1);
                     println!("   {} KB / {} KB", ram_usage.0 / 1000, ram_usage.1 / 1000);
                     println!("   {} MB / {} MB\n", ram_usage.0 / 1000000, ram_usage.1 / 1000000);

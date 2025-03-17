@@ -1,4 +1,4 @@
-use crate::{applications::femc, disk, info, print, println, vec::FileVec};
+use crate::{alloc, applications::femc, info, print, println, vec::FileVec};
 
 use lazy_static::lazy_static;
 use spin::Mutex;
@@ -24,16 +24,22 @@ impl FileSystem {
         }
     }
 
-    pub fn create_file(&mut self, parent: i32, range: (u32, u32), filename: [u8; 20], data: &str) {
-        self.files.add((self.files.len() as u32, parent, range, filename));
-        let range_len = range.1 - range.0;
+    pub fn create_file(&mut self, parent: i32, filename: [u8; 20], data: &str) {
         let data_bytes = data.bytes();
+
+        let address = alloc::alloc(8192);
+
         let mut index = 0;
         for i in data_bytes {
-            if index > range_len { break; }
-            disk::set_byte_in_ram(index + range.0, i);
-            index += 1;
+            if address.0 + index > address.1 {
+                break;
+            }
+            alloc::write_byte(address.0 + index, i as usize);
+            index += 8;
         }
+
+        self.files.add((self.files.len() as u32, parent, (address.0, address.1, index / 8), filename));
+
         print!("Created a new file with path ");
         info!("/");
         self.print_path(self.files.len() as u32 - 1);
@@ -45,8 +51,8 @@ impl FileSystem {
     }
 
     // this being a list of 20 is the max amount of files that will be returned, why 20? sounds good to me tbh :3
-    pub fn get_file_from_parent(&self, parent: i32) -> [(u32, i32, (u32, u32), [u8; 20]); 20] {
-        let mut files_returning = [(0, -1, (0, 1), [1; 20]); 20];
+    pub fn get_file_from_parent(&self, parent: i32) -> [(u32, i32, (usize, usize, usize), [u8; 20]); 20] {
+        let mut files_returning = [(0, -1, (0, 1, 0), [1; 20]); 20];
         let mut files_returning_len = 0;
         for file in self.files.iter() {
             if file.1 == parent && files_returning_len < 20 {
@@ -57,7 +63,7 @@ impl FileSystem {
         files_returning
     }
 
-    pub fn get_file_from_current_parent(&self) -> [(u32, i32, (u32, u32), [u8; 20]); 20] {
+    pub fn get_file_from_current_parent(&self) -> [(u32, i32, (usize, usize, usize), [u8; 20]); 20] {
         self.get_file_from_parent(self.flow)
     }
 }
@@ -92,7 +98,7 @@ pub fn change_flow(name: [u8; 20]) {
     }
 }
 
-pub fn find_file(name: [u8; 20]) -> (u32, i32, (u32, u32), [u8; 20]) {
+pub fn find_file(name: [u8; 20]) -> (u32, i32, (usize, usize, usize), [u8; 20]) {
     let files = {
         FILESYSTEM.lock().get_file_from_current_parent()
     };
@@ -102,10 +108,10 @@ pub fn find_file(name: [u8; 20]) -> (u32, i32, (u32, u32), [u8; 20]) {
         }
     }
     println!("This file doesn't seem to exist :c");
-    return (0, 0, (0, 0,), [0; 20])
+    return (0, 0, (0, 0, 0), [0; 20])
 }
 
-pub fn create_file(parent: i32, range: (u32, u32), filename: &str, data: &str) {
+pub fn create_file(parent: i32, filename: &str, data: &str) {
     let mut filename_bytes = [0; 20];
     let mut filename_bytes_len = 0;
     let filename_parsed = filename.bytes();
@@ -113,16 +119,16 @@ pub fn create_file(parent: i32, range: (u32, u32), filename: &str, data: &str) {
         filename_bytes[filename_bytes_len] = byte;
         filename_bytes_len += 1;
     }
-    FILESYSTEM.lock().create_file(parent, range, filename_bytes, data);
+    FILESYSTEM.lock().create_file(parent, filename_bytes, data);
 }
 
 pub fn read_file(name: [u8; 20]) {
     let file = find_file(name);
     let file_start = file.2.0;
-    let file_end = file.2.1;
+    let file_size = file.2.2;
 
-    for i in file_start..file_end {
-        let byte = disk::get_byte_in_ram(i);
+    for i in 0..file_size {
+        let byte = alloc::read_byte(file_start + i * 8) as u8;
         print!("{}", byte as char);
     }
     print!("\n");
@@ -131,13 +137,13 @@ pub fn read_file(name: [u8; 20]) {
 pub fn run_file(name: [u8; 20]) {
     let file = find_file(name);
     let file_start = file.2.0;
-    let file_end = file.2.1;
+    let file_size = file.2.2;
 
     let mut file_data: [usize; 255] = [0; 255];
     let mut file_index = 0;
 
-    for i in file_start..file_end {
-        let byte = disk::get_byte_in_ram(i);
+    for i in 0..file_size {
+        let byte = alloc::read_byte(file_start + i * 8) as u8;
         file_data[file_index] = byte as usize;
         file_index += 1;
     }
@@ -147,12 +153,12 @@ pub fn run_file(name: [u8; 20]) {
 
 pub fn install_base_os() {
     println!("Installing FemDOS");
-    create_file(1, (100, 111), "file1", "Hello world");
-    create_file(1, (111, 112), "file2", "This is amazing");
-    create_file(1, (112, 113), "file3", "This is a text file");
-    create_file(1, (0, 0), "flow1", "");
-    create_file(1, (0, 0), "flow2", "");
-    create_file(6, (113, 114), "hidden file", "WOW YOU FOUND ME");
-    create_file(1, (114, 115), "hidden file", "print 1 + 1");
-    create_file(1, (115, 130), "python1", "print 1 + 10 * 10\nprint 10 + 10");
+    create_file(1, "file1", "Hello world");
+    create_file(1, "file2", "This is amazing");
+    create_file(1, "file3", "This is a text file");
+    create_file(1, "flow1", "");
+    create_file(1, "flow2", "");
+    create_file(6, "hidden file", "WOW YOU FOUND ME");
+    create_file(1, "hidden file", "print 1 + 1");
+    create_file(1, "python1", "print 1 + 10 * 10\nprint 10 + 10");
 }

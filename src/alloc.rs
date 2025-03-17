@@ -2,7 +2,7 @@ use core::ptr;
 use lazy_static::lazy_static;
 use spin::Mutex;
 
-use crate::{println, warnln};
+use crate::warnln;
 
 pub struct Allocator {
     heap_start: usize,
@@ -28,15 +28,15 @@ impl Allocator {
         self.heap_size = heap_size;
     }
 
-    pub fn alloc(&mut self, size: usize) -> usize {
-        println!("ALLOCATING {} to {}", self.next, self.next + size);
+    pub fn alloc(&mut self, size_raw: usize) -> (usize, usize) {
+        let size = size_raw * 8;
         if self.next + size > self.heap_end {
             warnln!("Address 0x{:x} is out of range", self.next + size);
-            return 0;
+            return (0, 0);
         }
 
         self.next += size;
-        self.next
+        (self.next - size, self.next)
     }
 }
 
@@ -55,30 +55,28 @@ pub fn set_heap(heap_start: usize, heap_size: usize) {
     ALLOCATOR.lock().set_heap(heap_start, heap_size);
 }
 
-pub fn alloc(size: usize) -> usize{
+pub fn alloc(size: usize) -> (usize, usize) {
     ALLOCATOR.lock().alloc(size)
 }
 
 pub fn write_byte(address: usize, value: usize) {
     unsafe {
-        let heap_start = { ALLOCATOR.lock().heap_start };
         let heap_end = { ALLOCATOR.lock().heap_end };
-        if address + heap_start > heap_end {
-            warnln!("Address 0x{:x} is out of range! :C", address + heap_start);
+        if address > heap_end {
+            warnln!("Address 0x{:x} is out of range! :C", address);
         } else {
-            ptr::write((address + heap_start) as *mut usize, value);
+            ptr::write((address) as *mut usize, value);
         }
     }
 }
 
 pub fn read_byte(address: usize) -> usize {
     unsafe {
-        let heap_start = { ALLOCATOR.lock().heap_start };
         let heap_end = { ALLOCATOR.lock().heap_end };
-        if address + heap_start > heap_end {
-            warnln!("Address 0x{:x} is out of range! :C", address + heap_start);
+        if address > heap_end {
+            warnln!("Address 0x{:x} is out of range! :C", address);
         } else {
-            return ptr::read((address + heap_start) as *mut usize);
+            return ptr::read((address) as *mut usize);
         }
     }
 
