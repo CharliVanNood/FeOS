@@ -7,6 +7,7 @@ use crate::{println, warnln};
 pub struct Allocator {
     heap_start: usize,
     heap_end: usize,
+    heap_size: usize,
     next: usize,
 }
 
@@ -15,6 +16,7 @@ impl Allocator {
         Self {
             heap_start,
             heap_end: heap_start + heap_size,
+            heap_size: heap_size,
             next: heap_start,
         }
     }
@@ -23,6 +25,7 @@ impl Allocator {
         self.heap_start = heap_start;
         self.heap_end = heap_start + heap_size;
         self.next = heap_start;
+        self.heap_size = heap_size;
     }
 
     pub fn alloc(&mut self, size: usize) -> usize {
@@ -39,6 +42,13 @@ impl Allocator {
 
 lazy_static! {
     pub static ref ALLOCATOR: Mutex<Allocator> = Mutex::new(Allocator::new(0, 0));
+}
+
+pub fn get_usage() -> (usize, usize) {
+    let next = { ALLOCATOR.lock().next };
+    let heap_start = { ALLOCATOR.lock().heap_start };
+    let heap_size = { ALLOCATOR.lock().heap_size };
+    (next - heap_start, heap_size)
 }
 
 pub fn set_heap(heap_start: usize, heap_size: usize) {

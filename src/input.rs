@@ -1,3 +1,4 @@
+use crate::alloc;
 use crate::{print, println, warnln};
 use crate::vga;
 use crate::applications;
@@ -67,13 +68,14 @@ fn print_help_command() {
     println!("   [clear]            - Clear the screen");
     println!("   [fl]               - Show the items in the current flow");
     println!("   [go] [flow name]   - Change to a different flow");
-    println!("   [pong]             - The game pong\n");
-    println!("   [cat]              - Read a file\n");
+    println!("   [pong]             - The game pong");
+    println!("   [cat]              - Read a file");
+    println!("   [per]              - Performance will show you system details\n");
 }
 
 #[allow(dead_code)]
 pub fn match_commands() {
-    let commands = ["info", "ping", "color", "clear", "help", "femc", "fl", "go", "install", "pong", "cat", "run"];
+    let commands = ["info", "ping", "color", "clear", "help", "femc", "fl", "go", "install", "pong", "cat", "run", "per"];
 
     print!("\n");
 
@@ -158,6 +160,10 @@ pub fn match_commands() {
                     }
 
                     filesystem::run_file(name);
+                },
+                "per" => {
+                    let ram_usage = alloc::get_usage();
+                    println!("Ram {} Bytes / {} Bytes", ram_usage.0 * 4, ram_usage.1 * 4);
                 },
                 _ => warnln!("This command is unimplemented :C")
             }
