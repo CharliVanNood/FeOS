@@ -163,7 +163,10 @@ pub fn match_commands() {
                 },
                 "per" => {
                     let ram_usage = alloc::get_usage();
-                    println!("Ram {} Bytes / {} Bytes", ram_usage.0 * 4, ram_usage.1 * 4);
+                    println!("\n   Ram:");
+                    println!("   {} Bytes / {} Bytes", ram_usage.0, ram_usage.1);
+                    println!("   {} KB / {} KB", ram_usage.0 / 1000, ram_usage.1 / 1000);
+                    println!("   {} MB / {} MB\n", ram_usage.0 / 1000000, ram_usage.1 / 1000000);
                 },
                 _ => warnln!("This command is unimplemented :C")
             }

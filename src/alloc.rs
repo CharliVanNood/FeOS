@@ -59,26 +59,26 @@ pub fn alloc(size: usize) -> usize{
     ALLOCATOR.lock().alloc(size)
 }
 
-pub fn write_byte(address: usize, value: u32) {
+pub fn write_byte(address: usize, value: usize) {
     unsafe {
         let heap_start = { ALLOCATOR.lock().heap_start };
         let heap_end = { ALLOCATOR.lock().heap_end };
         if address + heap_start > heap_end {
             warnln!("Address 0x{:x} is out of range! :C", address + heap_start);
         } else {
-            ptr::write((address + heap_start) as *mut u32, value);
+            ptr::write((address + heap_start) as *mut usize, value);
         }
     }
 }
 
-pub fn read_byte(address: usize) -> u32 {
+pub fn read_byte(address: usize) -> usize {
     unsafe {
         let heap_start = { ALLOCATOR.lock().heap_start };
         let heap_end = { ALLOCATOR.lock().heap_end };
         if address + heap_start > heap_end {
             warnln!("Address 0x{:x} is out of range! :C", address + heap_start);
         } else {
-            return ptr::read((address + heap_start) as *mut u32);
+            return ptr::read((address + heap_start) as *mut usize);
         }
     }
 
