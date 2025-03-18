@@ -119,6 +119,7 @@ pub fn test() {
     println!("Waiting for drive... ");
     wait_for_ready();
     write_test_data(&mut port);
+    read_test_data(&mut port);
 }
 
 fn identify_device() {
@@ -150,8 +151,6 @@ fn wait_for_ready() {
             let status: u8 = Port::new(0x1F7).read();
             println!("{:#x} ", status);
 
-            // Check if the BSY (bit 7) is clear (drive is not busy)
-            // and DRQ (bit 3) is set (data request is ready)
             if (status & 0x80) == 0 && (status & 0x08) != 0 {
                 break;
             }
@@ -160,10 +159,72 @@ fn wait_for_ready() {
 }
 
 fn write_test_data(port: &mut Port<u16>) {
-    for _ in 0..512 / 2 {
-        let word = u16::from_le_bytes([0, 0]);
+    println!("Writing test data to disk...");
+
+    unsafe {
+        Port::new(0x1F6).write(0xE0 as u8);
+        Port::new(0x1F2).write(1 as u8);
+        Port::new(0x1F3).write(1 as u8);
+        Port::new(0x1F4).write(0 as u8);
+        Port::new(0x1F5).write(0 as u8);
+    }
+    
+    unsafe {
+        Port::new(0x1F7).write(0x30 as u8);
+    }
+
+    wait_for_ready();
+
+    unsafe {
+        let status: u8 = Port::new(0x1F7).read();
+        if status & 0x01 != 0 {
+            println!("Write error detected: Status={:#x}", status);
+            return;
+        }
+    }
+
+    for i in 0..256 {
         unsafe {
-            port.write(word);
+            port.write(i as u16);
+        }
+    }
+
+    unsafe {
+        Port::new(0x1F7).write(0xE7 as u8);
+    }
+
+    println!("Write complete.");
+}
+
+fn read_test_data(port: &mut Port<u16>) {
+    println!("Reading test data from disk...");
+
+    unsafe {
+        Port::new(0x1F6).write(0xE0 as u8);
+        Port::new(0x1F2).write(1 as u8);
+        Port::new(0x1F3).write(1 as u8);
+        Port::new(0x1F4).write(0 as u8);
+        Port::new(0x1F5).write(0 as u8);
+    }
+    
+    unsafe {
+        Port::new(0x1F7).write(0x20 as u8);
+    }
+
+    wait_for_ready();
+
+    let mut buffer = [0u16; 128];
+    for i in 0..128 {
+        unsafe {
+            buffer[i] = port.read();
+        }
+    }
+
+    println!("Read complete. Data:");
+    for (i, word) in buffer.iter().enumerate() {
+        print!("{:04x} ", word);
+        if (i + 1) % 16 == 0 {
+            println!();
         }
     }
 }
