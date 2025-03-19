@@ -65,7 +65,7 @@ impl BigString {
             heap_end: heap_start.1
         }
     }
-    
+
     #[allow(dead_code)]
     pub fn from_b256(value: [u8; 256]) -> Self {
         let heap_start = alloc::alloc(2048);
@@ -112,7 +112,7 @@ impl BigString {
     }
 
     #[allow(dead_code)]
-    pub fn get(&mut self, address: usize) -> usize {
+    pub fn get(&self, address: usize) -> usize {
         if address * 8 >= self.size {
             warnln!("Address out of range :c");
             return 0;
@@ -124,77 +124,42 @@ impl BigString {
     pub fn len(&self) -> usize {
         self.size / 8
     }
-}
 
-fn shift_64b(list: [u8; 64], index: usize, length: usize) -> [u8; 64] {
-    let mut return_list = [0; 64];
-
-    for i in 0..64 - length {
-        if i < index {
-            return_list[i] = list[i];
-        } else {
-            return_list[i] = list[i + length];
+    #[allow(dead_code)]
+    pub fn print(&self) {
+        for index in 0..self.len() {
+            print!("{}", self.get(index) as u8 as char);
         }
+        print!("\n");
     }
 
-    return_list
-}
+    #[allow(dead_code)]
+    pub fn includes(&self, needle: &str) -> i8 {
+        let first_character = needle.bytes().next().unwrap();
+        let needle_length = needle.bytes().len();
 
-fn insert_64b(list: [u8; 64], index: usize, value: u8) -> [u8; 64] {
-    let mut return_list = [0; 64];
-
-    for i in 0..64 {
-        if i < index {
-            return_list[i] = list[i];
-        } else if i == index {
-            println!("INSERTED CHARACTER");
-            return_list[i] = value;
-        } else {
-            return_list[i] = list[i - 1];
-        }
-    }
-
-    return_list
-}
-
-pub fn replace_64b(mut string_in: [u8; 64], key: &str, _replacement: &str) -> [u8; 64] {
-    let key_bytes = key.bytes();
-    let key_bytes_len = key.bytes().count();
-    let key_bytes_parsed = {
-        let mut key_bytes_parsed = [0; 64];
-        let mut index = 0;
-        for byte in key_bytes {
-            key_bytes_parsed[index] = byte;
-            index += 1;
-        }
-        key_bytes_parsed
-    };
-
-    for i in 0..10 {
-        if i < string_in.len() - key_bytes_len {
-            let mut matches = true;
-            for j in 0..key_bytes_len {
-                if key_bytes_parsed[j] != string_in[i + j] {
-                    matches = false;
+        for index in 0..self.len() {
+            let character = self.get(index) as u8;
+            if character == first_character {
+                if needle_length == 1 {
+                    return index as i8;
                 } else {
-                    println!("{} to {}", key_bytes_parsed[j], string_in[i + j]);
+                    let mut matches = true;
+                    let mut offset = 0;
+                    for character in needle.bytes() {
+                        let character_self = self.get(index + offset) as u8;
+                        if character != character_self {
+                            matches = false;
+                        }
+                        offset += 1;
+                    }
+                    if matches {
+                        return index as i8;
+                    }
                 }
-                //println!("{} to {}", key_bytes_parsed[j], string_in[i + j]);
-            }
-            if matches {
-                for byte in string_in {
-                    print!("{}", byte as char);
-                }
-                print!("\n");
-                string_in = shift_64b(string_in, i, 2);
-                string_in = insert_64b(string_in, i, 32);
-                println!("FOUND A MATCH FOR THIS STRING");
-                for byte in string_in {
-                    print!("{}", byte as char);
-                }
-                print!("\n");
+                println!("FOUND FIRST CHARACTER")
             }
         }
+        return -1;
     }
-    string_in
 }
