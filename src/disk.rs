@@ -114,12 +114,17 @@ pub fn check_mbr() -> bool {
 
 pub fn test() {
     let mut port = Port::new(0x1F0);
+    unsafe {
+        Port::new(0x3F6).write(0x04 as u8);
+        Port::new(0x3F6).write(0x00 as u8);
+    }
+
     print!("Identifying drive... ");
     identify_device();
     println!("Waiting for drive... ");
     wait_for_ready();
     write_test_data(&mut port);
-    read_test_data(&mut port);
+    //read_test_data(&mut port);
 }
 
 fn identify_device() {
@@ -146,28 +151,32 @@ fn identify_device() {
 }
 
 fn wait_for_ready() {
+    let mut status: u8;
     loop {
-        unsafe {
-            let status: u8 = Port::new(0x1F7).read();
-            println!("{:#x} ", status);
-
-            if (status & 0x80) == 0 && (status & 0x08) != 0 {
+        unsafe { status = Port::new(0x1F7).read(); }
+        println!("{:#x} ", status);
+        if status & 0x80 == 0 {
+            if status & 0x08 != 0 {
+                println!("Drive is ready!");
                 break;
             }
         }
+        for _ in 0..10000 { unsafe { let _: u16 = Port::new(0x80).read(); } }
     }
 }
 
 fn write_test_data(port: &mut Port<u16>) {
     println!("Writing test data to disk...");
-
+    
     unsafe {
         Port::new(0x1F6).write(0xE0 as u8);
-        Port::new(0x1F2).write(1 as u8);
-        Port::new(0x1F3).write(1 as u8);
+        Port::new(0x1F2).write(1 as u8); // amount of sectors to read
+        Port::new(0x1F3).write(10 as u8);
         Port::new(0x1F4).write(0 as u8);
         Port::new(0x1F5).write(0 as u8);
     }
+
+    wait_for_ready();
     
     unsafe {
         Port::new(0x1F7).write(0x30 as u8);
@@ -189,11 +198,20 @@ fn write_test_data(port: &mut Port<u16>) {
         }
     }
 
-    unsafe {
+    /*unsafe {
         Port::new(0x1F7).write(0xE7 as u8);
+    }*/
+
+    let mut debug_buffer = [0u16; 128];
+    for i in 0..128 {
+        unsafe { debug_buffer[i] = port.read(); }
     }
 
-    println!("Write complete.");
+    println!("DEBUG: Readback after write:");
+    for (i, word) in debug_buffer.iter().enumerate() {
+        print!("{:04x} ", word);
+        if (i + 1) % 16 == 0 { println!(); }
+    }
 }
 
 fn read_test_data(port: &mut Port<u16>) {
@@ -201,12 +219,14 @@ fn read_test_data(port: &mut Port<u16>) {
 
     unsafe {
         Port::new(0x1F6).write(0xE0 as u8);
-        Port::new(0x1F2).write(1 as u8);
-        Port::new(0x1F3).write(1 as u8);
+        Port::new(0x1F2).write(1 as u8); // amount of sectors to read
+        Port::new(0x1F3).write(0 as u8);
         Port::new(0x1F4).write(0 as u8);
         Port::new(0x1F5).write(0 as u8);
     }
     
+    wait_for_ready();
+
     unsafe {
         Port::new(0x1F7).write(0x20 as u8);
     }
