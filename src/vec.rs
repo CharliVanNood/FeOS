@@ -54,20 +54,20 @@ impl Vec {
             return;
         }
         alloc::write_byte(self.heap_start + self.size, value as usize);
-        self.size += 1;
+        self.size += 8;
     }
 
     #[allow(dead_code)]
     pub fn get(&mut self, address: usize) -> usize {
-        if address > self.size {
+        if address * 8 >= self.size {
             warnln!("Address out of range :c");
             return 0;
         }
-        alloc::read_byte(self.heap_start + address)
+        alloc::read_byte(self.heap_start + address * 8)
     }
 
     #[allow(dead_code)]
     pub fn len(&self) -> usize {
-        self.size
+        self.size / 8
     }
 }

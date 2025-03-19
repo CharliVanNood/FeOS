@@ -17,7 +17,7 @@ use core::panic::PanicInfo;
 use bootloader::BootInfo;
 
 use alloc::{read_byte, write_byte};
-use fem_dos::{alloc::alloc, vec::Vec};
+use fem_dos::alloc::alloc;
 
 const VERSION: &str = env!("VERSION");
 
