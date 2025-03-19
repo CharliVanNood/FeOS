@@ -29,7 +29,7 @@ pub extern "C" fn _start(boot_info: &'static BootInfo) -> ! {
     println!("| FemDOS!                            |");
     println!("|                                    |");
     println!("| Data:                              |");
-    println!("| Version: {}                   |", VERSION);
+    println!("| Version: {}                  |", VERSION);
     println!("| Memory offset: 0x{:x}       |", boot_info.physical_memory_offset);
     println!("--------------------------------------");
 

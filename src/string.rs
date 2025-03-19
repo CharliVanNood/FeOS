@@ -162,4 +162,8 @@ impl BigString {
         }
         return -1;
     }
+
+    pub fn replace(&self, needle: &str, value: &str) {
+        
+    }
 }
