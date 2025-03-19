@@ -17,7 +17,7 @@ use core::panic::PanicInfo;
 use bootloader::BootInfo;
 
 use alloc::{read_byte, write_byte};
-use fem_dos::{alloc::alloc, string::BigString};
+use fem_dos::alloc::alloc;
 
 const VERSION: &str = env!("VERSION");
 
@@ -37,14 +37,6 @@ pub extern "C" fn _start(boot_info: &'static BootInfo) -> ! {
     // disk::check_mbr();
     alloc::set_heap(boot_info.physical_memory_offset as usize, 0x5000000);
     fem_dos::init(boot_info);
-
-    let test_string = BigString::from("test a b c");
-    if test_string.includes("es") != -1{
-        infoln!("String includes es");
-    } else {
-        warnln!("String doesn't include es");
-    }
-    test_string.print();
 
     println!("Done initializing components!");
 

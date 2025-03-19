@@ -89,19 +89,6 @@ impl BigString {
     }
 
     #[allow(dead_code)]
-    pub fn set(&mut self, value: &str) {
-        self.size = 0;
-        for byte in value.bytes() {
-            if self.size >= self.heap_size {
-                warnln!("Reached String limit :c");
-                return;
-            }
-            alloc::write_byte(self.heap_start + self.size, byte as usize);
-            self.size += 8;
-        }
-    }
-
-    #[allow(dead_code)]
     pub fn add(&mut self, value: u8) {
         if self.size >= self.heap_size {
             warnln!("Reached String limit :c");
@@ -121,6 +108,13 @@ impl BigString {
     }
 
     #[allow(dead_code)]
+    pub fn set(&mut self, address: usize, value: usize) {
+        if address * 8 < self.size {
+            alloc::write_byte(self.heap_start + address * 8, value);
+        }
+    }
+
+    #[allow(dead_code)]
     pub fn len(&self) -> usize {
         self.size / 8
     }
@@ -128,6 +122,10 @@ impl BigString {
     #[allow(dead_code)]
     pub fn print(&self) {
         for index in 0..self.len() {
+            if self.get(index) as u8 as char == '\n' {
+                print!(":new:");
+                continue;
+            }
             print!("{}", self.get(index) as u8 as char);
         }
         print!("\n");
@@ -157,13 +155,23 @@ impl BigString {
                         return index as i8;
                     }
                 }
-                println!("FOUND FIRST CHARACTER")
             }
         }
         return -1;
     }
 
-    pub fn replace(&self, needle: &str, value: &str) {
-        
+    pub fn replace(&mut self, needle: &str, value: &str)  {
+        let needle_index = self.includes(needle);
+        if needle_index == -1 { return; }
+
+        let needle_end = needle_index as usize + needle.bytes().len();
+        let offset = value.bytes().len() as i16 - needle.bytes().len() as i16;
+
+        for moving in 0..self.len() - needle_end {
+            self.set(self.size / 8 - moving, self.get((self.size as i16 / 8 - moving as i16 - offset) as usize));
+        }
+        for byte in value.bytes().enumerate() {
+            self.set(needle_index as usize + byte.0, byte.1 as usize);
+        }
     }
 }
