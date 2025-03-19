@@ -139,13 +139,10 @@ pub fn run_file(name: [u8; 20]) {
     let file_start = file.2.0;
     let file_size = file.2.2;
 
-    let mut file_data: [usize; 255] = [0; 255];
-    let mut file_index = 0;
-
+    let mut file_data: [u8; 256] = [0; 256];
     for i in 0..file_size {
         let byte = alloc::read_byte(file_start + i * 8) as u8;
-        file_data[file_index] = byte as usize;
-        file_index += 1;
+        file_data[i] = byte;
     }
 
     femc::exec(file_data);
@@ -154,11 +151,12 @@ pub fn run_file(name: [u8; 20]) {
 pub fn install_base_os() {
     println!("Installing FemDOS");
     create_file(1, "file1", "Hello world");
-    create_file(1, "file2", "This is amazing");
-    create_file(1, "file3", "This is a text file");
-    create_file(1, "flow1", "");
-    create_file(1, "flow2", "");
-    create_file(6, "hidden file", "WOW YOU FOUND ME");
-    create_file(1, "hidden file", "print 1 + 1");
-    create_file(1, "python1", "print 1 + 10 * 10\nprint 10 + 10");
+    //create_file(1, "file2", "This is amazing");
+    //create_file(1, "file3", "This is a text file");
+    //create_file(1, "flow1", "");
+    //create_file(1, "flow2", "");
+    //create_file(6, "hidden file", "WOW YOU FOUND ME");
+    //create_file(6, "hidden file", "print 1 + 1");
+    create_file(1, "python1", "print 1 + 10 * 10\nprint 10 + 10\ntest = 10\ntest2 = 20\nprint test\nprint test2");
+    //create_file(1, "python2", "print 1 + 10 * 10");
 }
