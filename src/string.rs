@@ -45,6 +45,50 @@ impl BigString {
     }
 
     #[allow(dead_code)]
+    pub fn from_b64(value: [u8; 64]) -> Self {
+        let heap_start = alloc::alloc(2048);
+        let mut size = 0;
+
+        for byte in value {
+            if size >= heap_start.1 - heap_start.0 {
+                warnln!("Reached String limit :c");
+                continue;
+            }
+            alloc::write_byte(heap_start.0 + size, byte as usize);
+            size += 8;
+        }
+
+        Self {
+            size: size,
+            heap_start: heap_start.0,
+            heap_size: heap_start.1 - heap_start.0,
+            heap_end: heap_start.1
+        }
+    }
+    
+    #[allow(dead_code)]
+    pub fn from_b256(value: [u8; 256]) -> Self {
+        let heap_start = alloc::alloc(2048);
+        let mut size = 0;
+
+        for byte in value {
+            if size >= heap_start.1 - heap_start.0 {
+                warnln!("Reached String limit :c");
+                continue;
+            }
+            alloc::write_byte(heap_start.0 + size, byte as usize);
+            size += 8;
+        }
+
+        Self {
+            size: size,
+            heap_start: heap_start.0,
+            heap_size: heap_start.1 - heap_start.0,
+            heap_end: heap_start.1
+        }
+    }
+
+    #[allow(dead_code)]
     pub fn set(&mut self, value: &str) {
         self.size = 0;
         for byte in value.bytes() {

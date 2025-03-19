@@ -139,12 +139,12 @@ pub fn run_file(name: [u8; 20]) {
     let file_start = file.2.0;
     let file_size = file.2.2;
 
-    let mut file_data: [usize; 255] = [0; 255];
+    let mut file_data: [u8; 256] = [0; 256];
     let mut file_index = 0;
 
     for i in 0..file_size {
         let byte = alloc::read_byte(file_start + i * 8) as u8;
-        file_data[file_index] = byte as usize;
+        file_data[file_index] = byte;
         file_index += 1;
     }
 

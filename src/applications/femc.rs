@@ -1,7 +1,9 @@
-use crate::{println, string, warnln};
+use crate::{println, string::{self, BigString}, warnln};
 
-pub fn exec(input: [usize; 255]) {
-    let tokenized_code = tokenize(input);
+pub fn exec(input: [u8; 256]) {
+    let mut input_string = BigString::from_b256(input);
+    //input_string = input_string.replace("\n", " \n ");
+    let tokenized_code = tokenize(input_string);
     run_tokens(tokenized_code);
 }
 
@@ -19,12 +21,14 @@ fn shift_list(list: [(u8, i32); 255], index: usize, length: usize) -> [(u8, i32)
     return_list
 }
 
-fn run_tokens(tokens: [(u8, i32); 255]) {
-    let tokens_after_fact = run_tokens_fact(tokens);
-    let tokens_after_math = run_tokens_math(tokens_after_fact);
-    let tokens_after_first = run_tokens_first(tokens_after_math);
-    let tokens_after_bool = run_tokens_boolean(tokens_after_first);
-    let _tokens_after_last = run_tokens_last(tokens_after_bool);
+fn run_tokens(tokens: [[(u8, i32); 255]; 255]) {
+    for line in tokens {
+        let tokens_after_fact = run_tokens_fact(line);
+        let tokens_after_math = run_tokens_math(tokens_after_fact);
+        let tokens_after_first = run_tokens_first(tokens_after_math);
+        let tokens_after_bool = run_tokens_boolean(tokens_after_first);
+        let _tokens_after_last = run_tokens_last(tokens_after_bool);
+    }
 }
 
 fn run_tokens_fact(mut tokens: [(u8, i32); 255]) -> [(u8, i32); 255] {
@@ -525,30 +529,40 @@ fn match_token(token: [u8; 64]) -> (u8, i32) {
     (0, 0)
 }
 
-fn tokenize(input: [usize; 255]) -> [(u8, i32); 255] {
-    let mut tokens: [(u8, i32); 255] = [(0, 0); 255];
+fn tokenize(mut input: BigString) -> [[(u8, i32); 255]; 255] {
+    let mut lines: [[(u8, i32); 255]; 255] = [[(0, 0); 255]; 255];
     let mut tokens_index = 0;
+    let mut line = 0;
 
     // this creates a max token length of 64
     let mut temp_token = [0; 64];
     let mut temp_token_index = 0;
 
     for char_index in 0..255 {
-        let char = input[char_index];
+        let char = input.get(char_index);
         if char == 0 { continue; }
         if char == 32 {
-            let _temp_tokens = string::replace_64b(temp_token, "\n", " \n ");
-            tokens[tokens_index] = match_token(temp_token);
-            tokens_index += 1;
-            temp_token = [0; 64];
-            temp_token_index = 0;
+            let token = match_token(temp_token);
+            if token.0 == 8 {
+                line += 1;
+                tokens_index = 0;
+                temp_token = [0; 64];
+                temp_token_index = 0;
+            } else {
+                lines[line][tokens_index] = token;
+                tokens_index += 1;
+                temp_token = [0; 64];
+                temp_token_index = 0;
+            }
         } else {
             temp_token[temp_token_index] = char as u8;
             temp_token_index += 1;
         }
     }
-    let temp_tokens = string::replace_64b(temp_token, "\n", " \n ");
-    tokens[tokens_index] = match_token(temp_tokens);
+    let token = match_token(temp_token);
+    if token.0 != 8 {
+        lines[line][tokens_index] = token;
+    }
 
-    tokens
+    lines
 }

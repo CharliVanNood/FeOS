@@ -100,7 +100,7 @@ extern "x86-interrupt" fn keyboard_interrupt_handler(
             match key {
                 DecodedKey::Unicode(character) => {
                     let byte = character as u8;
-                    if input::add_key(byte as usize) {
+                    if input::add_key(byte) {
                         print!("{}", character)
                     }
                 },
