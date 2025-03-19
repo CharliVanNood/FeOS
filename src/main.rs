@@ -52,12 +52,6 @@ pub extern "C" fn _start(boot_info: &'static BootInfo) -> ! {
         warnln!("[AWW] Ram test failed :c");
     }
 
-    let mut test_vec = Vec::new();
-    let _test_vec1 = Vec::new();
-    let _test_vec2 = Vec::new();
-    test_vec.add(10);
-    println!("test vec length: {}", test_vec.len());
-
     println!("Done testing!");
 
     println!("--------------------------------------");

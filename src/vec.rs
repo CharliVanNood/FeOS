@@ -1,4 +1,4 @@
-use crate::{alloc, println};
+use crate::{alloc, println, warnln};
 
 // the max number of files is 5000
 pub struct FileVec {
@@ -48,8 +48,22 @@ impl Vec {
     }
 
     #[allow(dead_code)]
-    pub fn add(&mut self, _value: u8) {
+    pub fn add(&mut self, value: u8) {
+        if self.size >= self.heap_size {
+            warnln!("Reached vec limit :c");
+            return;
+        }
+        alloc::write_byte(self.heap_start + self.size, value as usize);
         self.size += 1;
+    }
+
+    #[allow(dead_code)]
+    pub fn get(&mut self, address: usize) -> usize {
+        if address > self.size {
+            warnln!("Address out of range :c");
+            return 0;
+        }
+        alloc::read_byte(self.heap_start + address)
     }
 
     #[allow(dead_code)]
