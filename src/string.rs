@@ -1,6 +1,6 @@
 use core::usize;
 
-use crate::{print, println, warnln};
+use crate::{print, warnln};
 use crate::alloc;
 
 #[allow(dead_code)]
