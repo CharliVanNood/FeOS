@@ -1,4 +1,5 @@
 use crate::alloc;
+use crate::clock::print_time;
 use crate::{print, println, warnln};
 use crate::vga;
 use crate::applications;
@@ -70,12 +71,13 @@ fn print_help_command() {
     println!("   [go] [flow name]   - Change to a different flow");
     println!("   [pong]             - The game pong");
     println!("   [cat]              - Read a file");
+    println!("   [time]             - Time will show you the current time according to bios");
     println!("   [per]              - Performance will show you system details\n");
 }
 
 #[allow(dead_code)]
 pub fn match_commands() {
-    let commands = ["info", "ping", "color", "clear", "help", "femc", "fl", "go", "install", "pong", "cat", "run", "per"];
+    let commands = ["info", "ping", "color", "clear", "help", "femc", "fl", "go", "install", "pong", "cat", "run", "per", "time"];
 
     print!("\n");
 
@@ -167,6 +169,9 @@ pub fn match_commands() {
                     println!("   {} Bytes / {} Bytes", ram_usage.0, ram_usage.1);
                     println!("   {} KB / {} KB", ram_usage.0 / 1000, ram_usage.1 / 1000);
                     println!("   {} MB / {} MB\n", ram_usage.0 / 1000000, ram_usage.1 / 1000000);
+                },
+                "time" => {
+                    print_time();
                 },
                 _ => warnln!("This command is unimplemented :C")
             }

@@ -12,11 +12,10 @@ mod filesystem;
 mod disk;
 mod string;
 mod alloc;
+mod clock;
 
 use core::panic::PanicInfo;
 use bootloader::BootInfo;
-use bootloader::bootinfo::MemoryRegionType;
-use core::ptr;
 
 use alloc::{read_byte, write_byte};
 use fem_dos::{alloc::alloc, vec::Vec};
@@ -37,7 +36,7 @@ pub extern "C" fn _start(boot_info: &'static BootInfo) -> ! {
 
     // dissabled, this is not working for me yet
     //disk::check_mbr();
-    disk::test();
+    //disk::test();
 
     alloc::set_heap(boot_info.physical_memory_offset as usize, 0x5000000);
     fem_dos::init(boot_info);

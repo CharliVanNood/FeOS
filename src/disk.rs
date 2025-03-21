@@ -1,12 +1,11 @@
 //use lazy_static::lazy_static;
 //use spin::Mutex;
 
-use core::arch::asm;
+//use core::arch::asm;
 use crate::{infoln, print, println, warnln};
 use x86_64::instructions::port::Port;
-use volatile::Volatile;
-use core::ptr;
 
+/*
 pub unsafe fn outb(port: u16, value: u8) {
     asm!("out dx, al", in("dx") port, in("al") value, options(nostack, nomem));
 }
@@ -27,7 +26,7 @@ pub unsafe fn inw(port: u16) -> u16 {
     result
 }
 
-pub unsafe fn ata_write_sector(lba: u32, buffer: &[u16]) {
+pub unsafe fn _ata_write_sector(lba: u32, buffer: &[u16]) {
     while (inb(0x1F7) & 0x80) != 0 {}
 
     outb(0x1F6, ((lba >> 24) as u8) | 0xE0);
@@ -50,7 +49,7 @@ pub unsafe fn ata_write_sector(lba: u32, buffer: &[u16]) {
     while (inb(0x1F7) & 0x80) != 0 {print!(".")}
 }
 
-pub unsafe fn ata_read_sector(lba: u32, buffer: &mut [u16]) {
+pub unsafe fn _ata_read_sector(lba: u32, buffer: &mut [u16]) {
     println!("Waiting for Disk");
     while (inb(0x1F7) & 0x80) == 0 {
         let status = inb(0x1F7);
@@ -95,7 +94,7 @@ pub unsafe fn ata_read_sector(lba: u32, buffer: &mut [u16]) {
 }
 
 
-pub fn check_mbr() -> bool {
+pub fn _check_mbr() -> bool {
     println!("Checking for any mbr data!");
     let mut buffer = [0u16; 256];
     unsafe { ata_read_sector(0, &mut buffer) };
@@ -111,8 +110,9 @@ pub fn check_mbr() -> bool {
 
     signature == (0x55, 0xAA)
 }
+*/
 
-pub fn test() {
+pub fn _test() {
     let mut port = Port::new(0x1F0);
     unsafe {
         Port::new(0x3F6).write(0x04 as u8);
@@ -120,14 +120,14 @@ pub fn test() {
     }
 
     print!("Identifying drive... ");
-    identify_device();
+    _identify_device();
     println!("Waiting for drive... ");
-    wait_for_ready();
-    write_test_data(&mut port);
+    _wait_for_ready();
+    _write_test_data(&mut port);
     //read_test_data(&mut port);
 }
 
-fn identify_device() {
+fn _identify_device() {
     unsafe {
         Port::new(0x1F7).write(0xEC as u8);
     }
@@ -150,7 +150,7 @@ fn identify_device() {
     }
 }
 
-fn wait_for_ready() {
+fn _wait_for_ready() {
     let mut status: u8;
     loop {
         unsafe { status = Port::new(0x1F7).read(); }
@@ -165,7 +165,7 @@ fn wait_for_ready() {
     }
 }
 
-fn write_test_data(port: &mut Port<u16>) {
+fn _write_test_data(port: &mut Port<u16>) {
     println!("Writing test data to disk...");
     
     unsafe {
@@ -176,13 +176,14 @@ fn write_test_data(port: &mut Port<u16>) {
         Port::new(0x1F5).write(0 as u8);
     }
 
-    wait_for_ready();
+    _wait_for_ready();
     
     unsafe {
         Port::new(0x1F7).write(0x30 as u8);
     }
 
-    wait_for_ready();
+    
+    _wait_for_ready();
 
     unsafe {
         let status: u8 = Port::new(0x1F7).read();
@@ -214,7 +215,7 @@ fn write_test_data(port: &mut Port<u16>) {
     }
 }
 
-fn read_test_data(port: &mut Port<u16>) {
+fn _read_test_data(port: &mut Port<u16>) {
     println!("Reading test data from disk...");
 
     unsafe {
@@ -225,13 +226,13 @@ fn read_test_data(port: &mut Port<u16>) {
         Port::new(0x1F5).write(0 as u8);
     }
     
-    wait_for_ready();
+    _wait_for_ready();
 
     unsafe {
         Port::new(0x1F7).write(0x20 as u8);
     }
 
-    wait_for_ready();
+    _wait_for_ready();
 
     let mut buffer = [0u16; 128];
     for i in 0..128 {
