@@ -1,4 +1,4 @@
-use crate::{print, println, string::BigString, warnln};
+use crate::{println, string::BigString, warnln};
 
 pub fn exec(input: [u8; 256]) {
     let mut input_string = BigString::from_b256(input);
@@ -423,7 +423,7 @@ fn run_tokens_first(mut tokens: [(u8, i32); 255], _variables: [u16; 256], _inden
 
 fn run_tokens_last(
     mut tokens: [(u8, i32); 255], variables: &mut [u16; 256], indentation: &mut [i8; 16], 
-    indentation_depth: u8, mut line_index: usize) -> ([(u8, i32); 255], usize, bool) {
+    indentation_depth: u8, line_index: usize) -> ([(u8, i32); 255], usize, bool) {
     let mut return_to_last_indent = false;
     
     let mut token_index = 0;
