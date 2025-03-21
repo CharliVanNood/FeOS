@@ -4,6 +4,8 @@ pub fn exec(input: [u8; 256]) {
     let mut input_string = BigString::from_b256(input);
     for _ in 0..10 {
         input_string.replace("\n", " lnnew ");
+        input_string.replace("|", " lnnew ");
+        input_string.replace("]", " lnnew ");
     }
     let tokenized_code = tokenize(input_string);
     run_tokens(tokenized_code);
