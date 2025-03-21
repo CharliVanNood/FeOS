@@ -25,6 +25,7 @@ fn shift_list(list: [(u8, i32); 255], index: usize, length: usize) -> [(u8, i32)
 fn run_tokens(mut tokens: [[(u8, i32); 255]; 10]) {
     let mut variables: [u16; 256] = [0; 256];
     let mut indentation: [i8; 16] = [-1; 16];
+    let mut running = true;
     //let mut original_tokens = tokens;
 
     let mut line_index = 0;
@@ -38,9 +39,10 @@ fn run_tokens(mut tokens: [[(u8, i32); 255]; 10]) {
             }
         }
 
-        let operation_result = run_line(line, &mut indentation, line_index, &mut variables, indentation_depth);
+        let operation_result = run_line(line, &mut indentation, line_index, &mut variables, indentation_depth, running);
 
         line_index = operation_result.1;
+        running = operation_result.3;
         if operation_result.2 {
             tokens[line_index] = operation_result.0;
             line_index = indentation[indentation_depth as usize] as usize;
@@ -50,14 +52,18 @@ fn run_tokens(mut tokens: [[(u8, i32); 255]; 10]) {
     }
 }
 
-fn run_line(line: [(u8, i32); 255], mut indentation: &mut [i8; 16], line_index: usize, mut variables: &mut [u16; 256], indentation_depth: u8) -> ([(u8, i32); 255], usize, bool) {
-    let tokens_after_fact = run_tokens_fact(line, *variables, *indentation, indentation_depth);
-    let tokens_after_math = run_tokens_math(tokens_after_fact, *variables, *indentation, indentation_depth);
-    let tokens_after_first = run_tokens_first(tokens_after_math, *variables, *indentation, indentation_depth);
-    let tokens_after_bool = run_tokens_boolean(tokens_after_first, *variables, *indentation, indentation_depth);
-    let operation_result = run_tokens_last(tokens_after_bool, &mut variables, &mut indentation, indentation_depth, line_index);
-    
-    operation_result
+fn run_line(line: [(u8, i32); 255], mut indentation: &mut [i8; 16], line_index: usize, mut variables: &mut [u16; 256], indentation_depth: u8, running: bool) -> ([(u8, i32); 255], usize, bool, bool) {
+    if running {
+        let tokens_after_fact = run_tokens_fact(line, *variables, *indentation, indentation_depth);
+        let tokens_after_math = run_tokens_math(tokens_after_fact, *variables, *indentation, indentation_depth);
+        let tokens_after_first = run_tokens_first(tokens_after_math, *variables, *indentation, indentation_depth);
+        let tokens_after_bool = run_tokens_boolean(tokens_after_first, *variables, *indentation, indentation_depth);
+        let operation_result = run_tokens_last(tokens_after_bool, &mut variables, &mut indentation, indentation_depth, line_index, running);
+        return operation_result;
+    } else {
+        let operation_result = run_tokens_last(line, variables, indentation, indentation_depth, line_index, running);
+        return operation_result;
+    }
 }
 
 fn run_tokens_fact(mut tokens: [(u8, i32); 255], _variables: [u16; 256], _indentation: [i8; 16], _indentation_depth: u8) -> [(u8, i32); 255] {
@@ -422,15 +428,15 @@ fn run_tokens_first(mut tokens: [(u8, i32); 255], _variables: [u16; 256], _inden
 
 fn run_tokens_last(
     mut tokens: [(u8, i32); 255], variables: &mut [u16; 256], indentation: &mut [i8; 16], 
-    indentation_depth: u8, line_index: usize) -> ([(u8, i32); 255], usize, bool) {
+    indentation_depth: u8, line_index: usize, mut running: bool) -> ([(u8, i32); 255], usize, bool, bool) {
     let mut return_to_last_indent = false;
     
     let mut token_index = 0;
     for _ in 0..255 {
         let token = tokens[token_index];
 
-        match token.0 {
-            10 => {
+        match (token.0, running) {
+            (10, true) => {
                 match tokens[token_index + 1].0 {
                     1 => {
                         println!("{}", tokens[token_index + 1].1);
@@ -456,7 +462,7 @@ fn run_tokens_last(
                     _ => warnln!("This is an unsupported type conversion")
                 }
             },
-            23 => {
+            (23, true) => {
                 match tokens[token_index + 1].0 {
                     1 => {
                         warnln!("{}", tokens[token_index + 1].1);
@@ -477,7 +483,7 @@ fn run_tokens_last(
                     _ => warnln!("This is an unsupported type conversion")
                 }
             },
-            24 => {
+            (24, true) => {
                 match (tokens[token_index - 1].0, tokens[token_index + 1].0) {
                     (7, 1) => {
                         variables[tokens[token_index - 1].1 as usize] = tokens[token_index + 1].1 as u16;
@@ -487,27 +493,30 @@ fn run_tokens_last(
                     _ => warnln!("This is an unsupported type conversion")
                 }
             },
-            25 => {
+            (25, true) | (25, false) => {
                 if token_index == 0 {
                     indentation[indentation_depth as usize + 1] = line_index as i8;
+                    running = false;
                     tokens = shift_list(tokens, token_index, 1);
                 }
             },
-            26 => {
+            (26, true) | (26, false) => {
                 match tokens[token_index + 1].0 {
                     1 => {
-                        if tokens[token_index + 1].1 > 1 {
+                        if tokens[token_index + 1].1 > 0 {
                             tokens[token_index + 1] = (tokens[token_index + 1].0, tokens[token_index + 1].1 - 1);
                             return_to_last_indent = true;
                         } else {
                             indentation[indentation_depth as usize + 1] = -1;
                         }
+                        running = true;
                     }
                     _ => warnln!("This is an unsupported type conversion")
                 }
             }
-            27 => {
+            (27, true) | (27, false) => {
                 indentation[indentation_depth as usize + 1] = -1;
+                running = true;
             }
             _ => {}
         }
@@ -515,7 +524,7 @@ fn run_tokens_last(
         token_index += 1;
     }
 
-    (tokens, line_index, return_to_last_indent)
+    (tokens, line_index, return_to_last_indent, running)
 }
 
 fn match_token(token: [u8; 64], variables: [[u8; 64]; 64]) -> (u8, i32, [[u8; 64]; 64]) {
