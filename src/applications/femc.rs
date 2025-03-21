@@ -493,7 +493,7 @@ fn run_tokens_last(
                     _ => warnln!("This is an unsupported type conversion")
                 }
             },
-            (25, true) | (25, false) => {
+            (25, true) => {
                 if token_index == 0 {
                     indentation[indentation_depth as usize + 1] = line_index as i8;
                     running = false;
@@ -517,6 +517,20 @@ fn run_tokens_last(
             (27, true) | (27, false) => {
                 indentation[indentation_depth as usize + 1] = -1;
                 running = true;
+            },
+            (28, true) => {
+                match tokens[token_index + 1].0 {
+                    3 => {
+                        if tokens[token_index + 1].1 == 1 {
+                            indentation[indentation_depth as usize + 1] = line_index as i8;
+                            running = true;
+                        } else {
+                            indentation[indentation_depth as usize + 1] = line_index as i8;
+                            running = false;
+                        }
+                    }
+                    _ => warnln!("This is an unsupported type conversion")
+                }
             }
             _ => {}
         }
@@ -531,11 +545,11 @@ fn match_token(token: [u8; 64], variables: [[u8; 64]; 64]) -> (u8, i32, [[u8; 64
     let tokens_val = [
         "say", "print", "+", "-", "/", "*", "(", ")", "==", 
         ">=", "<=", ">", "<", "true", "false", "not", "yell", 
-        "warn", "\n", "lnnew", "=", "do", "repeat", "end"];
+        "warn", "\n", "lnnew", "=", "do", "repeat", "end", "if"];
     let tokens_keys  = [
          10,    10,      11,  12,  13,  14,  15,  16,  17,   
          20,   21,   18,  19,  3,      3,       22,    23,
-         23,     8,    8,       24,  25,   26,       27];
+         23,     8,    8,       24,  25,   26,       27,    28];
 
     for command_index in 0..tokens_val.len() {
         let command = tokens_val[command_index];

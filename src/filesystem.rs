@@ -161,4 +161,5 @@ pub fn install_base_os() {
     //create_file(1, "python2", "print 1 + 10 * 10");
     create_file(1, "loop_test_1", "do\nprint 10\nrepeat 10");
     create_file(1, "loop_test_2", "do\nprint 10\nrepeat 0\ndo\nprint 5\nrepeat 10");
+    create_file(1, "if_test_1", "if 10 == 10\nprint 10\nend\nif 10 == 5\nprint 5\nend");
 }
