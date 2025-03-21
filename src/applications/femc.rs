@@ -22,7 +22,6 @@ fn shift_list(list: [(u8, i32); 255], index: usize, length: usize) -> [(u8, i32)
 
     return_list
 }
-
 fn run_tokens(mut tokens: [[(u8, i32); 255]; 10]) {
     let mut variables: [u16; 256] = [0; 256];
     let mut indentation: [i8; 16] = [-1; 16];
@@ -500,10 +499,15 @@ fn run_tokens_last(
                         if tokens[token_index + 1].1 > 1 {
                             tokens[token_index + 1] = (tokens[token_index + 1].0, tokens[token_index + 1].1 - 1);
                             return_to_last_indent = true;
+                        } else {
+                            indentation[indentation_depth as usize + 1] = -1;
                         }
                     }
                     _ => warnln!("This is an unsupported type conversion")
                 }
+            }
+            27 => {
+                indentation[indentation_depth as usize + 1] = -1;
             }
             _ => {}
         }
@@ -518,11 +522,11 @@ fn match_token(token: [u8; 64], variables: [[u8; 64]; 64]) -> (u8, i32, [[u8; 64
     let tokens_val = [
         "say", "print", "+", "-", "/", "*", "(", ")", "==", 
         ">=", "<=", ">", "<", "true", "false", "not", "yell", 
-        "warn", "\n", "lnnew", "=", "do", "repeat"];
+        "warn", "\n", "lnnew", "=", "do", "repeat", "end"];
     let tokens_keys  = [
          10,    10,      11,  12,  13,  14,  15,  16,  17,   
          20,   21,   18,  19,  3,      3,       22,    23,
-         23,     8,    8,       24,  25,   26];
+         23,     8,    8,       24,  25,   26,       27];
 
     for command_index in 0..tokens_val.len() {
         let command = tokens_val[command_index];
