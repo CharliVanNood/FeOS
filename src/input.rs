@@ -7,24 +7,24 @@ use crate::filesystem;
 use spin::Mutex;
 
 lazy_static::lazy_static! {
-    static ref CURRENT_TEXT: Mutex<[usize; 255]> = Mutex::new([0; 255]);
+    static ref CURRENT_TEXT: Mutex<[u8; 256]> = Mutex::new([0; 256]);
     static ref CURRENT_TEXT_END: Mutex<usize> = Mutex::new(0);
 }
 
 #[allow(dead_code)]
-pub fn set_text(characters: [usize; 255]) {
+pub fn set_text(characters: [u8; 256]) {
     let mut text = CURRENT_TEXT.lock();
     *text = characters;
 }
 
 #[allow(dead_code)]
-pub fn get_text() -> [usize; 255] {
+pub fn get_text() -> [u8; 256] {
     let text = CURRENT_TEXT.lock();
     *text
 }
 
 #[allow(dead_code)]
-pub fn add_key(character: usize) -> bool {
+pub fn add_key(character: u8) -> bool {
     match character {
         10 => {
             match_commands();
@@ -186,7 +186,7 @@ pub fn match_commands() {
     {
         let mut text = CURRENT_TEXT.lock();
         let mut text_end = CURRENT_TEXT_END.lock();
-        *text = [0; 255];
+        *text = [0; 256];
         *text_end = 0;
     }
 }

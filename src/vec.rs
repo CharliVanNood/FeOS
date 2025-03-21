@@ -1,15 +1,15 @@
-use crate::{alloc, println};
+use crate::{alloc, println, warnln};
 
 // the max number of files is 5000
 pub struct FileVec {
-    data: [(u32, i32, (usize, usize, usize), [u8; 20]); 5000],
+    data: [(u32, i32, (usize, usize, usize), [u8; 20]); 1000],
     size: usize,
 }
 impl FileVec {
     pub fn new() -> Self {
         println!("Created new FileSystem Vector");
         Self {
-            data: [(0, -1, (0, 0, 0), [0; 20]); 5000],
+            data: [(0, -1, (0, 0, 0), [0; 20]); 1000],
             size: 1
         }
     }
@@ -23,7 +23,7 @@ impl FileVec {
         self.size
     }
 
-    pub fn iter(&self) -> [(u32, i32, (usize, usize, usize), [u8; 20]); 5000] {
+    pub fn iter(&self) -> [(u32, i32, (usize, usize, usize), [u8; 20]); 1000] {
         self.data
     }
 }
@@ -48,12 +48,26 @@ impl Vec {
     }
 
     #[allow(dead_code)]
-    pub fn add(&mut self, _value: u8) {
-        self.size += 1;
+    pub fn add(&mut self, value: u8) {
+        if self.size >= self.heap_size {
+            warnln!("Reached vec limit :c");
+            return;
+        }
+        alloc::write_byte(self.heap_start + self.size, value as usize);
+        self.size += 8;
+    }
+
+    #[allow(dead_code)]
+    pub fn get(&mut self, address: usize) -> usize {
+        if address * 8 >= self.size {
+            warnln!("Address out of range :c");
+            return 0;
+        }
+        alloc::read_byte(self.heap_start + address * 8)
     }
 
     #[allow(dead_code)]
     pub fn len(&self) -> usize {
-        self.size
+        self.size / 8
     }
 }
