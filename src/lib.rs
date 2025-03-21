@@ -15,6 +15,7 @@ pub mod vec;
 pub mod disk;
 pub mod string;
 pub mod alloc;
+pub mod clock;
 
 use core::panic::PanicInfo;
 
