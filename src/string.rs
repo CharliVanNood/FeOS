@@ -1,6 +1,6 @@
 use core::usize;
 
-use crate::{print, warnln};
+use crate::{print, println, warnln};
 use crate::alloc;
 
 #[allow(dead_code)]
@@ -168,6 +168,9 @@ impl BigString {
         let offset = value.bytes().len() as i16 - needle.bytes().len() as i16;
 
         for moving in 0..self.len() - needle_end {
+            if self.size as i16 / 8 - moving as i16 - offset < 0 {
+                continue;
+            }
             self.set(self.size / 8 - moving, self.get((self.size as i16 / 8 - moving as i16 - offset) as usize));
         }
         for byte in value.bytes().enumerate() {

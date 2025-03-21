@@ -24,18 +24,20 @@ fn shift_list(list: [(u8, i32); 255], index: usize, length: usize) -> [(u8, i32)
 }
 
 fn run_tokens(tokens: [[(u8, i32); 255]; 10]) {
-    let mut variables = [0; 256];
+    let mut variables: [u16; 256] = [0; 256];
+    let mut indentation: [i8; 16] = [-1; 16];
+    indentation[0] = 0;
 
     for line in tokens {
-        let tokens_after_fact = run_tokens_fact(line, variables);
-        let tokens_after_math = run_tokens_math(tokens_after_fact, variables);
-        let tokens_after_first = run_tokens_first(tokens_after_math, variables);
-        let tokens_after_bool = run_tokens_boolean(tokens_after_first, variables);
-        let _tokens_after_last = run_tokens_last(tokens_after_bool, &mut variables);
+        let tokens_after_fact = run_tokens_fact(line, variables, indentation);
+        let tokens_after_math = run_tokens_math(tokens_after_fact, variables, indentation);
+        let tokens_after_first = run_tokens_first(tokens_after_math, variables, indentation);
+        let tokens_after_bool = run_tokens_boolean(tokens_after_first, variables, indentation);
+        let _tokens_after_last = run_tokens_last(tokens_after_bool, &mut variables, indentation);
     }
 }
 
-fn run_tokens_fact(mut tokens: [(u8, i32); 255], _variables: [i32; 256]) -> [(u8, i32); 255] {
+fn run_tokens_fact(mut tokens: [(u8, i32); 255], _variables: [u16; 256], _indentation: [i8; 16]) -> [(u8, i32); 255] {
     let mut token_index = 0;
     for _ in 0..255 {
         let token = tokens[token_index];
@@ -66,7 +68,7 @@ fn run_tokens_fact(mut tokens: [(u8, i32); 255], _variables: [i32; 256]) -> [(u8
     tokens
 }
 
-fn run_tokens_math(mut tokens: [(u8, i32); 255], _variables: [i32; 256]) -> [(u8, i32); 255] {
+fn run_tokens_math(mut tokens: [(u8, i32); 255], _variables: [u16; 256], _indentation: [i8; 16]) -> [(u8, i32); 255] {
     let mut token_index = 0;
     for _ in 0..255 {
         let token = tokens[token_index];
@@ -139,7 +141,7 @@ fn run_tokens_math(mut tokens: [(u8, i32); 255], _variables: [i32; 256]) -> [(u8
     tokens
 }
 
-fn run_tokens_boolean(mut tokens: [(u8, i32); 255], _variables: [i32; 256]) -> [(u8, i32); 255] {
+fn run_tokens_boolean(mut tokens: [(u8, i32); 255], _variables: [u16; 256], _indentation: [i8; 16]) -> [(u8, i32); 255] {
     let mut token_index = 0;
     for _ in 0..255 {
         let token = tokens[token_index];
@@ -368,7 +370,7 @@ fn run_tokens_boolean(mut tokens: [(u8, i32); 255], _variables: [i32; 256]) -> [
     tokens
 }
 
-fn run_tokens_first(mut tokens: [(u8, i32); 255], _variables: [i32; 256]) -> [(u8, i32); 255] {
+fn run_tokens_first(mut tokens: [(u8, i32); 255], _variables: [u16; 256], _indentation: [i8; 16]) -> [(u8, i32); 255] {
     let mut token_index = 0;
     for _ in 0..255 {
         let token = tokens[token_index];
@@ -395,7 +397,7 @@ fn run_tokens_first(mut tokens: [(u8, i32); 255], _variables: [i32; 256]) -> [(u
     tokens
 }
 
-fn run_tokens_last(mut tokens: [(u8, i32); 255], variables: &mut [i32; 256]) -> [(u8, i32); 255] {
+fn run_tokens_last(mut tokens: [(u8, i32); 255], variables: &mut [u16; 256], _indentation: [i8; 16]) -> [(u8, i32); 255] {
     let mut token_index = 0;
     for _ in 0..255 {
         let token = tokens[token_index];
@@ -451,7 +453,7 @@ fn run_tokens_last(mut tokens: [(u8, i32); 255], variables: &mut [i32; 256]) -> 
             24 => {
                 match (tokens[token_index - 1].0, tokens[token_index + 1].0) {
                     (7, 1) => {
-                        variables[tokens[token_index - 1].1 as usize] = tokens[token_index + 1].1;
+                        variables[tokens[token_index - 1].1 as usize] = tokens[token_index + 1].1 as u16;
                         tokens = shift_list(tokens, token_index - 1, 3);
                         token_index -= 1;
                     }
