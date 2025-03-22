@@ -1,4 +1,4 @@
-use crate::{println, string::BigString, warnln};
+use crate::{println, string::BigString, vga, warnln};
 
 pub fn exec(input: [u8; 256]) {
     let mut input_string = BigString::from_b256(input);
@@ -533,6 +533,14 @@ fn run_tokens_last(
                     }
                     _ => warnln!("This is an unsupported type conversion")
                 }
+            },
+            (29, true) =>  {
+                match (tokens[token_index + 1].0, tokens[token_index + 2].0) {
+                    (1, 1) => {
+                        vga::set_color(tokens[token_index + 1].1 as u8, tokens[token_index + 2].1 as u8);
+                    }
+                    _ => warnln!("This is an unsupported type conversion")
+                }
             }
             _ => {}
         }
@@ -547,11 +555,11 @@ fn match_token(token: [u8; 64], variables: [[u8; 64]; 64]) -> (u8, i32, [[u8; 64
     let tokens_val = [
         "say", "print", "+", "-", "/", "*", "(", ")", "==", 
         ">=", "<=", ">", "<", "true", "false", "not", "yell", 
-        "warn", "\n", "lnnew", "=", "do", "repeat", "end", "if"];
+        "warn", "\n", "lnnew", "=", "do", "repeat", "end", "if", "color"];
     let tokens_keys  = [
          10,    10,      11,  12,  13,  14,  15,  16,  17,   
          20,   21,   18,  19,  3,      3,       22,    23,
-         23,     8,    8,       24,  25,   26,       27,    28];
+         23,     8,    8,       24,  25,   26,       27,    28,   29];
 
     for command_index in 0..tokens_val.len() {
         let command = tokens_val[command_index];
