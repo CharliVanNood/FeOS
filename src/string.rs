@@ -132,7 +132,7 @@ impl BigString {
     }
 
     #[allow(dead_code)]
-    pub fn includes(&self, needle: &str) -> i8 {
+    pub fn includes(&self, needle: &str) -> i32 {
         let first_character = needle.bytes().next().unwrap();
         let needle_length = needle.bytes().len();
 
@@ -140,7 +140,7 @@ impl BigString {
             let character = self.get(index) as u8;
             if character == first_character {
                 if needle_length == 1 {
-                    return index as i8;
+                    return index as i32;
                 } else {
                     let mut matches = true;
                     let mut offset = 0;
@@ -152,7 +152,7 @@ impl BigString {
                         offset += 1;
                     }
                     if matches {
-                        return index as i8;
+                        return index as i32;
                     }
                 }
             }
