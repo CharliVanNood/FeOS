@@ -103,7 +103,12 @@ pub fn find_file(name: [u8; 20]) -> (u32, i32, (usize, usize, usize), [u8; 20]) 
         FILESYSTEM.lock().get_file_from_current_parent()
     };
     for file in files {
-        if file.3 == name {
+        let mut file_name: [u8; 20] = [0; 20];
+        for byte in file.3.iter().enumerate() {
+            if *byte.1 == 61 { break; }
+            file_name[byte.0] = *byte.1;
+        }
+        if name == file_name {
             return file
         }
     }
@@ -111,14 +116,28 @@ pub fn find_file(name: [u8; 20]) -> (u32, i32, (usize, usize, usize), [u8; 20]) 
     return (0, 0, (0, 0, 0), [0; 20])
 }
 
-pub fn create_file(parent: i32, filename: &str, data: &str) {
+pub fn create_file(parent: i32, filename: &str, filetype: &str, data: &str) {
     let mut filename_bytes = [0; 20];
     let mut filename_bytes_len = 0;
+
+    let is_flow = filetype.bytes().len() == 0;
+
     let filename_parsed = filename.bytes();
     for byte in filename_parsed {
         filename_bytes[filename_bytes_len] = byte;
         filename_bytes_len += 1;
     }
+
+    if !is_flow {
+        filename_bytes[filename_bytes_len] = 61;
+        filename_bytes_len += 1;
+        let filetype_parsed = filetype.bytes();
+        for byte in filetype_parsed {
+            filename_bytes[filename_bytes_len] = byte;
+            filename_bytes_len += 1;
+        }
+    }
+
     FILESYSTEM.lock().create_file(parent, filename_bytes, data);
 }
 
@@ -150,18 +169,19 @@ pub fn run_file(name: [u8; 20]) {
 
 pub fn install_base_os() {
     println!("Installing FemDOS");
-    create_file(1, "file1", "Hello world");
+    create_file(1, "file1", "fc", "Hello world");
     //create_file(1, "file2", "This is amazing");
     //create_file(1, "file3", "This is a text file");
     //create_file(1, "flow1", "");
     //create_file(1, "flow2", "");
     //create_file(6, "hidden file", "WOW YOU FOUND ME");
     //create_file(6, "hidden file", "print 1 + 1");
-    create_file(1, "python1", "print 1 + 10 * 10\nprint 10 + 10\ntest = 10\ntest2 = 20\nprint test\nprint test2");
+    create_file(1, "python1", "fc", "print 1 + 10 * 10\nprint 10 + 10\ntest = 10\ntest2 = 20\nprint test\nprint test2");
     //create_file(1, "python2", "print 1 + 10 * 10");
-    create_file(1, "loop_test_1", "do\nprint 10\nrepeat 10");
-    create_file(1, "loop_test_2", "do\nprint 10\nrepeat 0\ndo\nprint 5\nrepeat 10");
-    create_file(1, "if_test_1", "if 10 == 10\nprint 10\nend\nif 10 == 5\nprint 5\nend");
-    create_file(1, "color_test_1", "color 1 1");
-    create_file(1, "color_test_2", "do\ncolor 11 11\nprint true\ncolor 13 13\nprint true\ncolor 15 15\nprint true\nrepeat 5");
+    create_file(1, "loop_test_1", "fc", "do\nprint 10\nrepeat 10");
+    create_file(1, "loop_test_2", "fc", "do\nprint 10\nrepeat 0\ndo\nprint 5\nrepeat 10");
+    create_file(1, "if_test_1", "fc", "if 10 == 10\nprint 10\nend\nif 10 == 5\nprint 5\nend");
+    create_file(1, "color_test_1", "fc", "color 1 1");
+    create_file(1, "color_test_2", "fc", "color 11 11\nprint true\ncolor 13 13\nprint true\ncolor 15 15\nprint true\ncolor 13 13\nprint true\ncolor 11 11\nprint true\ncolor 15 0");
+    create_file(1, "basic", "b", "PRINT TEST");
 }

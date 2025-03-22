@@ -2,7 +2,7 @@ use crate::{println, string::BigString, vga, warnln};
 
 pub fn exec(input: [u8; 256]) {
     let mut input_string = BigString::from_b256(input);
-    for _ in 0..10 {
+    for _ in 0..32 {
         input_string.replace("\n", " lnnew ");
         input_string.replace("|", " lnnew ");
         input_string.replace("]", " lnnew ");
@@ -24,7 +24,7 @@ fn shift_list(list: [(u8, i32); 255], index: usize, length: usize) -> [(u8, i32)
 
     return_list
 }
-fn run_tokens(mut tokens: [[(u8, i32); 255]; 10]) {
+fn run_tokens(mut tokens: [[(u8, i32); 255]; 32]) {
     let mut variables: [u16; 256] = [0; 256];
     let mut indentation: [i8; 16] = [-1; 16];
     let mut running = true;
@@ -641,8 +641,8 @@ fn match_token(token: [u8; 64], variables: [[u8; 64]; 64]) -> (u8, i32, [[u8; 64
     (7, 63, variables)
 }
 
-fn tokenize(input: BigString) -> [[(u8, i32); 255]; 10] {
-    let mut lines: [[(u8, i32); 255]; 10] = [[(0, 0); 255]; 10];
+fn tokenize(input: BigString) -> [[(u8, i32); 255]; 32] {
+    let mut lines: [[(u8, i32); 255]; 32] = [[(0, 0); 255]; 32];
     let mut tokens_index = 0;
     let mut line = 0;
 
@@ -652,7 +652,7 @@ fn tokenize(input: BigString) -> [[(u8, i32); 255]; 10] {
 
     let mut variables = [[0; 64]; 64];
 
-    for char_index in 0..255 {
+    for char_index in 0..input.len() {
         let char = input.get(char_index);
         if char == 0 { continue; }
         if char == 32 {
