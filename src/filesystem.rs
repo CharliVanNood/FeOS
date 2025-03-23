@@ -1,4 +1,4 @@
-use crate::{alloc, applications::femc, info, print, println, vec::FileVec};
+use crate::{alloc, applications::basic, info, print, println, vec::FileVec};
 
 use lazy_static::lazy_static;
 use spin::Mutex;
@@ -158,13 +158,14 @@ pub fn run_file(name: [u8; 20]) {
     let file_start = file.2.0;
     let file_size = file.2.2;
 
-    let mut file_data: [u8; 256] = [0; 256];
+    let mut file_data: [u8; 512] = [0; 512];
     for i in 0..file_size {
         let byte = alloc::read_byte(file_start + i * 8) as u8;
         file_data[i] = byte;
     }
 
-    femc::exec(file_data);
+    //femc::exec(file_data);
+    basic::exec(file_data);
 }
 
 pub fn install_base_os() {
@@ -183,5 +184,5 @@ pub fn install_base_os() {
     create_file(1, "if_test_1", "fc", "if 10 == 10\nprint 10\nend\nif 10 == 5\nprint 5\nend");
     create_file(1, "color_test_1", "fc", "color 1 1");
     create_file(1, "color_test_2", "fc", "color 11 11\nprint true\ncolor 13 13\nprint true\ncolor 15 15\nprint true\ncolor 13 13\nprint true\ncolor 11 11\nprint true\ncolor 15 0");
-    create_file(1, "basic", "b", "PRINT TEST");
+    create_file(1, "basic", "b", "PRINT 1;");
 }
