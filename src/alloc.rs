@@ -82,3 +82,13 @@ pub fn read_byte(address: usize) -> usize {
 
     0
 }
+
+pub fn ram_test(address: usize, length: usize) {
+    for byte in 0..length {
+        unsafe {
+            ptr::write((address + byte) as *mut usize, 255);
+
+            let byte_read = ptr::read((address + byte) as *mut usize);
+        }
+    }
+}

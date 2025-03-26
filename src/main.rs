@@ -17,7 +17,7 @@ mod clock;
 use core::panic::PanicInfo;
 use bootloader::BootInfo;
 
-use alloc::{read_byte, write_byte};
+use alloc::{read_byte, write_byte, ram_test};
 use fem_dos::alloc::alloc;
 
 const VERSION: &str = env!("VERSION");
@@ -54,6 +54,8 @@ pub extern "C" fn _start(boot_info: &'static BootInfo) -> ! {
     } else {
         warnln!("[AWW] Ram test failed :c");
     }
+
+    ram_test(boot_info.physical_memory_offset as usize, 0x5000000);
 
     println!("Done testing!");
 
