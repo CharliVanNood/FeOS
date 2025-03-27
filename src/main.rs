@@ -5,6 +5,7 @@
 #![reexport_test_harness_main = "test_main"]
 
 mod vga;
+mod uefi;
 mod input;
 mod applications;
 mod vec;
@@ -25,6 +26,7 @@ const VERSION: &str = env!("VERSION");
 #[no_mangle]
 pub extern "C" fn _start(boot_info: &'static BootInfo) -> ! {
     vga::clear_screen();
+
     println!("--------------------------------------");
     println!("| This is my silly operating system: |");
     println!("| FemDOS!                            |");
@@ -103,6 +105,8 @@ pub extern "C" fn _start(boot_info: &'static BootInfo) -> ! {
     println!("--------------------------------------");
     println!("| Yippee FemDOS has booted!          |");
     println!("--------------------------------------");
+
+    uefi::init();
 
     fem_dos::hlt_loop();
 }
