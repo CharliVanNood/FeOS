@@ -574,9 +574,9 @@ fn run_tokens_last(
                     }
                     3 => {
                         if tokens.get(token_index + 1).1 == 0 {
-                            println!("false");
+                            println!("FALSE");
                         } else {
-                            println!("true");
+                            println!("TRUE");
                         }
                         tokens.shift(token_index, 2);
                         token_length = tokens.len();

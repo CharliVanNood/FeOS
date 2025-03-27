@@ -57,7 +57,13 @@ pub extern "C" fn _start(boot_info: &'static BootInfo) -> ! {
 
     disk::print_ring();
 
+    let sectors = disk::get_sector_count();
+    println!("Amount of sectors: {}", sectors);
+    println!("Disk size: {} MB", sectors as u64 * 512 / 1024 / 1024);
+
     let mut read_buffer = [0u16; 256];
+    disk::read_sector(0, &mut read_buffer);
+
     let write_buffer = [0xABCDu16; 256];
     disk::write_sector(1, &write_buffer);
     disk::read_sector(1, &mut read_buffer);
