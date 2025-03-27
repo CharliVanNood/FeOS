@@ -46,7 +46,7 @@ impl BigString {
 
     #[allow(dead_code)]
     pub fn from_b64(value: [u8; 64]) -> Self {
-        let heap_start = alloc::alloc(2048);
+        let heap_start = alloc::alloc(512);
         let mut size = 0;
 
         for byte in value {
