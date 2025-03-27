@@ -63,7 +63,7 @@ impl TokenVec {
     #[allow(dead_code)]
     pub fn get(&self, address: usize) -> (usize, usize) {
         if address * 16 >= self.size {
-            warnln!("Address out of range for reading from token vector :c");
+            warnln!("Address {} out of range for reading from token vector :c", address);
             return (0, 0);
         }
         (alloc::read_byte(self.heap_start + address * 16),
@@ -78,6 +78,20 @@ impl TokenVec {
         }
         alloc::write_byte(self.heap_start + address * 16, token);
         alloc::write_byte(self.heap_start + address * 16 + 8, value);
+    }
+
+    #[allow(dead_code)]
+    pub fn shift(&mut self, index: usize, length: usize) {
+        for i in index..self.len(){
+            if i >= self.len() - length {
+                self.set(i, 0, 0);
+            } else {
+                let next_token = self.get(i + length);
+                println!("NEXT TOKEN {}", next_token.0);
+                self.set(i, next_token.0, next_token.1);
+            }
+        }
+        self.size = self.size - length * 16;
     }
 
     #[allow(dead_code)]

@@ -184,5 +184,5 @@ pub fn install_base_os() {
     create_file(1, "if_test_1", "fc", "if 10 == 10\nprint 10\nend\nif 10 == 5\nprint 5\nend");
     create_file(1, "color_test_1", "fc", "color 1 1");
     create_file(1, "color_test_2", "fc", "color 11 11\nprint true\ncolor 13 13\nprint true\ncolor 15 15\nprint true\ncolor 13 13\nprint true\ncolor 11 11\nprint true\ncolor 15 0");
-    create_file(1, "basic", "b", "PRINT 1;");
+    create_file(1, "basic", "b", "PRINT 2 * 2;");
 }
