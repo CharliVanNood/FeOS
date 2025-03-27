@@ -1,5 +1,6 @@
 use x86_64::structures::idt::{InterruptDescriptorTable, InterruptStackFrame, PageFaultErrorCode};
 use crate::hlt_loop;
+use crate::infoln;
 use crate::warnln;
 use lazy_static::lazy_static;
 use pic8259::ChainedPics;
@@ -64,7 +65,16 @@ extern "x86-interrupt" fn timer_interrupt_handler(
 }
 
 extern "x86-interrupt" fn ata_irq_handler(_stack_frame: InterruptStackFrame) {
-    warnln!("ATA Interrupt!");
+    let mut status_port = Port::<u8>::new(0x1F7);
+    let status = unsafe { status_port.read() };
+
+    if status & 0x01 != 0 {
+        let mut error_port = Port::<u8>::new(0x1F1);
+        let error_code = unsafe { error_port.read() };
+        warnln!("[AWW] ATA Error! Error Code: {:#X}", error_code);
+    } else {
+        infoln!("[YAY] ATA Write Completed Successfully!");
+    }
 }
 
 extern "x86-interrupt" fn page_fault_handler(
