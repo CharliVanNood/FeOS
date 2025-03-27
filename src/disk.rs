@@ -1,6 +1,6 @@
 use x86_64::instructions::port::Port;
 
-use crate::{infoln, println, warnln};
+use crate::{infoln, warnln};
 
 pub fn write_sector(lba: u32, data: &[u16]) {
     assert!(data.len() == 256, "ATA sector size must be 512 bytes (256 words)");
@@ -79,8 +79,8 @@ pub fn print_ring() {
     let ring = check_ring();
 
     match ring {
-        0 => infoln!("Current ring: 0 (Kernel)"),
-        3 => warnln!("Current ring: 0 (User)"),
-        _ => warnln!("Current ring: {} (Likely protected)", ring)
+        0 => infoln!("[YAY] Current ring: 0 (Kernel)"),
+        3 => warnln!("[AWW] Current ring: 0 (User)"),
+        _ => warnln!("[AWW] Current ring: {} (Likely protected)", ring)
     }
 }

@@ -66,13 +66,6 @@ pub extern "C" fn _start(boot_info: &'static BootInfo) -> ! {
         infoln!("[YAY] Disk write sector 1 was successfull :D");
     } else {
         warnln!("[AWW] Disk write sector 1 failed :c");
-        for byte in read_buffer.iter().enumerate() {
-            if byte.0 > 15 {
-                print!("\n");
-                break;
-            }
-            warnln!("{:04x} ", byte.1);
-        }
     }
 
     let write_buffer = [0x1234u16; 256];
@@ -83,13 +76,6 @@ pub extern "C" fn _start(boot_info: &'static BootInfo) -> ! {
         infoln!("[YAY] Disk write sector 2 was successfull :D");
     } else {
         warnln!("[AWW] Disk write sector 2 failed :c");
-        for byte in read_buffer.iter().enumerate() {
-            if byte.0 > 15 {
-                print!("\n");
-                break;
-            }
-            warnln!("{:04x} ", byte.1);
-        }
     }
 
     let write_buffer = [0x5678u16; 256];
@@ -100,13 +86,16 @@ pub extern "C" fn _start(boot_info: &'static BootInfo) -> ! {
         infoln!("[YAY] Disk write sector 3 was successfull :D");
     } else {
         warnln!("[AWW] Disk write sector 3 failed :c");
-        for byte in read_buffer.iter().enumerate() {
-            if byte.0 > 15 {
-                print!("\n");
-                break;
-            }
-            warnln!("{:04x} ", byte.1);
-        }
+    }
+
+    let write_buffer = [0x1369u16; 256];
+    disk::write_sector(4, &write_buffer);
+    disk::read_sector(4, &mut read_buffer);
+    let write_successfull = read_buffer == [0xABCDu16; 256];
+    if write_successfull {
+        infoln!("[YAY] Disk write sector 4 was successfull (Which should not be possible!)");
+    } else {
+        warnln!("[AWW] Disk write sector 4 failed (This was supposed to happen)");
     }
 
     println!("Done testing!");
