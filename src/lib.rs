@@ -83,7 +83,7 @@ pub fn init(boot_info: &'static BootInfo) {
     alloc::set_heap(boot_info.physical_memory_offset as usize, 0x5000000);
 
     println!("Creating root directory");
-    filesystem::create_file(-1, "root", "");
+    filesystem::create_file(-1, "root", "", "");
 
     println!("Enabling Global Descriptor Table");
     gdt::init();
