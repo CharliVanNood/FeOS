@@ -3,7 +3,7 @@ use x86_64::instructions::port::Port;
 use crate::{infoln, warnln};
 
 pub fn write_sector(lba: u32, data: &[u16]) {
-    assert!(data.len() == 256, "ATA sector size must be 512 bytes (256 words)");
+    assert!(data.len() == 256, "ATA sector size must be 512 bytes (256 words) :3");
 
     let mut data_port = Port::<u16>::new(0x1F0);
     let mut sector_count_port = Port::<u8>::new(0x1F2);
@@ -38,7 +38,7 @@ pub fn write_sector(lba: u32, data: &[u16]) {
 }
 
 pub fn read_sector(lba: u32, buffer: &mut [u16]) {
-    assert!(buffer.len() == 256, "Buffer must hold 512 bytes (256 words)");
+    assert!(buffer.len() == 256, "Buffer must hold 512 bytes (256 words):3");
 
     let mut data_port = Port::<u16>::new(0x1F0);
     let mut sector_count_port = Port::<u8>::new(0x1F2);
