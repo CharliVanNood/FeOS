@@ -243,7 +243,7 @@ fn get_rgb(r: u8, g: u8, b: u8) -> u8 {
 
         if color_distance < closest_color.1 {
             closest_color = (color.0 as i16, color_distance);
-            if color_distance < 3 {
+            if color_distance < 100 {
                 return closest_color.0 as u8
             }
         }
