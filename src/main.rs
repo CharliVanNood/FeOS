@@ -5,7 +5,7 @@
 #![reexport_test_harness_main = "test_main"]
 
 mod vga;
-mod uefi;
+mod window;
 mod input;
 mod applications;
 mod vec;
@@ -106,7 +106,7 @@ pub extern "C" fn _start(boot_info: &'static BootInfo) -> ! {
     println!("| Yippee FemDOS has booted!          |");
     println!("--------------------------------------");
 
-    uefi::init();
+    window::init();
 
     fem_dos::hlt_loop();
 }

@@ -6,7 +6,7 @@
 #![feature(abi_x86_interrupt)]
 
 pub mod vga;
-pub mod uefi;
+pub mod window;
 pub mod interrupts;
 pub mod gdt;
 pub mod input;
