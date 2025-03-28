@@ -6,6 +6,6 @@
 | ------- | ------------------ |
 | 0.1     | :white_check_mark: |
 
-## Reporting a Vulnerability
+## Known Vulnerabilities
 
 There have been no vulnerabilities found so far
