@@ -2,6 +2,7 @@ use crate::{println, string::BigString, vec::{TokenVec, Vec}, warnln};
 
 pub fn exec(input: [u8; 512]) {
     let mut input_string = BigString::from_b512(input);
+    input_string.print();
     for _ in 0..32 {
         input_string.replace("\n", " lnnew ");
         input_string.replace(";", " lnnew ");
@@ -112,6 +113,7 @@ fn tokenize(input: BigString) -> [TokenVec; 128] {
         variables[i] = Vec::new();
     }
 
+    input.print();
     for char_index in 0..input.len() {
         let char = input.get(char_index);
         if char == 0 { continue; }
@@ -128,6 +130,7 @@ fn tokenize(input: BigString) -> [TokenVec; 128] {
                 temp_token_index = 0;
             }
         } else {
+            //println!("New token {} with {}", temp_token_index, char);
             temp_token[temp_token_index] = char as u8;
             temp_token_index += 1;
         }
