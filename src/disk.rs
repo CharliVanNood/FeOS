@@ -68,6 +68,30 @@ pub fn read_sector(lba: u32, buffer: &mut [u16]) {
     }
 }
 
+pub fn get_sector_count() -> u32 {
+    let mut command_port = Port::<u8>::new(0x1F7);
+    let mut data_port = Port::<u16>::new(0x1F0);
+    
+    unsafe { command_port.write(0xEC) };
+
+    while unsafe { command_port.read() } & 0x80 != 0 {}
+
+    let mut sector_count: u32 = 0;
+    for i in 0..100 {
+        let word = unsafe { data_port.read() };
+        if i == 60 {
+            sector_count |= word as u32;
+        } else if i == 61 {
+            sector_count |= (word as u32) << 16;
+        }
+    }
+
+    unsafe { command_port.write(0xE7) };
+    for _ in 0..100000 { x86_64::instructions::nop(); }
+
+    sector_count
+}
+
 #[warn(asm_sub_register)]
 fn check_ring() -> i16 {
     let cpl: i16;
