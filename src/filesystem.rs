@@ -186,5 +186,6 @@ pub fn install_base_os() {
     PRINT TRUE
     PRINT FALSE
     PRINT TRUE
+    INPUT
     ");
 }

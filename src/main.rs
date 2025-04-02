@@ -34,10 +34,6 @@ pub extern "C" fn _start(boot_info: &'static BootInfo) -> ! {
     println!("| Memory offset: 0x{:x}       |", boot_info.physical_memory_offset);
     println!("--------------------------------------");
 
-    // dissabled, this is not working for me yet
-    //disk::check_mbr();
-    //disk::test();
-
     alloc::set_heap(boot_info.physical_memory_offset as usize, 0x5000000);
     fem_dos::init(boot_info);
 
