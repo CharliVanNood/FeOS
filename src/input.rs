@@ -1,5 +1,5 @@
 use crate::alloc;
-use crate::clock::print_time;
+use crate::clock;
 use crate::{print, println, warnln};
 use crate::vga;
 use crate::applications;
@@ -14,6 +14,9 @@ lazy_static::lazy_static! {
 
 #[allow(dead_code)]
 pub fn check_events() {
+    let time = clock::get_time();
+    vga::set_header(time);
+
     let keypresses = {
         let lock = KEYPRESSES.lock();
         lock.clone()
@@ -86,6 +89,7 @@ fn print_help_command() {
     println!("   [pong]             - The game pong");
     println!("   [cat]              - Read a file");
     println!("   [time]             - Time will show you the current time according to bios");
+    println!("   [timeset] [hour]   - Timeset will set the current hour");
     println!("   [per]              - Performance will show you system details\n");
 }
 
@@ -93,7 +97,7 @@ fn print_help_command() {
 pub fn match_commands() {
     let commands = [
         "info", "ping", "color", "clear", "help", "femc", "fl", "go", 
-        "install", "pong", "cat", "run", "per", "time", "input"
+        "install", "pong", "cat", "run", "per", "time", "input", "timeset"
         ];
 
     print!("\n");
@@ -189,7 +193,28 @@ pub fn match_commands() {
                     println!("   Disk: 0%\n");
                 },
                 "time" => {
-                    print_time();
+                    clock::print_time();
+                },
+                "timeset" => {
+                    let mut time = [0; 3];
+                    let mut time_len = 0;
+
+                    for byte_index in 8..23 {
+                        let byte = command_written[byte_index];
+                        if byte == 0 { break; }
+                        time[time_len] = byte as u8;
+                        time_len += 1;
+                    }
+
+                    let mut time_number = 0;
+
+                    for byte in time.iter().enumerate() {
+                        if *byte.1 == 0 { break; }
+                        let byte_number = *byte.1 as i32 - 48;
+                        time_number += byte_number * 10_i32.pow((time_len - byte.0 - 1) as u32);
+                    }
+
+                    clock::set_time(time_number as u8);
                 },
                 "input" => println!("neh"),
                 _ => warnln!("This command is unimplemented :C")
