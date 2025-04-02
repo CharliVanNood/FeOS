@@ -9,6 +9,23 @@ use spin::Mutex;
 lazy_static::lazy_static! {
     static ref CURRENT_TEXT: Mutex<[u8; 256]> = Mutex::new([0; 256]);
     static ref CURRENT_TEXT_END: Mutex<usize> = Mutex::new(0);
+    pub static ref KEYPRESSES: Mutex<([u8; 8], u8)> = Mutex::new(([0; 8], 0));
+}
+
+#[allow(dead_code)]
+pub fn check_events() {
+    let keypresses = {
+        let lock = KEYPRESSES.lock();
+        lock.clone()
+    };
+
+    for keypress in keypresses.0 {
+        if keypress == 0 { break; }
+        add_key(keypress);
+    }
+
+    KEYPRESSES.lock().0 = [0; 8];
+    KEYPRESSES.lock().1 = 0;
 }
 
 #[allow(dead_code)]
@@ -24,15 +41,15 @@ pub fn get_text() -> [u8; 256] {
 }
 
 #[allow(dead_code)]
-pub fn add_key(character: u8) -> bool {
+pub fn add_key(character: u8) {
     match character {
         10 => {
             match_commands();
-            return false;
+            return;
         },
         8 => {
             remove_byte();
-            return false;
+            return;
         }
         _ => {}
     }
@@ -43,10 +60,7 @@ pub fn add_key(character: u8) -> bool {
     if *text_end < 255 {
         text[*text_end] = character;
         *text_end += 1;
-        true
-    } else {
-        println!("You're at the typing limit :c");
-        false
+        print!("{}", character as char);
     }
 }
 
@@ -77,7 +91,10 @@ fn print_help_command() {
 
 #[allow(dead_code)]
 pub fn match_commands() {
-    let commands = ["info", "ping", "color", "clear", "help", "femc", "fl", "go", "install", "pong", "cat", "run", "per", "time"];
+    let commands = [
+        "info", "ping", "color", "clear", "help", "femc", "fl", "go", 
+        "install", "pong", "cat", "run", "per", "time", "input"
+        ];
 
     print!("\n");
 
@@ -169,10 +186,12 @@ pub fn match_commands() {
                     println!("   {} Bytes / {} Bytes", ram_usage.0, ram_usage.1);
                     println!("   {} KB / {} KB", ram_usage.0 / 1000, ram_usage.1 / 1000);
                     println!("   {} MB / {} MB\n", ram_usage.0 / 1000000, ram_usage.1 / 1000000);
+                    println!("   Disk: 0%\n");
                 },
                 "time" => {
                     print_time();
                 },
+                "input" => println!("neh"),
                 _ => warnln!("This command is unimplemented :C")
             }
         }

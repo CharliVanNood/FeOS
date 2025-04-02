@@ -16,5 +16,5 @@ fn bcd_to_binary(bcd: u8) -> u8 {
 }
 
 pub fn print_time() {
-    println!("{:02}:{:02}x{:02}", bcd_to_binary(read_rtc_register(0x04)), bcd_to_binary(read_rtc_register(0x02)), bcd_to_binary(read_rtc_register(0x00)));
+    println!("{:02}:{:02}:{:02}", bcd_to_binary(read_rtc_register(0x04)), bcd_to_binary(read_rtc_register(0x02)), bcd_to_binary(read_rtc_register(0x00)));
 }
