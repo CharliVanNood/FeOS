@@ -171,14 +171,7 @@ pub fn run_file(name: [u8; 20]) {
 pub fn install_base_os() {
     println!("Installing FemDOS");
     create_file(1, "file1", "fc", "Hello world");
-    //create_file(1, "file2", "This is amazing");
-    //create_file(1, "file3", "This is a text file");
-    //create_file(1, "flow1", "");
-    //create_file(1, "flow2", "");
-    //create_file(6, "hidden file", "WOW YOU FOUND ME");
-    //create_file(6, "hidden file", "print 1 + 1");
     create_file(1, "python1", "fc", "print 1 + 10 * 10\nprint 10 + 10\ntest = 10\ntest2 = 20\nprint test\nprint test2");
-    //create_file(1, "python2", "print 1 + 10 * 10");
     create_file(1, "loop_test_1", "fc", "do\nprint 10\nrepeat 10");
     create_file(1, "loop_test_2", "fc", "do\nprint 10\nrepeat 0\ndo\nprint 5\nrepeat 10");
     create_file(1, "if_test_1", "fc", "if 10 == 10\nprint 10\nend\nif 10 == 5\nprint 5\nend");
@@ -188,4 +181,10 @@ pub fn install_base_os() {
     create_file(1, "basic_add", "b", "PRINT 2 + 2;");
     create_file(1, "basic_div", "b", "PRINT 2 / 2;");
     create_file(1, "basic_sub", "b", "PRINT 2 - 2;");
+
+    create_file(1, "basic", "b", "
+    PRINT TRUE
+    PRINT FALSE
+    PRINT TRUE
+    ");
 }
