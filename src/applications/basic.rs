@@ -1,4 +1,4 @@
-use crate::{println, string::BigString, vec::{TokenVec, Vec}, warnln};
+use crate::{input, print, println, string::BigString, vec::{TokenVec, Vec}, warnln};
 
 pub fn exec(input: [u8; 512]) {
     let mut input_string = BigString::from_b512(input);
@@ -12,9 +12,9 @@ pub fn exec(input: [u8; 512]) {
 
 fn match_token(token: [u8; 64], variables: [Vec; 64]) -> (usize, usize, [Vec; 64]) {
     let tokens_val = [
-        "PRINT", "\n", "lnnew", "TRUE", "FALSE", "+", "-", "/", "*"];
+        "PRINT", "\n", "lnnew", "TRUE", "FALSE", "+", "-", "/", "*", "INPUT"];
     let tokens_keys  = [
-         10,      8,    8,       3,      3,       11,  12,  13,  14];
+         10,      8,    8,       3,      3,       11,  12,  13,  14,  15];
 
     for command_index in 0..tokens_val.len() {
         let command = tokens_val[command_index];
@@ -128,6 +128,7 @@ fn tokenize(input: BigString) -> [TokenVec; 128] {
                 temp_token_index = 0;
             }
         } else {
+            //println!("New token {} with {}", temp_token_index, char);
             temp_token[temp_token_index] = char as u8;
             temp_token_index += 1;
         }
@@ -583,6 +584,39 @@ fn run_tokens_last(
                     }
                     _ => warnln!("This is an unsupported type conversion")
                 }
+            },
+            (15, true) => {
+                print!("INPUT: ");
+                let mut ended = false;
+                let mut text_input = [0; 64];
+                let mut text_input_len = 0;
+
+                while !ended {
+                    let keypresses = {
+                        let lock = input::KEYPRESSES.lock();
+                        lock.clone()
+                    };
+                
+                    for keypress in keypresses.0 {
+                        if keypress == 0 { break; }
+                        if keypress == 10 && text_input_len > 0 {
+                            ended = true;
+                            break;
+                        } else if keypress == 10 {
+                            break;
+                        }
+                        print!("{}", keypress as char);
+                        text_input[text_input_len] = keypress;
+                        text_input_len += 1;
+                    }
+                
+                    input::KEYPRESSES.lock().0 = [0; 8];
+                    input::KEYPRESSES.lock().1 = 0;
+
+                    x86_64::instructions::hlt();
+                }
+
+                println!("\nreceived {} characters", text_input_len);
             },
             _ => {}
         }
