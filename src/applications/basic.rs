@@ -598,8 +598,6 @@ fn run_tokens_last(
 
         match (token.0, running) {
             (10, true) => {
-                tokens.print();
-                println!("PRINTING {}", tokens.get(token_index + 1).0);
                 match tokens.get(token_index + 1).0 {
                     1 => {
                         println!("{}", tokens.get(token_index + 1).1);
@@ -621,7 +619,7 @@ fn run_tokens_last(
                         token_length = tokens.len();
                     }
                     5 => {
-                        println!("string");
+                        lists[tokens.get(token_index + 1).1].print();
                         tokens.shift(token_index, 2);
                         token_length = tokens.len();
                     }
