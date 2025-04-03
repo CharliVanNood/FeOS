@@ -7,8 +7,8 @@ pub fn exec(input: [u8; 512]) {
         input_string.replace(";", " lnnew ");
         input_string.replace("\"", " lnlist ");
     }
-    let tokenized_code = tokenize(input_string);
-    run_tokens(tokenized_code);
+    let (tokenized_code, lists) = tokenize(input_string);
+    run_tokens(tokenized_code, lists);
 }
 
 fn match_token(token: [u8; 64], variables: [Vec; 64]) -> (usize, usize, [Vec; 64]) {
@@ -50,7 +50,7 @@ fn match_token(token: [u8; 64], variables: [Vec; 64]) -> (usize, usize, [Vec; 64
         }
         int_len += 1;
     }
-    if is_int {
+    if is_int && int_len > 0 {
         let mut int_val = 0;
 
         for i in 0..int_len {
@@ -84,12 +84,18 @@ fn match_token(token: [u8; 64], variables: [Vec; 64]) -> (usize, usize, [Vec; 64
 
         return (2, int_val as usize, variables)
     }
-    
+
     let mut variables_new = variables;
     for variable in variables.iter().enumerate() {
         if variable.1.get_as_b64() == token {
+            if token == [0; 64] {
+                return (17, 0, variables);
+            }
             return (7, variable.0, variables);
         } else if variable.1.get_as_b64() == [0; 64] {
+            if token == [0; 64] {
+                return (17, 0, variables);
+            }
             variables_new[variable.0].set_as_b64(token);
             return (7, variable.0, variables_new);
         }
@@ -97,7 +103,7 @@ fn match_token(token: [u8; 64], variables: [Vec; 64]) -> (usize, usize, [Vec; 64
     (7, 63, variables)
 }
 
-fn tokenize(input: BigString) -> [TokenVec; 128] {
+fn tokenize(input: BigString) -> ([TokenVec; 128], [TokenVec; 64]) {
     let mut lines: [TokenVec; 128] = [TokenVec::new(); 128];
     for i in 1..128 {
         lines[i] = TokenVec::new();
@@ -129,8 +135,12 @@ fn tokenize(input: BigString) -> [TokenVec; 128] {
         if char == 32 {
             let token = match_token(temp_token, variables);
             variables = token.2;
+            if token.0 == 17 { continue; }
             if token.0 == 16 {
                 is_string = !is_string;
+                if !is_string {
+                    lines[line].add(5, lists_len - 1);
+                }
                 temp_token = [0; 64];
                 temp_token_index = 0;
             } else if token.0 == 8 {
@@ -150,7 +160,6 @@ fn tokenize(input: BigString) -> [TokenVec; 128] {
                 lists_len += 1;
                 temp_token = [0; 64];
                 temp_token_index = 0;
-                println!("added string");
             }
         } else {
             //println!("New token {} with {}", temp_token_index, char);
@@ -165,14 +174,10 @@ fn tokenize(input: BigString) -> [TokenVec; 128] {
         }
     }
 
-    for list in lists {
-        list.print();
-    }
-
-    lines
+    (lines, lists)
 }
 
-fn run_tokens(mut tokens: [TokenVec; 128]) {
+fn run_tokens(mut tokens: [TokenVec; 128], mut lists: [TokenVec; 64]) {
     let mut variables: [u16; 256] = [0; 256];
     let mut indentation: [i8; 16] = [-1; 16];
     let mut running = true;
@@ -189,7 +194,7 @@ fn run_tokens(mut tokens: [TokenVec; 128]) {
             }
         }
 
-        let operation_result = run_line(line, &mut indentation, line_index, &mut variables, indentation_depth, running);
+        let operation_result = run_line(line, &mut indentation, line_index, &mut variables, &mut lists, indentation_depth, running);
 
         line_index = operation_result.1;
         running = operation_result.3;
@@ -202,21 +207,21 @@ fn run_tokens(mut tokens: [TokenVec; 128]) {
     }
 }
 
-fn run_line(line: TokenVec, mut indentation: &mut [i8; 16], line_index: usize, mut variables: &mut [u16; 256], indentation_depth: u8, running: bool) -> (TokenVec, usize, bool, bool) {
+fn run_line(line: TokenVec, mut indentation: &mut [i8; 16], line_index: usize, mut variables: &mut [u16; 256], mut lists: &mut [TokenVec; 64], indentation_depth: u8, running: bool) -> (TokenVec, usize, bool, bool) {
     if running {
-        let tokens_after_fact = run_tokens_fact(line, *variables, *indentation, indentation_depth);
+        let tokens_after_fact = run_tokens_fact(line, *variables, *lists, *indentation, indentation_depth);
         //let tokens_after_math = run_tokens_math(tokens_after_fact, *variables, *indentation, indentation_depth);
         //let tokens_after_first = run_tokens_first(tokens_after_math, *variables, *indentation, indentation_depth);
         //let tokens_after_bool = run_tokens_boolean(tokens_after_first, *variables, *indentation, indentation_depth);
-        let operation_result = run_tokens_last(tokens_after_fact, &mut variables, &mut indentation, indentation_depth, line_index, running);
+        let operation_result = run_tokens_last(tokens_after_fact, &mut variables, &mut lists, &mut indentation, indentation_depth, line_index, running);
         return operation_result;
     } else {
-        let operation_result = run_tokens_last(line, variables, indentation, indentation_depth, line_index, running);
+        let operation_result = run_tokens_last(line, variables, &mut lists, indentation, indentation_depth, line_index, running);
         return operation_result;
     }
 }
 
-fn run_tokens_fact(mut tokens: TokenVec, _variables: [u16; 256], _indentation: [i8; 16], _indentation_depth: u8) -> TokenVec {
+fn run_tokens_fact(mut tokens: TokenVec, _variables: [u16; 256], _lists: [TokenVec; 64], _indentation: [i8; 16], _indentation_depth: u8) -> TokenVec {
     let mut token_index = 0;
     let mut token_length = tokens.len();
 
@@ -581,7 +586,7 @@ fn run_tokens_first(mut tokens: [(u8, i32); 255], _variables: [u16; 256], _inden
 }*/
 
 fn run_tokens_last(
-    mut tokens: TokenVec, _variables: &mut [u16; 256], _indentation: &mut [i8; 16], 
+    mut tokens: TokenVec, _variables: &mut [u16; 256], lists: &mut [TokenVec; 64], _indentation: &mut [i8; 16], 
     _indentation_depth: u8, line_index: usize, running: bool) -> (TokenVec, usize, bool, bool) {
     let return_to_last_indent = false;
     
@@ -593,6 +598,8 @@ fn run_tokens_last(
 
         match (token.0, running) {
             (10, true) => {
+                tokens.print();
+                println!("PRINTING {}", tokens.get(token_index + 1).0);
                 match tokens.get(token_index + 1).0 {
                     1 => {
                         println!("{}", tokens.get(token_index + 1).1);
@@ -610,6 +617,11 @@ fn run_tokens_last(
                         } else {
                             println!("TRUE");
                         }
+                        tokens.shift(token_index, 2);
+                        token_length = tokens.len();
+                    }
+                    5 => {
+                        println!("string");
                         tokens.shift(token_index, 2);
                         token_length = tokens.len();
                     }

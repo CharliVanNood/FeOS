@@ -188,6 +188,6 @@ pub fn install_base_os() {
     PRINT TRUE
     PRINT \"test\"
     ' INPUT
-    PRINT \"test\"
+    ' PRINT \"test\"
     ");
 }
