@@ -627,7 +627,15 @@ fn run_tokens_last(
                 }
             },
             (15, true) => {
-                print!("INPUT: ");
+                match tokens.get(token_index + 1).0 {
+                    5 => {
+                        lists[tokens.get(token_index + 1).1].print();
+                        tokens.shift(token_index, 2);
+                        token_length = tokens.len();
+                    }
+                    _ => print!("INPUT: ")
+                }
+                
                 let mut ended = false;
                 let mut text_input = [0; 64];
                 let mut text_input_len = 0;
