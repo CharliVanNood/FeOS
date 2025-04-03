@@ -189,5 +189,7 @@ pub fn install_base_os() {
     PRINT \"test\"
     ' INPUT
     ' PRINT \"test\"
+    PRINT 1 == 2
+    PRINT 1 == 1
     ");
 }
