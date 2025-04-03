@@ -82,6 +82,7 @@ fn print_help_command() {
     println!("\nWe have these general commands");
     println!("   [ping]             - Just a simple test command");
     println!("   [femc] [code]      - Run femc commands");
+    println!("   [basic] [code]     - Run BASIC commands");
     println!("   [color]            - Toggle the background color");
     println!("   [clear]            - Clear the screen");
     println!("   [fl]               - Show the items in the current flow");
@@ -90,14 +91,16 @@ fn print_help_command() {
     println!("   [cat]              - Read a file");
     println!("   [time]             - Time will show you the current time according to bios");
     println!("   [timeset] [hour]   - Timeset will set the current hour");
-    println!("   [per]              - Performance will show you system details\n");
+    println!("   [per]              - Performance will show you system details");
+    println!("   [run] [file name]  - Run runs the actual files\n");
 }
 
 #[allow(dead_code)]
 pub fn match_commands() {
     let commands = [
         "info", "ping", "color", "clear", "help", "femc", "fl", "go", 
-        "install", "pong", "cat", "run", "per", "time", "input", "timeset"
+        "install", "pong", "cat", "run", "per", "time", "input", "timeset",
+        "basic"
         ];
 
     print!("\n");
@@ -142,6 +145,11 @@ pub fn match_commands() {
                     print!("\n");
                 },
                 "femc" => applications::femc::exec(command_written),
+                "basic" => {
+                    let mut command_written_512 = [0u8; 512];
+                    command_written_512[..256].copy_from_slice(&command_written);
+                    applications::basic::exec(command_written_512)
+                },
                 "fl" => filesystem::print_current_dir_files(),
                 "go" => {
                     let mut name = [0; 20];
