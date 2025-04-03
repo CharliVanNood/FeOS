@@ -1,15 +1,15 @@
-use crate::{alloc, println, warnln};
+use crate::{alloc, print, println, warnln};
 
 // THIS HAS TO BE REWRITTEN TO USE HEAP SOON!!! :C
 pub struct FileVec {
-    data: [(u32, i32, (usize, usize, usize), [u8; 20]); 1000],
+    data: [(u32, i32, (usize, usize, usize), [u8; 20]); 100],
     size: usize,
 }
 impl FileVec {
     pub fn new() -> Self {
         println!("Created new FileSystem Vector");
         Self {
-            data: [(0, -1, (0, 0, 0), [0; 20]); 1000],
+            data: [(0, -1, (0, 0, 0), [0; 20]); 100],
             size: 1
         }
     }
@@ -23,7 +23,7 @@ impl FileVec {
         self.size
     }
 
-    pub fn iter(&self) -> [(u32, i32, (usize, usize, usize), [u8; 20]); 1000] {
+    pub fn iter(&self) -> [(u32, i32, (usize, usize, usize), [u8; 20]); 100] {
         self.data
     }
 }
@@ -71,6 +71,32 @@ impl TokenVec {
     }
 
     #[allow(dead_code)]
+    pub fn print(&self) {
+        if self.len() == 0 {
+            return;
+        }
+        print!("[");
+        for i in 0..self.len() {
+            let data_type = alloc::read_byte(self.heap_start + i * 16);
+
+            if data_type == 6 {
+                if i < self.len() - 1 {
+                    print!("{}, ", alloc::read_byte(self.heap_start + i * 16 + 8) as u8 as char);
+                } else {
+                    print!("{}", alloc::read_byte(self.heap_start + i * 16 + 8) as u8 as char);
+                }
+            } else {
+                if i < self.len() - 1 {
+                    print!("({} {}) ", data_type, alloc::read_byte(self.heap_start + i * 16 + 8));
+                } else {
+                    print!("({} {})", data_type, alloc::read_byte(self.heap_start + i * 16 + 8));
+                }
+            }
+        }
+        print!("]\n");
+    }
+
+    #[allow(dead_code)]
     pub fn set(&mut self, address: usize, token: usize, value: usize) {
         if address * 16 >= self.size {
             warnln!("Address out of range for setting in token vector :c");
@@ -87,7 +113,6 @@ impl TokenVec {
                 self.set(i, 0, 0);
             } else {
                 let next_token = self.get(i + length);
-                println!("NEXT TOKEN {}", next_token.0);
                 self.set(i, next_token.0, next_token.1);
             }
         }
