@@ -228,7 +228,7 @@ const COLOR_PALETTE: [(u8, u8, u8); 216] = [
     (32, 64, 32),
 ];
 
-fn get_next_color(r: u8, g: u8, b: u8) -> u8 {
+fn get_next_color() -> u8 {
     COLOR_PALETTE.len() as u8
 }
 
@@ -252,17 +252,19 @@ fn get_rgb(r: u8, g: u8, b: u8) -> u8 {
     closest_color.0 as u8
 }
 
+#[allow(dead_code)]
 fn get_pixel_index(x: usize, y: usize) -> usize {
     x + y * BUFFER_WIDTH
 }
 
+#[allow(dead_code)]
 pub fn init() {
     let buffer = unsafe { &mut *(0xa0000 as *mut Buffer) };
-    let frames = [(0, 0, 160, 100); 4];
+    let _frames = [(0, 0, 160, 100); 4]; // the windows rendering
     for x in 0..BUFFER_WIDTH {
         for y in 0..BUFFER_HEIGHT {
             if x > 160 {
-                buffer.pixels[get_pixel_index(x, y)].write(get_next_color((x * y) as u8, 0, 0));
+                buffer.pixels[get_pixel_index(x, y)].write(get_next_color());
             } else {
                 buffer.pixels[get_pixel_index(x, y)].write(get_rgb((x as i32 * 1.5 as i32) as u8, (y as i32 * 1.2 as i32) as u8, 0 as u8));
             }
