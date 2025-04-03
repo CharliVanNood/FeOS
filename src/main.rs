@@ -108,7 +108,7 @@ pub extern "C" fn _start(boot_info: &'static BootInfo) -> ! {
     println!("| Yippee FemDOS has booted!          |");
     println!("--------------------------------------");
 
-    window::init();
+    //window::init();
 
     fem_dos::hlt_loop();
 }
