@@ -1,4 +1,4 @@
-use crate::{alloc, println, warnln};
+use crate::{alloc, print, println, warnln};
 
 // THIS HAS TO BE REWRITTEN TO USE HEAP SOON!!! :C
 pub struct FileVec {
@@ -68,6 +68,26 @@ impl TokenVec {
         }
         (alloc::read_byte(self.heap_start + address * 16),
          alloc::read_byte(self.heap_start + address * 16 + 8))
+    }
+
+    #[allow(dead_code)]
+    pub fn print(&self) {
+        if self.len() == 0 {
+            return;
+        }
+        print!("[");
+        for i in 0..self.len() {
+            if i < self.len() - 1 {
+                print!("({} {}) ", 
+                                alloc::read_byte(self.heap_start + i * 16), 
+                                alloc::read_byte(self.heap_start + i * 16 + 8))
+            } else {
+                print!("({} {})", 
+                                alloc::read_byte(self.heap_start + i * 16), 
+                                alloc::read_byte(self.heap_start + i * 16 + 8))
+            }
+        }
+        print!("]\n");
     }
 
     #[allow(dead_code)]

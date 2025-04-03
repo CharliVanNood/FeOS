@@ -5,6 +5,7 @@ pub fn exec(input: [u8; 512]) {
     for _ in 0..32 {
         input_string.replace("\n", " lnnew ");
         input_string.replace(";", " lnnew ");
+        input_string.replace("\"", " lnlist ");
     }
     let tokenized_code = tokenize(input_string);
     run_tokens(tokenized_code);
@@ -12,9 +13,9 @@ pub fn exec(input: [u8; 512]) {
 
 fn match_token(token: [u8; 64], variables: [Vec; 64]) -> (usize, usize, [Vec; 64]) {
     let tokens_val = [
-        "PRINT", "\n", "lnnew", "TRUE", "FALSE", "+", "-", "/", "*", "INPUT"];
+        "PRINT", "\n", "lnnew", "TRUE", "FALSE", "+", "-", "/", "*", "INPUT", "lnlist"];
     let tokens_keys  = [
-         10,      8,    8,       3,      3,       11,  12,  13,  14,  15];
+         10,      8,    8,       3,      3,       11,  12,  13,  14,  15,      16];
 
     for command_index in 0..tokens_val.len() {
         let command = tokens_val[command_index];
@@ -107,7 +108,7 @@ fn tokenize(input: BigString) -> [TokenVec; 128] {
     let mut temp_token = [0; 64];
     let mut temp_token_index = 0;
 
-    let mut is_list = false;
+    let mut is_string = false;
     let mut is_comment = false;
 
     let mut variables = [Vec::new(); 64];
@@ -115,28 +116,41 @@ fn tokenize(input: BigString) -> [TokenVec; 128] {
         variables[i] = Vec::new();
     }
 
-    let mut lists = [Vec::new(); 64];
+    let mut lists = [TokenVec::new(); 64];
+    let mut lists_len = 0;
+    for i in 1..64 {
+        lists[i] = TokenVec::new();
+    }
 
     for char_index in 0..input.len() {
         let char = input.get(char_index);
         if char == '\'' as usize { is_comment = true; }
-        if char == '"' as usize {
-            is_list = !is_list;
-            //println!("list")
-        }
         if char == 0 { continue; }
         if char == 32 {
             let token = match_token(temp_token, variables);
             variables = token.2;
-            if token.0 == 8 {
+            if token.0 == 16 {
+                is_string = !is_string;
+                temp_token = [0; 64];
+                temp_token_index = 0;
+            } else if token.0 == 8 {
                 is_comment = false;
                 line += 1;
                 temp_token = [0; 64];
                 temp_token_index = 0;
-            } else if !is_comment {
+            } else if !is_comment && !is_string {
                 lines[line].add(token.0, token.1);
                 temp_token = [0; 64];
                 temp_token_index = 0;
+            } else if !is_comment && is_string {
+                for character in temp_token {
+                    if character == 0 { continue; }
+                    lists[lists_len].add(6, character as usize);
+                }
+                lists_len += 1;
+                temp_token = [0; 64];
+                temp_token_index = 0;
+                println!("added string");
             }
         } else {
             //println!("New token {} with {}", temp_token_index, char);
@@ -149,6 +163,10 @@ fn tokenize(input: BigString) -> [TokenVec; 128] {
         if token.0 != 8 {
             lines[line].add(token.0, token.1);
         }
+    }
+
+    for list in lists {
+        list.print();
     }
 
     lines
