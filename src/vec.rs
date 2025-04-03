@@ -77,14 +77,20 @@ impl TokenVec {
         }
         print!("[");
         for i in 0..self.len() {
-            if i < self.len() - 1 {
-                print!("({} {}) ", 
-                                alloc::read_byte(self.heap_start + i * 16), 
-                                alloc::read_byte(self.heap_start + i * 16 + 8))
+            let data_type = alloc::read_byte(self.heap_start + i * 16);
+
+            if data_type == 6 {
+                if i < self.len() - 1 {
+                    print!("{}, ", alloc::read_byte(self.heap_start + i * 16 + 8) as u8 as char);
+                } else {
+                    print!("{}", alloc::read_byte(self.heap_start + i * 16 + 8) as u8 as char);
+                }
             } else {
-                print!("({} {})", 
-                                alloc::read_byte(self.heap_start + i * 16), 
-                                alloc::read_byte(self.heap_start + i * 16 + 8))
+                if i < self.len() - 1 {
+                    print!("({} {}) ", data_type, alloc::read_byte(self.heap_start + i * 16 + 8));
+                } else {
+                    print!("({} {})", data_type, alloc::read_byte(self.heap_start + i * 16 + 8));
+                }
             }
         }
         print!("]\n");
