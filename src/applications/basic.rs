@@ -107,22 +107,33 @@ fn tokenize(input: BigString) -> [TokenVec; 128] {
     let mut temp_token = [0; 64];
     let mut temp_token_index = 0;
 
+    let mut is_list = false;
+    let mut is_comment = false;
+
     let mut variables = [Vec::new(); 64];
     for i in 1..64 {
         variables[i] = Vec::new();
     }
 
+    let mut lists = [Vec::new(); 64];
+
     for char_index in 0..input.len() {
         let char = input.get(char_index);
+        if char == '\'' as usize { is_comment = true; }
+        if char == '"' as usize {
+            is_list = !is_list;
+            //println!("list")
+        }
         if char == 0 { continue; }
         if char == 32 {
             let token = match_token(temp_token, variables);
             variables = token.2;
             if token.0 == 8 {
+                is_comment = false;
                 line += 1;
                 temp_token = [0; 64];
                 temp_token_index = 0;
-            } else {
+            } else if !is_comment {
                 lines[line].add(token.0, token.1);
                 temp_token = [0; 64];
                 temp_token_index = 0;
@@ -133,9 +144,11 @@ fn tokenize(input: BigString) -> [TokenVec; 128] {
             temp_token_index += 1;
         }
     }
-    let token = match_token(temp_token, variables);
-    if token.0 != 8 {
-        lines[line].add(token.0, token.1);
+    if !is_comment {
+        let token = match_token(temp_token, variables);
+        if token.0 != 8 {
+            lines[line].add(token.0, token.1);
+        }
     }
 
     lines
