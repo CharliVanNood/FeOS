@@ -2,14 +2,14 @@ use crate::{alloc, print, println, warnln};
 
 // THIS HAS TO BE REWRITTEN TO USE HEAP SOON!!! :C
 pub struct FileVec {
-    data: [(u32, i32, (usize, usize, usize), [u8; 20]); 200],
+    data: [(u32, i32, (usize, usize, usize), [u8; 20]); 100],
     size: usize,
 }
 impl FileVec {
     pub fn new() -> Self {
         println!("Created new FileSystem Vector");
         Self {
-            data: [(0, -1, (0, 0, 0), [0; 20]); 200],
+            data: [(0, -1, (0, 0, 0), [0; 20]); 100],
             size: 1
         }
     }
@@ -23,7 +23,7 @@ impl FileVec {
         self.size
     }
 
-    pub fn iter(&self) -> [(u32, i32, (usize, usize, usize), [u8; 20]); 200] {
+    pub fn iter(&self) -> [(u32, i32, (usize, usize, usize), [u8; 20]); 100] {
         self.data
     }
 }
@@ -113,7 +113,6 @@ impl TokenVec {
                 self.set(i, 0, 0);
             } else {
                 let next_token = self.get(i + length);
-                println!("NEXT TOKEN {}", next_token.0);
                 self.set(i, next_token.0, next_token.1);
             }
         }
