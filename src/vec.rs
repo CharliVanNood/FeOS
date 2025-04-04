@@ -147,12 +147,12 @@ impl Vec {
     }
 
     #[allow(dead_code)]
-    pub fn add(&mut self, value: u8) {
+    pub fn add(&mut self, value: usize) {
         if self.size >= self.heap_size {
             warnln!("Reached vec limit :c");
             return;
         }
-        alloc::write_byte(self.heap_start + self.size, value as usize);
+        alloc::write_byte(self.heap_start + self.size, value);
         self.size += 8;
     }
 
@@ -163,6 +163,22 @@ impl Vec {
             return 0;
         }
         alloc::read_byte(self.heap_start + address * 8)
+    }
+
+    #[allow(dead_code)]
+    pub fn print(&self) {
+        if self.len() == 0 {
+            return;
+        }
+        print!("[");
+        for i in 0..self.len() {
+            if i < self.len() - 1 {
+                print!("{} ", alloc::read_byte(self.heap_start + i * 8));
+            } else {
+                print!("{}", alloc::read_byte(self.heap_start + i * 8));
+            }
+        }
+        print!("]\n");
     }
 
     #[allow(dead_code)]
