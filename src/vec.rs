@@ -147,22 +147,38 @@ impl Vec {
     }
 
     #[allow(dead_code)]
-    pub fn add(&mut self, value: u8) {
+    pub fn add(&mut self, value: usize) {
         if self.size >= self.heap_size {
             warnln!("Reached vec limit :c");
             return;
         }
-        alloc::write_byte(self.heap_start + self.size, value as usize);
+        alloc::write_byte(self.heap_start + self.size, value);
         self.size += 8;
     }
 
     #[allow(dead_code)]
-    pub fn get(&mut self, address: usize) -> usize {
+    pub fn get(&self, address: usize) -> usize {
         if address * 8 >= self.size {
             warnln!("Address out of range for {} :c", address);
             return 0;
         }
         alloc::read_byte(self.heap_start + address * 8)
+    }
+
+    #[allow(dead_code)]
+    pub fn print(&self) {
+        if self.len() == 0 {
+            return;
+        }
+        print!("[");
+        for i in 0..self.len() {
+            if i < self.len() - 1 {
+                print!("{} ", alloc::read_byte(self.heap_start + i * 8));
+            } else {
+                print!("{}", alloc::read_byte(self.heap_start + i * 8));
+            }
+        }
+        print!("]\n");
     }
 
     #[allow(dead_code)]
@@ -185,5 +201,35 @@ impl Vec {
     #[allow(dead_code)]
     pub fn len(&self) -> usize {
         self.size / 8
+    }
+
+    #[allow(dead_code)]
+    pub fn min(&self) -> usize {
+        let mut lowest = [0, 999999999];
+
+        for value_index in 0..self.len() {
+            let value = self.get(value_index);
+            if value < lowest[1] {
+                lowest[0] = value_index;
+                lowest[1] = value;
+            }
+        }
+
+        lowest[0]
+    }
+
+    #[allow(dead_code)]
+    pub fn max(&self) -> usize {
+        let mut greatest = [0, 0];
+
+        for value_index in 0..self.len() {
+            let value = self.get(value_index);
+            if value > greatest[1] {
+                greatest[0] = value_index;
+                greatest[1] = value;
+            }
+        }
+
+        greatest[0]
     }
 }
