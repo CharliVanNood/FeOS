@@ -305,19 +305,13 @@ pub fn init() {
         }
     }
 
-    let terminal_line = [
-        97, 98, 97, 98, 99, 100, 99, 99, b'\n',
-        100, 97, 98, 99, 100, 99, 99, 99, 100, 100, 99, 99, 99, 100, 99, b'\n', 
-        100, 97, 98, 99, 100, 99, 99, 99, 100, 100, 99, 99, 99, 100, 99, 98, 97, 98, 99, 100, 99, 99, 100, 99,
-        100, 97, 98, 99, 100, 99, 99, 99, 100, 100, 99, 99, 99, 100, 99, 98, 97, 98, 99, 100, 99, 99, 100, 99,
-        100, 97, 98, 99, 100, 99, 99, 99, 100, 100, 99, 99, 99, 100, 99, 98, 97, 98, b'\n',
-        100, 97, 98, 99, 100, 100, 99, 98, 97, 98,
-    ];
+    let terminal_line = "hello world\nthis is a line of text\ngood day yall\nblack jack is overrated\ni will give you a medal\npot dor dot\ni have a question\nzen browser";
 
     let mut terminal_column_position = 0;
     let mut terminal_buffer: [[u8; 25]; 19] = [[0; 25]; 19];
 
-    for char in terminal_line {
+    for char in terminal_line.bytes() {
+        let mut char_writing = char;
         if char == b'\n' {
             shift_characters(buffer, &mut terminal_buffer);
             terminal_column_position = 0;
@@ -327,8 +321,11 @@ pub fn init() {
             shift_characters(buffer, &mut terminal_buffer);
             terminal_column_position = 0;
         }
-        draw_character(buffer, char,  9 + terminal_column_position * 6, 183);
-        terminal_buffer[0][terminal_column_position] = char;
+        if char_writing >= CHARACTERS.len() as u8 {
+            char_writing = 0;
+        }
+        draw_character(buffer, char_writing,  9 + terminal_column_position * 6, 183);
+        terminal_buffer[0][terminal_column_position] = char_writing;
         terminal_column_position += 1;
     }
 }
