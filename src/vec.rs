@@ -157,7 +157,7 @@ impl Vec {
     }
 
     #[allow(dead_code)]
-    pub fn get(&mut self, address: usize) -> usize {
+    pub fn get(&self, address: usize) -> usize {
         if address * 8 >= self.size {
             warnln!("Address out of range for {} :c", address);
             return 0;
@@ -201,5 +201,20 @@ impl Vec {
     #[allow(dead_code)]
     pub fn len(&self) -> usize {
         self.size / 8
+    }
+
+    #[allow(dead_code)]
+    pub fn min(&self) -> usize {
+        let mut lowest = [0, 999999999];
+
+        for value_index in 0..self.len() {
+            let value = self.get(value_index);
+            if value < lowest[1] {
+                lowest[0] = value_index;
+                lowest[1] = value;
+            }
+        }
+
+        lowest[0]
     }
 }
