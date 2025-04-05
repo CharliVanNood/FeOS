@@ -217,4 +217,19 @@ impl Vec {
 
         lowest[0]
     }
+
+    #[allow(dead_code)]
+    pub fn max(&self) -> usize {
+        let mut greatest = [0, 0];
+
+        for value_index in 0..self.len() {
+            let value = self.get(value_index);
+            if value > greatest[1] {
+                greatest[0] = value_index;
+                greatest[1] = value;
+            }
+        }
+
+        greatest[0]
+    }
 }
