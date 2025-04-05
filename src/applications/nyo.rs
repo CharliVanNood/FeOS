@@ -10,7 +10,7 @@ fn get_closest_index(input: BigString) -> usize {
     let mut tokens = Vec::new();
 
     let mut temp_token = 0;
-    let mut character_index_multiplying = 0;
+    let mut character_index_multiplying = 1;
     for character_index in 0..input.len() {
         let character = input.get(character_index);
         if character != 0 && character != 32 {
@@ -31,7 +31,7 @@ fn get_closest_index(input: BigString) -> usize {
         let mut sentence_tokens = Vec::new();
 
         let mut temp_token = 0;
-        let mut character_index = 0;
+        let mut character_index = 1;
         for character in sentence_in.bytes() {
             if character != 0 && character != 32 {
                 temp_token += character as usize * character_index;
@@ -58,7 +58,7 @@ fn get_closest_index(input: BigString) -> usize {
 
         weights.add(temp_weight as usize);
     }
-    
+
     weights.max()
 }
 
