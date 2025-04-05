@@ -166,6 +166,23 @@ impl Vec {
     }
 
     #[allow(dead_code)]
+    pub fn set(&mut self, address: usize, value: usize) {
+        if address * 8 >= self.size {
+            warnln!("Address out of range for {} :c", address);
+            return;
+        }
+        alloc::write_byte(self.heap_start + address * 8, value);
+    }
+
+    #[allow(dead_code)]
+    pub fn set_add(&mut self, address: usize, value: usize) {
+        if address * 8 >= self.size {
+            self.size = (address + 1) * 8;
+        }
+        alloc::write_byte(self.heap_start + address * 8, value);
+    }
+
+    #[allow(dead_code)]
     pub fn print(&self) {
         if self.len() == 0 {
             return;

@@ -13,9 +13,9 @@ pub fn exec(input: [u8; 512]) {
 
 fn match_token(token: [u8; 64], variables: [Vec; 64]) -> (usize, usize, [Vec; 64]) {
     let tokens_val = [
-        "PRINT", "\n", "lnnew", "TRUE", "FALSE", "+", "-", "/", "*", "INPUT", "lnlist", "==", "NOT"];
+        "PRINT", "\n", "lnnew", "TRUE", "FALSE", "+", "-", "/", "*", "INPUT", "lnlist", "==", "NOT", "="];
     let tokens_keys  = [
-         10,      8,    8,       3,      3,       11,  12,  13,  14,  15,      16,       18,   19];
+         10,      8,    8,       3,      3,       11,  12,  13,  14,  15,      16,       18,   19,    20];
 
     for command_index in 0..tokens_val.len() {
         let command = tokens_val[command_index];
@@ -226,7 +226,7 @@ fn run_line(line: TokenVec, mut indentation: &mut Vec, line_index: usize, mut va
     }
 }
 
-fn run_tokens_fact(mut tokens: TokenVec, _variables: Vec, _lists: [TokenVec; 64], _indentation: Vec, _indentation_depth: u8) -> TokenVec {
+fn run_tokens_fact(mut tokens: TokenVec, variables: Vec, _lists: [TokenVec; 64], _indentation: Vec, _indentation_depth: u8) -> TokenVec {
     let mut token_index = 0;
     let mut token_length = tokens.len();
 
@@ -235,21 +235,41 @@ fn run_tokens_fact(mut tokens: TokenVec, _variables: Vec, _lists: [TokenVec; 64]
 
         match token.0 {
             13 => {
-                if tokens.get(token_index - 1).0 == 1 && tokens.get(token_index + 1).0 == 1 {
-                    let operation_result: f32 = tokens.get(token_index - 1).1 as f32 / tokens.get(token_index + 1).1 as f32 * 100.0;
-                    tokens.set(token_index - 1, 2, operation_result as usize);
-                    tokens.shift(token_index, 2);
-                    token_length = tokens.len();
-                    token_index -= 1;
+                match (tokens.get(token_index - 1).0, tokens.get(token_index + 1).0) {
+                    (1, 1) => {
+                        let operation_result: f32 = tokens.get(token_index - 1).1 as f32 / tokens.get(token_index + 1).1 as f32 * 100.0;
+                        tokens.set(token_index - 1, 2, operation_result as usize);
+                        tokens.shift(token_index, 2);
+                        token_length = tokens.len();
+                        token_index -= 1;
+                    }
+                    (7, 7) => {
+                        let operation_result: f32 = variables.get(tokens.get(token_index - 1).1) as f32 / variables.get(tokens.get(token_index + 1).1) as f32 * 100.0;
+                        tokens.set(token_index - 1, 2, operation_result as usize);
+                        tokens.shift(token_index, 2);
+                        token_length = tokens.len();
+                        token_index -= 1;
+                    }
+                    _ => warnln!("This is an unsupported type conversion")
                 }
             },
             14 => {
-                if tokens.get(token_index - 1).0 == 1 && tokens.get(token_index + 1).0 == 1 {
-                    let operation_result = tokens.get(token_index - 1).1 * tokens.get(token_index + 1).1;
-                    tokens.set(token_index - 1, 1, operation_result as usize);
-                    tokens.shift(token_index, 2);
-                    token_length = tokens.len();
-                    token_index -= 1;
+                match (tokens.get(token_index - 1).0, tokens.get(token_index + 1).0) {
+                    (1, 1) => {
+                        let operation_result = tokens.get(token_index - 1).1 * tokens.get(token_index + 1).1;
+                        tokens.set(token_index - 1, 1, operation_result as usize);
+                        tokens.shift(token_index, 2);
+                        token_length = tokens.len();
+                        token_index -= 1;
+                    }
+                    (7, 7) => {
+                        let operation_result = variables.get(tokens.get(token_index - 1).1) * variables.get(tokens.get(token_index + 1).1);
+                        tokens.set(token_index - 1, 1, operation_result as usize);
+                        tokens.shift(token_index, 2);
+                        token_length = tokens.len();
+                        token_index -= 1;
+                    }
+                    _ => warnln!("This is an unsupported type conversion")
                 }
             },
             _ => {}
@@ -261,7 +281,7 @@ fn run_tokens_fact(mut tokens: TokenVec, _variables: Vec, _lists: [TokenVec; 64]
     tokens
 }
 
-fn run_tokens_math(mut tokens: TokenVec, _variables: Vec, _lists: [TokenVec; 64], _indentation: Vec, _indentation_depth: u8) -> TokenVec {
+fn run_tokens_math(mut tokens: TokenVec, variables: Vec, _lists: [TokenVec; 64], _indentation: Vec, _indentation_depth: u8) -> TokenVec {
     let mut token_index = 0;
     let mut token_length = tokens.len();
 
@@ -299,6 +319,13 @@ fn run_tokens_math(mut tokens: TokenVec, _variables: Vec, _lists: [TokenVec; 64]
                         token_length = tokens.len();
                         token_index -= 1;
                     }
+                    (7, 7) => {
+                        let operation_result = variables.get(tokens.get(token_index - 1).1) + variables.get(tokens.get(token_index + 1).1);
+                        tokens.set(token_index - 1, 1, operation_result as usize);
+                        tokens.shift(token_index, 2);
+                        token_length = tokens.len();
+                        token_index -= 1;
+                    }
                     _ => warnln!("This is an unsupported type conversion")
                 }
             },
@@ -332,6 +359,13 @@ fn run_tokens_math(mut tokens: TokenVec, _variables: Vec, _lists: [TokenVec; 64]
                         token_length = tokens.len();
                         token_index -= 1;
                     }
+                    (7, 7) => {
+                        let operation_result = variables.get(tokens.get(token_index - 1).1) - variables.get(tokens.get(token_index + 1).1);
+                        tokens.set(token_index - 1, 1, operation_result as usize);
+                        tokens.shift(token_index, 2);
+                        token_length = tokens.len();
+                        token_index -= 1;
+                    }
                     _ => warnln!("This is an unsupported type conversion")
                 }
             },
@@ -344,7 +378,7 @@ fn run_tokens_math(mut tokens: TokenVec, _variables: Vec, _lists: [TokenVec; 64]
     tokens
 }
 
-fn run_tokens_boolean(mut tokens: TokenVec, _variables: Vec, _lists: [TokenVec; 64], _indentation: Vec, _indentation_depth: u8) -> TokenVec {
+fn run_tokens_boolean(mut tokens: TokenVec, variables: Vec, _lists: [TokenVec; 64], _indentation: Vec, _indentation_depth: u8) -> TokenVec {
     let mut token_index = 0;
     let mut token_length = tokens.len();
 
@@ -404,6 +438,16 @@ fn run_tokens_boolean(mut tokens: TokenVec, _variables: Vec, _lists: [TokenVec; 
                         token_length = tokens.len();
                         token_index -= 1;
                     }
+                    (7, 7) => {
+                        let mut operation_result = 0;
+                        if variables.get(tokens.get(token_index - 1).1) == variables.get(tokens.get(token_index + 1).1) {
+                            operation_result = 1;
+                        }
+                        tokens.set(token_index - 1, 3, operation_result);
+                        tokens.shift(token_index, 2);
+                        token_length = tokens.len();
+                        token_index -= 1;
+                    }
                     _ => warnln!("This is an unsupported type conversion")
                 }
             },
@@ -447,7 +491,7 @@ fn run_tokens_first(mut tokens: TokenVec, _variables: Vec, _lists: [TokenVec; 64
 }
 
 fn run_tokens_last(
-    mut tokens: TokenVec, _variables: &mut Vec, lists: &mut [TokenVec; 64], _indentation: &mut Vec, 
+    mut tokens: TokenVec, variables: &mut Vec, lists: &mut [TokenVec; 64], _indentation: &mut Vec, 
     _indentation_depth: u8, line_index: usize, running: bool) -> (TokenVec, usize, bool, bool) {
     let return_to_last_indent = false;
     
@@ -458,6 +502,20 @@ fn run_tokens_last(
         let token = tokens.get(token_index);
 
         match (token.0, running) {
+            (20, true) => {
+                match (tokens.get(token_index - 1).0, tokens.get(token_index + 1).0) {
+                    (7, 1) => {
+                        variables.set_add(
+                            tokens.get(token_index - 1).1 as usize, 
+                            tokens.get(token_index + 1).1
+                        );
+                        tokens.shift(token_index - 1, 3);
+                        token_length = tokens.len();
+                        token_index -= 1;
+                    }
+                    _ => warnln!("This is an unsupported type conversion")
+                }
+            },
             (10, true) => {
                 match tokens.get(token_index + 1).0 {
                     1 => {
@@ -481,6 +539,11 @@ fn run_tokens_last(
                     }
                     5 => {
                         lists[tokens.get(token_index + 1).1].print();
+                        tokens.shift(token_index, 2);
+                        token_length = tokens.len();
+                    }
+                    7 => {
+                        println!("{}", variables.get(tokens.get(token_index + 1).1));
                         tokens.shift(token_index, 2);
                         token_length = tokens.len();
                     }

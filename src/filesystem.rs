@@ -193,5 +193,14 @@ pub fn install_base_os() {
     PRINT 1 == 1
     PRINT NOT TRUE
     PRINT NOT FALSE
+
+    a = 20
+    b = 10
+    PRINT a
+    PRINT a == b
+    PRINT a + b
+    PRINT a - b
+    PRINT a / b
+    PRINT a * b
     ");
 }
