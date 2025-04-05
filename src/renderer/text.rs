@@ -1,6 +1,7 @@
 static CHARACTER_SIZE: usize = 5 * 7;
 
-pub static CHARACTERS: [[bool; CHARACTER_SIZE]; 100] = [
+pub static CHARACTERS: [[bool; CHARACTER_SIZE]; 101] = [
+    // these characters are empty characters for padding, you're allowed to add them, it's so it lines up with vga
     [false; CHARACTER_SIZE], [false; CHARACTER_SIZE], [false; CHARACTER_SIZE], [false; CHARACTER_SIZE], [false; CHARACTER_SIZE],
     [false; CHARACTER_SIZE], [false; CHARACTER_SIZE], [false; CHARACTER_SIZE], [false; CHARACTER_SIZE], [false; CHARACTER_SIZE],
     [false; CHARACTER_SIZE], [false; CHARACTER_SIZE], [false; CHARACTER_SIZE], [false; CHARACTER_SIZE], [false; CHARACTER_SIZE],
@@ -20,7 +21,7 @@ pub static CHARACTERS: [[bool; CHARACTER_SIZE]; 100] = [
     [false; CHARACTER_SIZE], [false; CHARACTER_SIZE], [false; CHARACTER_SIZE], [false; CHARACTER_SIZE], [false; CHARACTER_SIZE],
     [false; CHARACTER_SIZE], [false; CHARACTER_SIZE], [false; CHARACTER_SIZE], [false; CHARACTER_SIZE], [false; CHARACTER_SIZE],
     [false; CHARACTER_SIZE], [false; CHARACTER_SIZE], [false; CHARACTER_SIZE], [false; CHARACTER_SIZE], [false; CHARACTER_SIZE],
-    [false; CHARACTER_SIZE],
+    [false; CHARACTER_SIZE], [false; CHARACTER_SIZE],
     
     [ // character A
         false, false, false, false, false,
@@ -56,6 +57,6 @@ pub static CHARACTERS: [[bool; CHARACTER_SIZE]; 100] = [
         false, true,  false, true,  false,
         false, true,  false, true,  false,
         false, true,  false, true,  false,
-        false, true,  true,  true,  false,
+        false, true,  true,  false, false,
     ], 
 ];
