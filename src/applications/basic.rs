@@ -13,9 +13,9 @@ pub fn exec(input: [u8; 512]) {
 
 fn match_token(token: [u8; 64], variables: [Vec; 64]) -> (usize, usize, [Vec; 64]) {
     let tokens_val = [
-        "PRINT", "\n", "lnnew", "TRUE", "FALSE", "+", "-", "/", "*", "INPUT", "lnlist", "=="];
+        "PRINT", "\n", "lnnew", "TRUE", "FALSE", "+", "-", "/", "*", "INPUT", "lnlist", "==", "NOT"];
     let tokens_keys  = [
-         10,      8,    8,       3,      3,       11,  12,  13,  14,  15,      16,       18];
+         10,      8,    8,       3,      3,       11,  12,  13,  14,  15,      16,       18,   19];
 
     for command_index in 0..tokens_val.len() {
         let command = tokens_val[command_index];
@@ -216,8 +216,8 @@ fn run_line(line: TokenVec, mut indentation: &mut Vec, line_index: usize, mut va
     if running {
         let tokens_after_fact = run_tokens_fact(line, *variables, *lists, *indentation, indentation_depth);
         let tokens_after_math = run_tokens_math(tokens_after_fact, *variables, *lists, *indentation, indentation_depth);
-        //let tokens_after_first = run_tokens_first(tokens_after_math, *variables, *indentation, indentation_depth);
-        let tokens_after_bool = run_tokens_boolean(tokens_after_math, *variables, *lists, *indentation, indentation_depth);
+        let tokens_after_first = run_tokens_first(tokens_after_math, *variables, *lists, *indentation, indentation_depth);
+        let tokens_after_bool = run_tokens_boolean(tokens_after_first, *variables, *lists, *indentation, indentation_depth);
         let operation_result = run_tokens_last(tokens_after_bool, &mut variables, &mut lists, &mut indentation, indentation_depth, line_index, running);
         return operation_result;
     } else {
@@ -416,20 +416,23 @@ fn run_tokens_boolean(mut tokens: TokenVec, _variables: Vec, _lists: [TokenVec; 
     tokens
 }
 
-/*fn run_tokens_first(mut tokens: [(u8, i32); 255], _variables: [u16; 256], _indentation: [i8; 16], _indentation_depth: u8) -> [(u8, i32); 255] {
+fn run_tokens_first(mut tokens: TokenVec, _variables: Vec, _lists: [TokenVec; 64], _indentation: Vec, _indentation_depth: u8) -> TokenVec {
     let mut token_index = 0;
-    for _ in 0..255 {
-        let token = tokens[token_index];
+    let mut token_length = tokens.len();
+
+    while token_index < token_length {
+        let token = tokens.get(token_index);
 
         match token.0 {
-            22 => {
-                if tokens[token_index + 1].0 == 3 {
-                    if tokens[token_index + 1].1 == 0 {
-                        tokens[token_index] = (3, 1);
+            19 => {
+                if tokens.get(token_index + 1).0 == 3 {
+                    if tokens.get(token_index + 1).1 == 0 {
+                        tokens.set(token_index, 3, 1);
                     } else {
-                        tokens[token_index] = (3, 0);
+                        tokens.set(token_index, 3, 0);
                     }
-                    tokens = shift_list(tokens, token_index + 1, 1);
+                    tokens.shift(token_index + 1, 1);
+                    token_length = tokens.len();
                 } else {
                     warnln!("This is an unsupported type conversion");
                 }
@@ -441,7 +444,7 @@ fn run_tokens_boolean(mut tokens: TokenVec, _variables: Vec, _lists: [TokenVec; 
     }
 
     tokens
-}*/
+}
 
 fn run_tokens_last(
     mut tokens: TokenVec, _variables: &mut Vec, lists: &mut [TokenVec; 64], _indentation: &mut Vec, 

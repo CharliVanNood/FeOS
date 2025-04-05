@@ -191,5 +191,7 @@ pub fn install_base_os() {
     ' PRINT \"test\"
     PRINT 1 == 2
     PRINT 1 == 1
+    PRINT NOT TRUE
+    PRINT NOT FALSE
     ");
 }
