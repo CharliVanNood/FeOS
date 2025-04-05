@@ -101,7 +101,7 @@ pub fn match_commands() {
     let commands = [
         "info", "ping", "color", "clear", "help", "femc", "fl", "go", 
         "install", "pong", "cat", "run", "per", "time", "input", "timeset",
-        "basic", "nyo"
+        "basic", "nyo", "screen"
         ];
 
     print!("\n");
