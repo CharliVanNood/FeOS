@@ -101,7 +101,7 @@ pub fn match_commands() {
     let commands = [
         "info", "ping", "color", "clear", "help", "femc", "fl", "go", 
         "install", "pong", "cat", "run", "per", "time", "input", "timeset",
-        "basic", "nyo", "screen"
+        "basic", "nyo", "screen", "char"
         ];
 
     print!("\n");
@@ -229,6 +229,7 @@ pub fn match_commands() {
                     clock::set_time(time_number as u8);
                 },
                 "input" => println!("neh"),
+                "char" => println!("Character code: {}", command_written[5]),
                 _ => warnln!("This command is unimplemented :C")
             }
         }
