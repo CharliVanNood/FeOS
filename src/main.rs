@@ -5,6 +5,7 @@
 #![reexport_test_harness_main = "test_main"]
 
 mod vga;
+mod window;
 mod input;
 mod applications;
 mod vec;
@@ -25,6 +26,7 @@ const VERSION: &str = env!("VERSION");
 #[no_mangle]
 pub extern "C" fn _start(boot_info: &'static BootInfo) -> ! {
     vga::clear_screen();
+
     println!("--------------------------------------");
     println!("| This is my silly operating system: |");
     println!("| FemDOS!                            |");
@@ -34,7 +36,7 @@ pub extern "C" fn _start(boot_info: &'static BootInfo) -> ! {
     println!("| Memory offset: 0x{:x}       |", boot_info.physical_memory_offset);
     println!("--------------------------------------");
 
-    alloc::set_heap(boot_info.physical_memory_offset as usize, 0x5000000);
+    alloc::set_heap(boot_info.physical_memory_offset as usize + 0x8a5000, 0x7fe0000 - 0x8a5000);
     fem_dos::init(boot_info);
 
     println!("Done initializing components!");
@@ -100,11 +102,20 @@ pub extern "C" fn _start(boot_info: &'static BootInfo) -> ! {
         warnln!("[AWW] Disk write sector 4 failed (This was supposed to happen)");
     }
 
+    /*for region in boot_info.memory_map.iter() {
+        println!(
+            "Address is mapped as {:?} at {:x} to {:x}",
+            region.region_type, region.range.start_addr(), region.range.end_addr()
+        );
+    }*/
+
     println!("Done testing!");
 
     println!("--------------------------------------");
     println!("| Yippee FemDOS has booted!          |");
     println!("--------------------------------------");
+
+    //window::init();
 
     fem_dos::hlt_loop();
 }
