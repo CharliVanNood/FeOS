@@ -271,19 +271,19 @@ fn draw_character(buffer: &mut Buffer, character: u8, x: usize, y: usize) {
     }
 }
 
-fn clear_characters(buffer: &mut Buffer, terminal_buffer: &mut [[u8; 25]; 19], line: usize) {
-    for i in 0..24 {
-        draw_character(buffer, 0, 9 + i * 6, 183 - 10 * line);
+fn clear_characters(buffer: &mut Buffer, terminal_buffer: &mut [[u8; 26]; 19], line: usize) {
+    for i in 0..25 {
+        draw_character(buffer, 0, 2 + i * 6, 183 - 10 * line);
         terminal_buffer[line][i] = 0;
     }
 }
 
-fn shift_characters(buffer: &mut Buffer, terminal_buffer: &mut [[u8; 25]; 19]) {
+fn shift_characters(buffer: &mut Buffer, terminal_buffer: &mut [[u8; 26]; 19]) {
     for line in 1..19 {
-        for i in 0..24 {
+        for i in 0..25 {
             let character = terminal_buffer[18 - line][i];
             terminal_buffer[19 - line][i] = character;
-            draw_character(buffer, character, 9 + i * 6, 183 - 10 * (19 - line));
+            draw_character(buffer, character, 2 + i * 6, 183 - 10 * (19 - line));
             //draw_character(buffer, 100, 9 + i * 6, 183 - 10 * (line + 1));
         }
     }
@@ -295,12 +295,14 @@ pub fn init() {
     
     let _frames = [(0, 0, 160, 100); 4];
 
+    let background_color = get_rgb(0, 0, 0);
+
     for x in 0..BUFFER_WIDTH {
         for y in 0..BUFFER_HEIGHT {
             if x > 160 {
                 buffer.pixels[get_pixel_index(x, y)].write(get_next_color());
             } else {
-                buffer.pixels[get_pixel_index(x, y)].write(0);
+                buffer.pixels[get_pixel_index(x, y)].write(background_color);
             }
         }
     }
@@ -308,7 +310,7 @@ pub fn init() {
     let terminal_line = "hello world\nthis is a line of text\ngood day yall\nblack jack is overrated\ni will give you a medal\npot dor dot\ni have a question\nzen browser";
 
     let mut terminal_column_position = 0;
-    let mut terminal_buffer: [[u8; 25]; 19] = [[0; 25]; 19];
+    let mut terminal_buffer: [[u8; 26]; 19] = [[0; 26]; 19];
 
     for char in terminal_line.bytes() {
         let mut char_writing = char;
@@ -324,7 +326,7 @@ pub fn init() {
         if char_writing >= CHARACTERS.len() as u8 {
             char_writing = 0;
         }
-        draw_character(buffer, char_writing,  9 + terminal_column_position * 6, 183);
+        draw_character(buffer, char_writing,  2 + terminal_column_position * 6, 183);
         terminal_buffer[0][terminal_column_position] = char_writing;
         terminal_column_position += 1;
     }
