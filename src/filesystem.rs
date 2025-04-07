@@ -186,5 +186,10 @@ pub fn install_base_os() {
     PRINT \"loops\"
     PRINT \"are\"
     PRINT \"amazing\"
+
+    DO
+    PRINT TRUE
+    PRINT FALSE
+    LOOP
     ");
 }

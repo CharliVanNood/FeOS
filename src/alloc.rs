@@ -40,6 +40,17 @@ impl Allocator {
         self.next += size;
         (self.next - size, self.next)
     }
+
+    pub fn unalloc(&mut self, size_raw: usize) -> (usize, usize) {
+        let size = size_raw * 8;
+        if self.next + size > self.heap_end {
+            warnln!("Address 0x{:x} is out of range", self.next + size);
+            return (0, 0);
+        }
+
+        self.next += size;
+        (self.next - size, self.next)
+    }
 }
 
 lazy_static! {
@@ -59,6 +70,11 @@ pub fn set_heap(heap_start: usize, heap_size: usize) {
 
 pub fn alloc(size: usize) -> (usize, usize) {
     ALLOCATOR.lock().alloc(size)
+}
+
+pub fn unalloc(address: usize, size: usize) {
+    //println!("unallocating {} with size {}", address, size);
+    //ALLOCATOR.lock().unalloc(size)
 }
 
 pub fn write_byte(address: usize, value: usize) {

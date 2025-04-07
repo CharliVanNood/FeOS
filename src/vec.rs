@@ -123,6 +123,21 @@ impl TokenVec {
     pub fn len(&self) -> usize {
         self.size / 16
     }
+
+    #[allow(dead_code)]
+    pub fn copy(&self) -> TokenVec {
+        let mut new_token_vec = TokenVec::new();
+        for value in 0..self.len() {
+            let current_value = self.get(value);
+            new_token_vec.add(current_value.0, current_value.1);
+        }
+        new_token_vec
+    }
+
+    #[allow(dead_code)]
+    pub fn remove(&self) {
+        alloc::unalloc(self.heap_start, self.heap_size);
+    }
 }
 
 #[derive(Copy)]
