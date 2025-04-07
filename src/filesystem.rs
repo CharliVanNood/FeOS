@@ -183,24 +183,8 @@ pub fn install_base_os() {
     create_file(1, "basic_sub", "b", "PRINT 2 - 2;");
 
     create_file(1, "basic", "b", "
-    PRINT TRUE
-    PRINT FALSE
-    PRINT TRUE
-    PRINT \"test\"
-    ' INPUT
-    ' PRINT \"test\"
-    PRINT 1 == 2
-    PRINT 1 == 1
-    PRINT NOT TRUE
-    PRINT NOT FALSE
-
-    a = 20
-    b = 10
-    PRINT a
-    PRINT a == b
-    PRINT a + b
-    PRINT a - b
-    PRINT a / b
-    PRINT a * b
+    PRINT \"loops\"
+    PRINT \"are\"
+    PRINT \"amazing\"
     ");
 }

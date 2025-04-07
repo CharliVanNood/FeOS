@@ -538,7 +538,11 @@ fn run_tokens_last(
                         token_length = tokens.len();
                     }
                     5 => {
-                        lists[tokens.get(token_index + 1).1].print();
+                        let list = lists[tokens.get(token_index + 1).1];
+                        for list_index in 0..list.len() {
+                            print!("{}", list.get(list_index).1 as u8 as char);
+                        }
+                        println!("");
                         tokens.shift(token_index, 2);
                         token_length = tokens.len();
                     }
