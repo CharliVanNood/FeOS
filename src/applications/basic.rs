@@ -193,7 +193,10 @@ fn run_tokens(mut tokens: [TokenVec; 128], mut lists: [TokenVec; 64]) {
     let mut line_index = 0;
     while line_index < tokens.len() {
         let line = tokens[line_index];
-        //println!("LINE INDEX {}", line_index);
+        if line.len() == 0 {
+            line_index += 1;
+            continue;
+        }
 
         let mut indentation_depth: u8 = 0;
         for indentation_layer in indentation.get_as_b64() {
@@ -202,17 +205,18 @@ fn run_tokens(mut tokens: [TokenVec; 128], mut lists: [TokenVec; 64]) {
             }
         }
 
-        let line_running;
-        line_running = line.copy();
+        let line_running = line.copy();
         let operation_result = run_line(line_running, &mut indentation, line_index, &mut variables, &mut lists, indentation_depth, running);
-        line_running.remove();
 
         line_index = operation_result.1;
         running = operation_result.3;
         if operation_result.2 {
-            tokens[line_index] = operation_result.0;
+            tokens[line_index].remove();
+            tokens[line_index] = operation_result.0.copy();
             line_index = indentation.get(indentation_depth as usize) as usize;
         }
+
+        line_running.remove();
 
         line_index += 1;
     }
@@ -513,12 +517,9 @@ fn run_tokens_last(
                 running = true;
             },
             (25, true) => {
-                if token_index == 0 {
-                    println!("looping");
-                    indentation.set_add(indentation_depth as usize + 1, line_index);
-                    running = false;
-                    tokens.shift(token_index, 1);
-                }
+                indentation.set_add(indentation_depth as usize + 1, line_index);
+                running = false;
+                tokens.shift(token_index, 1);
             },
             (20, true) => {
                 match (tokens.get(token_index - 1).0, tokens.get(token_index + 1).0) {

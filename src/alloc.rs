@@ -41,15 +41,15 @@ impl Allocator {
         (self.next - size, self.next)
     }
 
-    pub fn unalloc(&mut self, size_raw: usize) -> (usize, usize) {
-        let size = size_raw * 8;
-        if self.next + size > self.heap_end {
-            warnln!("Address 0x{:x} is out of range", self.next + size);
-            return (0, 0);
+    pub fn unalloc(&mut self, heap_start: usize, heap_size: usize) {
+        if heap_start + heap_size == self.next {
+            self.next -= heap_size;
+            for i in 0..heap_size {
+                unsafe {
+                    ptr::write((heap_start + i * 8) as *mut usize, 0);
+                }
+            }
         }
-
-        self.next += size;
-        (self.next - size, self.next)
     }
 }
 
@@ -73,8 +73,7 @@ pub fn alloc(size: usize) -> (usize, usize) {
 }
 
 pub fn unalloc(address: usize, size: usize) {
-    //println!("unallocating {} with size {}", address, size);
-    //ALLOCATOR.lock().unalloc(size)
+    ALLOCATOR.lock().unalloc(address, size);
 }
 
 pub fn write_byte(address: usize, value: usize) {

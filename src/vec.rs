@@ -264,4 +264,9 @@ impl Vec {
 
         greatest[0]
     }
+
+    #[allow(dead_code)]
+    pub fn remove(&self) {
+        alloc::unalloc(self.heap_start, self.heap_size);
+    }
 }
