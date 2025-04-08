@@ -1,4 +1,4 @@
-use crate::{alloc, applications::basic, info, print, println, vec::FileVec};
+use crate::{alloc, applications::assembly, info, print, println, string::BigString, vec::FileVec};
 
 use lazy_static::lazy_static;
 use spin::Mutex;
@@ -27,7 +27,7 @@ impl FileSystem {
     pub fn create_file(&mut self, parent: i32, filename: [u8; 20], data: &str) {
         let data_bytes = data.bytes();
 
-        let address = alloc::alloc(2048);
+        let address = alloc::alloc(8192);
 
         let mut index = 0;
         for i in data_bytes {
@@ -158,14 +158,15 @@ pub fn run_file(name: [u8; 20]) {
     let file_start = file.2.0;
     let file_size = file.2.2;
 
-    let mut file_data: [u8; 512] = [0; 512];
+    let mut file_data: BigString = BigString::new();
     for i in 0..file_size {
         let byte = alloc::read_byte(file_start + i * 8) as u8;
-        file_data[i] = byte;
+        file_data.add(byte);
     }
 
     //femc::exec(file_data);
-    basic::exec(file_data);
+    //basic::exec(file_data);
+    assembly::exec(file_data);
 }
 
 pub fn install_base_os() {
@@ -191,5 +192,23 @@ pub fn install_base_os() {
     PRINT TRUE
     PRINT FALSE
     LOOP
+    ");
+
+    create_file(1, "asm", "a", "
+    section .data
+    hello db \"Hello,World!\", 0
+    section .text
+    global _start
+    _start:
+
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, hello
+    mov edx, 13
+    int 0x80
+
+    mov eax, 1
+    xor ebx, ebx
+    int 0x80
     ");
 }

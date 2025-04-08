@@ -231,6 +231,40 @@ impl Vec {
     }
 
     #[allow(dead_code)]
+    pub fn set_as_b128(&mut self, value: [u8; 128]) {
+        for i in 0..128 {
+            alloc::write_byte(self.heap_start + i * 8, value[i] as usize);
+        }
+        self.size = 512;
+    }
+
+    #[allow(dead_code)]
+    pub fn get_as_b128(&self) -> [u8; 128] {
+        let mut b64_list = [0; 128];
+        for i in 0..self.len() {
+            b64_list[i] = alloc::read_byte(self.heap_start + i * 8) as u8;
+        }
+        b64_list
+    }
+
+    #[allow(dead_code)]
+    pub fn set_as_b256(&mut self, value: [u8; 256]) {
+        for i in 0..256 {
+            alloc::write_byte(self.heap_start + i * 8, value[i] as usize);
+        }
+        self.size = 512;
+    }
+
+    #[allow(dead_code)]
+    pub fn get_as_b256(&self) -> [u8; 256] {
+        let mut b64_list = [0; 256];
+        for i in 0..self.len() {
+            b64_list[i] = alloc::read_byte(self.heap_start + i * 8) as u8;
+        }
+        b64_list
+    }
+
+    #[allow(dead_code)]
     pub fn len(&self) -> usize {
         self.size / 8
     }
