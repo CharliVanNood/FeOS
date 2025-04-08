@@ -20,6 +20,7 @@ use bootloader::BootInfo;
 
 use alloc::{read_byte, write_byte};
 use fem_dos::alloc::alloc;
+use vec::Vec;
 
 const VERSION: &str = env!("VERSION");
 
@@ -100,6 +101,25 @@ pub extern "C" fn _start(boot_info: &'static BootInfo) -> ! {
         infoln!("[YAY] Disk write sector 4 was successfull (Which should not be possible!)");
     } else {
         warnln!("[AWW] Disk write sector 4 failed (This was supposed to happen)");
+    }
+
+    let mut test_vec_1 = Vec::new();
+    test_vec_1.add(1);
+    test_vec_1.add(2);
+    test_vec_1.add(3);
+    test_vec_1.remove();
+
+    let mut test_vec_2 = Vec::new();
+    test_vec_2.add(4);
+    test_vec_2.add(5);
+    test_vec_2.add(6);
+    test_vec_2.remove();
+
+    let ram_usage = alloc::get_usage();
+    if ram_usage.0 == 8 {
+        infoln!("[YAY] Ram allocation in vectors is working! :D");
+    } else {
+        warnln!("[AWW] Ram allocation in vectors is not working! :C");
     }
 
     /*for region in boot_info.memory_map.iter() {

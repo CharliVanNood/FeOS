@@ -123,6 +123,21 @@ impl TokenVec {
     pub fn len(&self) -> usize {
         self.size / 16
     }
+
+    #[allow(dead_code)]
+    pub fn copy(&self) -> TokenVec {
+        let mut new_token_vec = TokenVec::new();
+        for value in 0..self.len() {
+            let current_value = self.get(value);
+            new_token_vec.add(current_value.0, current_value.1);
+        }
+        new_token_vec
+    }
+
+    #[allow(dead_code)]
+    pub fn remove(&self) {
+        alloc::unalloc(self.heap_start, self.heap_size);
+    }
 }
 
 #[derive(Copy)]
@@ -163,6 +178,23 @@ impl Vec {
             return 0;
         }
         alloc::read_byte(self.heap_start + address * 8)
+    }
+
+    #[allow(dead_code)]
+    pub fn set(&mut self, address: usize, value: usize) {
+        if address * 8 >= self.size {
+            warnln!("Address out of range for {} :c", address);
+            return;
+        }
+        alloc::write_byte(self.heap_start + address * 8, value);
+    }
+
+    #[allow(dead_code)]
+    pub fn set_add(&mut self, address: usize, value: usize) {
+        if address * 8 >= self.size {
+            self.size = (address + 1) * 8;
+        }
+        alloc::write_byte(self.heap_start + address * 8, value);
     }
 
     #[allow(dead_code)]
@@ -231,5 +263,10 @@ impl Vec {
         }
 
         greatest[0]
+    }
+
+    #[allow(dead_code)]
+    pub fn remove(&self) {
+        alloc::unalloc(self.heap_start, self.heap_size);
     }
 }
