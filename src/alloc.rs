@@ -41,6 +41,16 @@ impl Allocator {
         (self.next - size, self.next)
     }
 
+    pub fn shift_back(&mut self, heap_start: usize, new_heap_start: usize) {
+        for i in 0..heap_start - new_heap_start {
+            unsafe {
+                let previous_bit = ptr::read((heap_start + i * 8) as *mut usize);
+                ptr::write((new_heap_start + i * 8) as *mut usize, previous_bit);
+            }
+        }
+        self.next -= heap_start - new_heap_start;
+    }
+
     pub fn unalloc(&mut self, heap_start: usize, heap_size: usize) {
         if heap_start + heap_size == self.next {
             self.next -= heap_size;
@@ -49,6 +59,8 @@ impl Allocator {
                     ptr::write((heap_start + i * 8) as *mut usize, 0);
                 }
             }
+        } else {
+            self.shift_back(heap_start + heap_size, heap_start);
         }
     }
 }
