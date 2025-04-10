@@ -17,7 +17,7 @@ lazy_static::lazy_static! {
 #[allow(dead_code)]
 pub fn check_events() {
     let time = clock::get_time();
-    vga::set_header(time);
+    window::draw_menu_bar(time);
 
     let keypresses = {
         let lock = KEYPRESSES.lock();
@@ -94,7 +94,8 @@ fn print_help_command() {
     println!("   [time]             - Time will show you the current time according to bios");
     println!("   [timeset] [hour]   - Timeset will set the current hour");
     println!("   [per]              - Performance will show you system details");
-    println!("   [run] [file name]  - Run runs the actual files\n");
+    println!("   [run] [file name]  - Run runs the actual files");
+    println!("   [nyo] [message]    - Chat with the o so amazing nyo :D\n");
 }
 
 #[allow(dead_code)]
@@ -102,7 +103,7 @@ pub fn match_commands() {
     let commands = [
         "info", "ping", "color", "clear", "help", "femc", "fl", "go", 
         "install", "pong", "cat", "run", "per", "time", "input", "timeset",
-        "basic", "screen", "imagine"
+        "basic", "nyo", "screen", "char", "imagine"
         ];
 
     print!("\n");
@@ -152,6 +153,9 @@ pub fn match_commands() {
                     command_written_512[..256].copy_from_slice(&command_written);
                     applications::basic::exec(command_written_512)
                 },
+                "nyo" => {
+                    applications::nyo::query_nyo(command_written);
+                }
                 "fl" => filesystem::print_current_dir_files(),
                 "go" => {
                     let mut name = [0; 20];
@@ -227,6 +231,7 @@ pub fn match_commands() {
                     clock::set_time(time_number as u8);
                 },
                 "input" => println!("neh"),
+                "char" => println!("Character code: {}", command_written[5]),
                 "imagine" => {
                     let mut name = [0; 20];
                     let mut name_len = 0;

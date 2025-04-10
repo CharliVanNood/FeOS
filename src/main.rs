@@ -21,6 +21,7 @@ use bootloader::BootInfo;
 
 use alloc::{read_byte, write_byte};
 use fem_dos::alloc::alloc;
+use vec::Vec;
 
 const VERSION: &str = env!("VERSION");
 
@@ -38,7 +39,7 @@ pub extern "C" fn _start(boot_info: &'static BootInfo) -> ! {
     println!("| Memory offset: 0x{:x}       |", boot_info.physical_memory_offset);
     println!("--------------------------------------");
 
-    alloc::set_heap(boot_info.physical_memory_offset as usize, 0x5000000);
+    alloc::set_heap(boot_info.physical_memory_offset as usize + 0x8a5000, 0x7fe0000 - 0x8a5000);
     fem_dos::init(boot_info);
 
     println!("Done initializing components!");
@@ -103,6 +104,32 @@ pub extern "C" fn _start(boot_info: &'static BootInfo) -> ! {
     } else {
         warnln!("[AWW] Disk write sector 4 failed (This was supposed to happen)");
     }
+
+    let mut test_vec_1 = Vec::new();
+    test_vec_1.add(1);
+    test_vec_1.add(2);
+    test_vec_1.add(3);
+    test_vec_1.remove();
+
+    let mut test_vec_2 = Vec::new();
+    test_vec_2.add(4);
+    test_vec_2.add(5);
+    test_vec_2.add(6);
+    test_vec_2.remove();
+
+    let ram_usage = alloc::get_usage();
+    if ram_usage.0 == 8 {
+        infoln!("[YAY] Ram allocation in vectors is working! :D");
+    } else {
+        warnln!("[AWW] Ram allocation in vectors is not working! :C");
+    }
+
+    /*for region in boot_info.memory_map.iter() {
+        println!(
+            "Address is mapped as {:?} at {:x} to {:x}",
+            region.region_type, region.range.start_addr(), region.range.end_addr()
+        );
+    }*/
 
     println!("Done testing!");
 
