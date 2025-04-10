@@ -26,7 +26,7 @@ const VERSION: &str = env!("VERSION");
 
 #[no_mangle]
 pub extern "C" fn _start(boot_info: &'static BootInfo) -> ! {
-    vga::clear_screen();
+    window::clear_screen();
 
     println!("--------------------------------------");
     println!("| This is my silly operating system: |");
