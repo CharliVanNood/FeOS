@@ -38,17 +38,14 @@ pub fn clear_screen() {
 }
 
 pub fn draw_menu_bar(time: (u8, u8, u8)) {
-    /*interrupts::without_interrupts(|| {
-        SCREEN_WRITER
-            .lock()
-            .write_fmt(format_args!("{}:{}:{}", time.0, time.1, time.2))
-            .unwrap();
-    });*/
+    SCREEN_WRITER.lock().frame = 1;
+    println!("{}:{}:{} ", time.0, time.1, time.2);
+    SCREEN_WRITER.lock().frame = 0;
 }
 
 impl fmt::Write for ScreenWriter {
     fn write_str(&mut self, s: &str) -> fmt::Result {
-        self.write_string(s, 0);
+        self.write_string(s);
         Ok(())
     }
 }
@@ -56,8 +53,10 @@ impl fmt::Write for ScreenWriter {
 pub struct ScreenWriter {
     buffer: &'static mut Buffer,
     //frames: [(i32, i32, i32, i32); 4],
+    frame: u8,
+    clock_column_position: usize,
     terminal_column_position: usize,
-    terminal_character_buffer: [[u8; 26]; 19]
+    terminal_character_buffer: [[u8; 26]; 19],
 }
 impl ScreenWriter {
     #[allow(dead_code)]
@@ -138,19 +137,21 @@ impl ScreenWriter {
         self.terminal_column_position += 1;
     }
 
-    fn draw_clock_character(&mut self, char: u8, i: usize) {
-        self.draw_character(char,  162 + i * 6, 191);
+    fn draw_clock_character(&mut self, char: u8) {
+        self.draw_character(char,  162 + self.clock_column_position * 6, 191);
+        self.clock_column_position += 1;
+        if char == 32 {
+            self.clock_column_position = 0;
+        }
     }
 
-    pub fn write_string(&mut self, s: &str, frame: u8) {
-        let mut i = 0;
+    pub fn write_string(&mut self, s: &str) {
         for char in s.bytes() {
-            match frame {
+            match self.frame {
                 0 => self.draw_terminal_character(char),
-                1 => self.draw_clock_character(char, i),
+                1 => self.draw_clock_character(char),
                 _ => self.draw_terminal_character(char)
             }
-            i += 1;
         }
     }
 }
@@ -158,7 +159,9 @@ impl ScreenWriter {
 lazy_static! {
     pub static ref SCREEN_WRITER: Mutex<ScreenWriter> = Mutex::new(ScreenWriter {
         buffer: unsafe { &mut *(0xa0000 as *mut Buffer) },
+        frame: 0,
         //frames: [(0, 0, 160, 100); 4],
+        clock_column_position: 0,
         terminal_column_position: 0,
         terminal_character_buffer: [[0; 26]; 19]
     });
