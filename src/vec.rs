@@ -157,7 +157,7 @@ impl Vec {
     }
 
     #[allow(dead_code)]
-    pub fn get(&mut self, address: usize) -> usize {
+    pub fn get(&self, address: usize) -> usize {
         if address * 8 >= self.size {
             warnln!("Address out of range for {} :c", address);
             return 0;

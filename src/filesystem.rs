@@ -1,4 +1,4 @@
-use crate::{alloc, applications::basic, info, print, println, vec::FileVec};
+use crate::{alloc, applications::basic, info, print, println, vec::{FileVec, Vec}};
 
 use lazy_static::lazy_static;
 use spin::Mutex;
@@ -153,6 +153,21 @@ pub fn read_file(name: [u8; 20]) {
     print!("\n");
 }
 
+pub fn read_image(name: [u8; 20]) -> Vec {
+    let file = find_file(name);
+    let file_start = file.2.0;
+    let file_size = file.2.2;
+
+    let mut contents = Vec::new();
+
+    for i in 0..file_size {
+        let byte = alloc::read_byte(file_start + i * 8) as u8;
+        contents.add(byte);
+    }
+
+    return contents
+}
+
 pub fn run_file(name: [u8; 20]) {
     let file = find_file(name);
     let file_start = file.2.0;
@@ -177,10 +192,6 @@ pub fn install_base_os() {
     create_file(1, "if_test_1", "fc", "if 10 == 10\nprint 10\nend\nif 10 == 5\nprint 5\nend");
     create_file(1, "color_test_1", "fc", "color 1 1");
     create_file(1, "color_test_2", "fc", "color 11 11\nprint true\ncolor 13 13\nprint true\ncolor 15 15\nprint true\ncolor 13 13\nprint true\ncolor 11 11\nprint true\ncolor 15 0");
-    create_file(1, "basic_mul", "b", "PRINT 2 * 2;");
-    create_file(1, "basic_add", "b", "PRINT 2 + 2;");
-    create_file(1, "basic_div", "b", "PRINT 2 / 2;");
-    create_file(1, "basic_sub", "b", "PRINT 2 - 2;");
 
     create_file(1, "basic", "b", "
     PRINT TRUE
@@ -192,4 +203,6 @@ pub fn install_base_os() {
     PRINT 1 == 2
     PRINT 1 == 1
     ");
+
+    create_file(1, "smiley", "img", "6;6;255255255255255255255255255255255255255255255255255255255255255000000000000000000000000000255255255000000000255255255255255255255255255000000000255255255255255255255255255255255255255255255255255255000000000255255255000000000255255255255255255000000000255255255000000000255255255");
 }
