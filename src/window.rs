@@ -155,8 +155,4 @@ pub fn init() {
             }
         }
     }
-
-    let terminal_line = "hello world\nthis is a line of text\ngood day yall\nblack jack is overrated\ni will give you a medal\npot dor dot\ni have a question\nzen browser";
-
-    screen_writer.write_string(terminal_line);
 }
