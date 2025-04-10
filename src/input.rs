@@ -6,6 +6,7 @@ use crate::vga;
 use crate::applications;
 use crate::filesystem;
 use spin::Mutex;
+use crate::window::render_image;
 
 lazy_static::lazy_static! {
     static ref CURRENT_TEXT: Mutex<[u8; 256]> = Mutex::new([0; 256]);
@@ -102,7 +103,7 @@ pub fn match_commands() {
     let commands = [
         "info", "ping", "color", "clear", "help", "femc", "fl", "go", 
         "install", "pong", "cat", "run", "per", "time", "input", "timeset",
-        "basic", "nyo", "screen", "char"
+        "basic", "nyo", "screen", "char", "imagine"
         ];
 
     print!("\n");
@@ -231,6 +232,20 @@ pub fn match_commands() {
                 },
                 "input" => println!("neh"),
                 "char" => println!("Character code: {}", command_written[5]),
+                "imagine" => {
+                    let mut name = [0; 20];
+                    let mut name_len = 0;
+
+                    for byte_index in 8..27 {
+                        let byte = command_written[byte_index];
+                        if byte == 0 { break; }
+                        name[name_len] = byte as u8;
+                        name_len += 1;
+                    }
+
+                    let image_data = filesystem::read_image(name);
+                    render_image(image_data);
+                }
                 _ => warnln!("This command is unimplemented :C")
             }
         }
