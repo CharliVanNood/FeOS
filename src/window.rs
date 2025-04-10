@@ -141,6 +141,7 @@ lazy_static! {
     });
 }
 
+#[allow(dead_code)]
 pub fn init() {
     let mut screen_writer = SCREEN_WRITER.lock();
 
