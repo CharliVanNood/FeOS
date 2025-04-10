@@ -6,6 +6,7 @@ use spin::Mutex;
 use core::fmt::Write;
 
 use crate::renderer::{colors, text::CHARACTERS};
+use crate::vec::Vec;
 
 const BUFFER_WIDTH: usize = 320;
 const BUFFER_HEIGHT: usize = 200;
@@ -178,6 +179,53 @@ pub fn init() {
                 screen_writer.set_pixel(x, y, 215);
             } else {
                 screen_writer.set_pixel(x, y, background_color);
+            }
+        }
+    }
+}
+
+fn get_int(numbers: [usize; 3]) -> u8 {
+    let mut int_val = 0;
+
+    for i in 0..3 {
+        let byte_number = numbers[i] as i32 - 48;
+        int_val += byte_number * 10_i32.pow((3 - i) as u32 - 1);
+    }
+    int_val as u8
+}
+
+pub fn render_image(image_data: Vec) {
+    let mut screen_writer = SCREEN_WRITER.lock();
+
+    let window_offset_x = 160;
+
+    let window_width = BUFFER_WIDTH - window_offset_x;
+    let window_height = BUFFER_HEIGHT;
+    let image_width = image_data.get(0) - 48;
+    let image_height = image_data.get(2) - 48;
+    let image_start_x = window_width/2 - image_width/2;
+    let image_start_y = window_height/2 - image_height/2;
+    let image_end_x = image_start_x + image_width;
+    let image_end_y = image_start_y + image_height;
+    let mut char = 4;
+
+    println!("{} {}", window_width, window_height);
+    println!("{} {}", image_width, image_height);
+    println!("{} {}", image_start_x, image_start_y);
+    println!("{} {}", image_end_x, image_end_y);
+
+    for y in 0..BUFFER_HEIGHT {
+        if (y > image_start_y) | (y < image_end_y) {
+            for x in 0..window_width {
+                if (x > image_start_x) | (x < image_end_x) {
+                    let red = get_int([image_data.get(char),image_data.get(char+1),image_data.get(char+2)]);
+                    let green = get_int([image_data.get(char+3),image_data.get(char+4),image_data.get(char+5)]);
+                    let blue = get_int([image_data.get(char+6),image_data.get(char+7),image_data.get(char+8)]);
+                    char += 9;
+
+                    let color = screen_writer.get_rgb(red, green, blue);
+                    screen_writer.set_pixel(x+window_offset_x, y, color);
+                }
             }
         }
     }
