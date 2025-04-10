@@ -1,4 +1,4 @@
-use crate::{alloc, applications::{assembly, basic, femc}, info, print, println, string::BigString, vec::FileVec, warnln};
+use crate::{alloc, applications::{assembly, basic, femc}, info, print, println, string::BigString, vec::{FileVec, Vec}, warnln};
 
 use lazy_static::lazy_static;
 use spin::Mutex;
@@ -162,6 +162,21 @@ pub fn read_file(name: [u8; 20]) {
     print!("\n");
 }
 
+pub fn read_image(name: [u8; 20]) -> Vec {
+    let file = find_file(name);
+    let file_start = file.2.0;
+    let file_size = file.2.2;
+
+    let mut contents = Vec::new();
+
+    for i in 0..file_size {
+        let byte = alloc::read_byte(file_start + i * 8) as u8;
+        contents.add(byte);
+    }
+
+    contents
+}
+
 pub fn run_file(name: [u8; 20]) {
     let file = find_file(name);
     let file_start = file.2.0;
@@ -245,5 +260,14 @@ pub fn install_base_os() {
     mov eax, 1
     xor ebx, ebx
     int 0x80
+    ");
+
+    create_file(1, "smiley", "img", "
+    100 0   100 0   100
+    100 0   100 0   100
+    100 100 100 100 100
+    0   100 100 100 0
+    100 0   0   0   100
+    100 100 100 100 100
     ");
 }
