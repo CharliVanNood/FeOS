@@ -37,9 +37,18 @@ pub fn clear_screen() {
     }
 }
 
+pub fn draw_menu_bar(time: (u8, u8, u8)) {
+    /*interrupts::without_interrupts(|| {
+        SCREEN_WRITER
+            .lock()
+            .write_fmt(format_args!("{}:{}:{}", time.0, time.1, time.2))
+            .unwrap();
+    });*/
+}
+
 impl fmt::Write for ScreenWriter {
     fn write_str(&mut self, s: &str) -> fmt::Result {
-        self.write_string(s);
+        self.write_string(s, 0);
         Ok(())
     }
 }
@@ -110,24 +119,38 @@ impl ScreenWriter {
         self.buffer.pixels[self.get_pixel_index(x, y)].write(color);
     }
 
-    pub fn write_string(&mut self, s: &str) {
+    fn draw_terminal_character(&mut self, char: u8) {
+        let mut char_writing = char;
+        if char == b'\n' {
+            self.shift_characters();
+            self.terminal_column_position = 0;
+            return;
+        }
+        if self.terminal_column_position == 24 {
+            self.shift_characters();
+            self.terminal_column_position = 0;
+        }
+        if char_writing >= CHARACTERS.len() as u8 {
+            char_writing = 0;
+        }
+        self.draw_character(char_writing,  2 + self.terminal_column_position * 6, 183);
+        self.terminal_character_buffer[0][self.terminal_column_position] = char_writing;
+        self.terminal_column_position += 1;
+    }
+
+    fn draw_clock_character(&mut self, char: u8, i: usize) {
+        self.draw_character(char,  162 + i * 6, 191);
+    }
+
+    pub fn write_string(&mut self, s: &str, frame: u8) {
+        let mut i = 0;
         for char in s.bytes() {
-            let mut char_writing = char;
-            if char == b'\n' {
-                self.shift_characters();
-                self.terminal_column_position = 0;
-                continue;
+            match frame {
+                0 => self.draw_terminal_character(char),
+                1 => self.draw_clock_character(char, i),
+                _ => self.draw_terminal_character(char)
             }
-            if self.terminal_column_position == 24 {
-                self.shift_characters();
-                self.terminal_column_position = 0;
-            }
-            if char_writing >= CHARACTERS.len() as u8 {
-                char_writing = 0;
-            }
-            self.draw_character(char_writing,  2 + self.terminal_column_position * 6, 183);
-            self.terminal_character_buffer[0][self.terminal_column_position] = char_writing;
-            self.terminal_column_position += 1;
+            i += 1;
         }
     }
 }

@@ -16,7 +16,7 @@ lazy_static::lazy_static! {
 #[allow(dead_code)]
 pub fn check_events() {
     let time = clock::get_time();
-    vga::set_header(time);
+    window::draw_menu_bar(time);
 
     let keypresses = {
         let lock = KEYPRESSES.lock();
