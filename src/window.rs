@@ -57,7 +57,7 @@ pub struct ScreenWriter {
     frame: u8,
     clock_column_position: usize,
     terminal_column_position: usize,
-    terminal_character_buffer: [[u8; 26]; 19],
+    terminal_character_buffer: [[u8; 27]; 19],
 }
 impl ScreenWriter {
     #[allow(dead_code)]
@@ -98,7 +98,7 @@ impl ScreenWriter {
     }
     
     fn clear_characters(&mut self, line: usize) {
-        for i in 0..25 {
+        for i in 0..26 {
             self.draw_character(0, 2 + i * 6, 183 - 10 * line);
             self.terminal_character_buffer[line][i] = 0;
         }
@@ -106,7 +106,7 @@ impl ScreenWriter {
     
     fn shift_characters(&mut self) {
         for line in 1..19 {
-            for i in 0..25 {
+            for i in 0..26 {
                 let character = self.terminal_character_buffer[18 - line][i];
                 self.terminal_character_buffer[19 - line][i] = character;
                 self.draw_character(character, 2 + i * 6, 183 - 10 * (19 - line));
@@ -126,7 +126,7 @@ impl ScreenWriter {
             self.terminal_column_position = 0;
             return;
         }
-        if self.terminal_column_position == 24 {
+        if self.terminal_column_position == 25 {
             self.shift_characters();
             self.terminal_column_position = 0;
         }
@@ -164,7 +164,7 @@ lazy_static! {
         //frames: [(0, 0, 160, 100); 4],
         clock_column_position: 0,
         terminal_column_position: 0,
-        terminal_character_buffer: [[0; 26]; 19]
+        terminal_character_buffer: [[0; 27]; 19]
     });
 }
 

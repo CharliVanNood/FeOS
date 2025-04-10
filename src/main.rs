@@ -30,14 +30,12 @@ pub extern "C" fn _start(boot_info: &'static BootInfo) -> ! {
     window::init();
     window::clear_screen();
 
-    println!("--------------------------------------");
-    println!("| This is my silly operating system: |");
-    println!("| FemDOS!                            |");
-    println!("|                                    |");
-    println!("| Data:                              |");
-    println!("| Version: {}                  |", VERSION);
-    println!("| Memory offset: 0x{:x}       |", boot_info.physical_memory_offset);
-    println!("--------------------------------------");
+    println!("-------------------------");
+    println!("FemDOS!");
+    println!("Data:");
+    println!("Version: {}", VERSION);
+    println!("Mem Offset: 0x{:x}", boot_info.physical_memory_offset);
+    println!("-------------------------");
 
     alloc::set_heap(boot_info.physical_memory_offset as usize + 0x8a5000, 0x7fe0000 - 0x8a5000);
     fem_dos::init(boot_info);
@@ -133,9 +131,9 @@ pub extern "C" fn _start(boot_info: &'static BootInfo) -> ! {
 
     println!("Done testing!");
 
-    println!("--------------------------------------");
-    println!("| Yippee FemDOS has booted!          |");
-    println!("--------------------------------------");
+    println!("-------------------------");
+    println!("| Yippee FemDOS booted! |");
+    println!("-------------------------");
 
     fem_dos::hlt_loop();
 }
