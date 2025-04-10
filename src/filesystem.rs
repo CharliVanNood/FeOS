@@ -162,7 +162,7 @@ pub fn read_file(name: [u8; 20]) {
     print!("\n");
 }
 
-pub fn read_image(name: [u8; 20]) -> Vec {
+pub fn _read_image(name: [u8; 20]) -> Vec {
     let file = find_file(name);
     let file_start = file.2.0;
     let file_size = file.2.2;
