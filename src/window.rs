@@ -101,7 +101,6 @@ impl ScreenWriter {
                 let character = self.terminal_character_buffer[18 - line][i];
                 self.terminal_character_buffer[19 - line][i] = character;
                 self.draw_character(character, 2 + i * 6, 183 - 10 * (19 - line));
-                //draw_character(buffer, 100, 9 + i * 6, 183 - 10 * (line + 1));
             }
         }
         self.clear_characters(0);
