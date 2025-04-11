@@ -17,6 +17,26 @@ struct Buffer {
 }
 
 #[macro_export]
+macro_rules! warn {
+    ($($arg:tt)*) => ($crate::window::_warn(format_args!($($arg)*)));
+}
+#[macro_export]
+macro_rules! warnln {
+    () => ($crate::warn!("\n"));
+    ($($arg:tt)*) => ($crate::warn!("{}\n", format_args!($($arg)*)));
+}
+
+#[macro_export]
+macro_rules! info {
+    ($($arg:tt)*) => ($crate::window::_info(format_args!($($arg)*)));
+}
+#[macro_export]
+macro_rules! infoln {
+    () => ($crate::info!("\n"));
+    ($($arg:tt)*) => ($crate::info!("{}\n", format_args!($($arg)*)));
+}
+
+#[macro_export]
 macro_rules! print {
     ($($arg:tt)*) => ($crate::window::_print(format_args!($($arg)*)));
 }
@@ -25,31 +45,62 @@ macro_rules! println {
     () => ($crate::print!("\n"));
     ($($arg:tt)*) => ($crate::print!("{}\n", format_args!($($arg)*)));
 }
+
 #[doc(hidden)]
 pub fn _print(args: fmt::Arguments) {
     interrupts::without_interrupts(|| {
         SCREEN_WRITER.lock().write_fmt(args).unwrap();
     });
 }
+#[doc(hidden)]
+pub fn _warn(args: fmt::Arguments) {
+    interrupts::without_interrupts(|| {
+        let color = {
+            SCREEN_WRITER.lock().terminal_background_color
+        };
+        SCREEN_WRITER.lock().set_color(4, color, 0);
+        SCREEN_WRITER.lock().write_fmt(args).unwrap();
+        SCREEN_WRITER.lock().set_color(15, color, 0);
+    });
+}
+#[doc(hidden)]
+pub fn _info(args: fmt::Arguments) {
+    interrupts::without_interrupts(|| {
+        let color = {
+            SCREEN_WRITER.lock().terminal_background_color
+        };
+        SCREEN_WRITER.lock().set_color(5, color, 0);
+        SCREEN_WRITER.lock().write_fmt(args).unwrap();
+        SCREEN_WRITER.lock().set_color(15, color, 0);
+    });
+}
 
 pub fn clear_screen() {
-    for _ in 0..100 {
+    for _ in 0..19 {
         println!("");
     }
 }
 
+pub fn set_terminal_color(foreground: u8, background: u8) {
+    SCREEN_WRITER.lock().set_color(foreground, background, 0);
+}
+pub fn get_terminal_color() -> u8 {
+    SCREEN_WRITER.lock().terminal_background_color
+}
+
+pub fn remove_terminal_character() {
+    SCREEN_WRITER.lock().remove_terminal_character();
+}
+
 pub fn draw_menu_bar(time: (u8, u8, u8)) {
-    /*interrupts::without_interrupts(|| {
-        SCREEN_WRITER
-            .lock()
-            .write_fmt(format_args!("{}:{}:{}", time.0, time.1, time.2))
-            .unwrap();
-    });*/
+    SCREEN_WRITER.lock().frame = 1;
+    println!("{}:{}:{} ", time.0, time.1, time.2);
+    SCREEN_WRITER.lock().frame = 0;
 }
 
 impl fmt::Write for ScreenWriter {
     fn write_str(&mut self, s: &str) -> fmt::Result {
-        self.write_string(s, 0);
+        self.write_string(s);
         Ok(())
     }
 }
@@ -57,8 +108,14 @@ impl fmt::Write for ScreenWriter {
 pub struct ScreenWriter {
     buffer: &'static mut Buffer,
     //frames: [(i32, i32, i32, i32); 4],
+    frame: u8,
+    clock_column_position: usize,
     terminal_column_position: usize,
-    terminal_character_buffer: [[u8; 26]; 19]
+    terminal_character_buffer: [[(u8, u8, u8); 27]; 19],
+    terminal_background_color: u8,
+    terminal_foreground_color: u8,
+    clock_background_color: u8,
+    clock_foreground_color: u8,
 }
 impl ScreenWriter {
     #[allow(dead_code)]
@@ -85,32 +142,49 @@ impl ScreenWriter {
     fn get_pixel_index(&self, x: usize, y: usize) -> usize {
         x + y * BUFFER_WIDTH
     }
+
+    fn set_color(&mut self, foreground: u8, background: u8, frame: u8) {
+        match frame {
+            0 => {
+                self.terminal_background_color = background;
+                self.terminal_foreground_color = foreground;
+            },
+            1 => {
+                self.clock_background_color = background;
+                self.clock_foreground_color = foreground;
+            },
+            _ => {
+                self.terminal_background_color = background;
+                self.terminal_foreground_color = foreground;
+            }
+        }
+    }
     
-    fn draw_character(&mut self, character: u8, x: usize, y: usize) {
+    fn draw_character(&mut self, character: u8, x: usize, y: usize, foreground: u8, background: u8) {
         let characters = CHARACTERS[character as usize];
     
         for char in characters.iter().enumerate() {
             if char.1 == &true {
-                self.buffer.pixels[self.get_pixel_index(x + char.0 % 5, y + char.0 / 5)].write(15);
+                self.buffer.pixels[self.get_pixel_index(x + char.0 % 5, y + char.0 / 5)].write(foreground);
             } else {
-                self.buffer.pixels[self.get_pixel_index(x + char.0 % 5, y + char.0 / 5)].write(0);
+                self.buffer.pixels[self.get_pixel_index(x + char.0 % 5, y + char.0 / 5)].write(background);
             }
         }
     }
     
     fn clear_characters(&mut self, line: usize) {
-        for i in 0..25 {
-            self.draw_character(0, 2 + i * 6, 183 - 10 * line);
-            self.terminal_character_buffer[line][i] = 0;
+        for i in 0..26 {
+            self.draw_character(0, 2 + i * 6, 183 - 10 * line, 15, 0);
+            self.terminal_character_buffer[line][i] = (0, 15, 0);
         }
     }
     
     fn shift_characters(&mut self) {
         for line in 1..19 {
-            for i in 0..25 {
+            for i in 0..26 {
                 let character = self.terminal_character_buffer[18 - line][i];
                 self.terminal_character_buffer[19 - line][i] = character;
-                self.draw_character(character, 2 + i * 6, 183 - 10 * (19 - line));
+                self.draw_character(character.0, 2 + i * 6, 183 - 10 * (19 - line), character.1, character.2);
             }
         }
         self.clear_characters(0);
@@ -127,31 +201,46 @@ impl ScreenWriter {
             self.terminal_column_position = 0;
             return;
         }
-        if self.terminal_column_position == 24 {
+        if self.terminal_column_position == 25 {
             self.shift_characters();
             self.terminal_column_position = 0;
         }
         if char_writing >= CHARACTERS.len() as u8 {
             char_writing = 0;
         }
-        self.draw_character(char_writing,  2 + self.terminal_column_position * 6, 183);
-        self.terminal_character_buffer[0][self.terminal_column_position] = char_writing;
+        self.draw_character(char_writing,  2 + self.terminal_column_position * 6, 183, 15, 0);
+        self.terminal_character_buffer[0][self.terminal_column_position] = (
+            char_writing, self.terminal_foreground_color, self.terminal_background_color
+        );
         self.terminal_column_position += 1;
     }
 
-    fn draw_clock_character(&mut self, char: u8, i: usize) {
-        self.draw_character(char,  162 + i * 6, 191);
+    fn remove_terminal_character(&mut self) {
+        if self.terminal_column_position == 0 { return; }
+        self.terminal_column_position -= 1;
+
+        self.draw_character(0,  2 + self.terminal_column_position * 6, 183, 15, 0);
+        self.terminal_character_buffer[0][self.terminal_column_position] = (
+            0, self.terminal_foreground_color, self.terminal_background_color
+        );
     }
 
-    pub fn write_string(&mut self, s: &str, frame: u8) {
-        let mut i = 0;
+    fn draw_clock_character(&mut self, char: u8) {
+        self.draw_character(char,  162 + self.clock_column_position * 6, 191, 
+            self.clock_foreground_color, self.clock_background_color);
+        self.clock_column_position += 1;
+        if char == 32 {
+            self.clock_column_position = 0;
+        }
+    }
+
+    pub fn write_string(&mut self, s: &str) {
         for char in s.bytes() {
-            match frame {
+            match self.frame {
                 0 => self.draw_terminal_character(char),
-                1 => self.draw_clock_character(char, i),
+                1 => self.draw_clock_character(char),
                 _ => self.draw_terminal_character(char)
             }
-            i += 1;
         }
     }
 }
@@ -159,9 +248,15 @@ impl ScreenWriter {
 lazy_static! {
     pub static ref SCREEN_WRITER: Mutex<ScreenWriter> = Mutex::new(ScreenWriter {
         buffer: unsafe { &mut *(0xa0000 as *mut Buffer) },
+        frame: 0,
         //frames: [(0, 0, 160, 100); 4],
+        clock_column_position: 0,
         terminal_column_position: 0,
-        terminal_character_buffer: [[0; 26]; 19]
+        terminal_character_buffer: [[(0, 15, 0); 27]; 19],
+        terminal_background_color: 0,
+        terminal_foreground_color: 15,
+        clock_background_color: 215,
+        clock_foreground_color: 15
     });
 }
 

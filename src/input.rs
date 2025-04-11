@@ -2,7 +2,6 @@ use crate::alloc;
 use crate::clock;
 use crate::window;
 use crate::{print, println, warnln};
-use crate::vga;
 use crate::applications;
 use crate::filesystem;
 use spin::Mutex;
@@ -76,26 +75,26 @@ fn remove_byte() {
     if *text_end > 0 {
         *text_end -= 1;
         text[*text_end] = 0;
-        vga::remove_byte();
+        window::remove_terminal_character();
     }
 }
 
 fn print_help_command() {
     println!("\nWe have these general commands");
-    println!("   [ping]             - Just a simple test command");
-    println!("   [femc] [code]      - Run femc commands");
-    println!("   [basic] [code]     - Run BASIC commands");
-    println!("   [color]            - Toggle the background color");
-    println!("   [clear]            - Clear the screen");
-    println!("   [fl]               - Show the items in the current flow");
-    println!("   [go] [flow name]   - Change to a different flow");
-    println!("   [pong]             - The game pong");
-    println!("   [cat]              - Read a file");
-    println!("   [time]             - Time will show you the current time according to bios");
-    println!("   [timeset] [hour]   - Timeset will set the current hour");
-    println!("   [per]              - Performance will show you system details");
-    println!("   [run] [file name]  - Run runs the actual files");
-    println!("   [nyo] [message]    - Chat with the o so amazing nyo :D\n");
+    println!("[ping] - Pong");
+    println!("[femc] [code] - FemC");
+    println!("[basic] [code] - BASIC");
+    println!("[color] - Toggle color");
+    println!("[clear] - Clear screen");
+    println!("[fl] - Show flow files");
+    println!("[go] [flow] - Change flow");
+    println!("[pong] - The game pong");
+    println!("[cat] - Read a file");
+    println!("[time] - Shows time");
+    println!("[timeset] [hour] - Set the current hour");
+    println!("[per] - Performance");
+    println!("[run] [file] - Run code");
+    println!("[nyo] [message] - NyoBot");
 }
 
 #[allow(dead_code)]
@@ -133,11 +132,11 @@ pub fn match_commands(command_written:[u8; 256], user_ran:bool) {
                 "ping" => println!("Pong"),
                 "color" => {
                     print!("Changed the color to black");
-                    let color = vga::get_color();
+                    let color = window::get_terminal_color();
                     if color == 15 {
-                        vga::set_color(13, 0);
+                        window::set_terminal_color(13, 0);
                     } else {
-                        vga::set_color(13, 15);
+                        window::set_terminal_color(13, 15);
                     }
                     print!("\n");
                 },
