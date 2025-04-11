@@ -45,6 +45,7 @@ macro_rules! println {
     () => ($crate::print!("\n"));
     ($($arg:tt)*) => ($crate::print!("{}\n", format_args!($($arg)*)));
 }
+
 #[doc(hidden)]
 pub fn _print(args: fmt::Arguments) {
     interrupts::without_interrupts(|| {
@@ -62,7 +63,6 @@ pub fn _warn(args: fmt::Arguments) {
         SCREEN_WRITER.lock().set_color(15, color, 0);
     });
 }
-
 #[doc(hidden)]
 pub fn _info(args: fmt::Arguments) {
     interrupts::without_interrupts(|| {
@@ -100,7 +100,7 @@ pub struct ScreenWriter {
     frame: u8,
     clock_column_position: usize,
     terminal_column_position: usize,
-    terminal_character_buffer: [[u8; 27]; 19],
+    terminal_character_buffer: [[(u8, u8, u8); 27]; 19],
     terminal_background_color: u8,
     terminal_foreground_color: u8,
 }
@@ -143,22 +143,22 @@ impl ScreenWriter {
         }
     }
     
-    fn draw_character(&mut self, character: u8, x: usize, y: usize) {
+    fn draw_character(&mut self, character: u8, x: usize, y: usize, foreground: u8, background: u8) {
         let characters = CHARACTERS[character as usize];
     
         for char in characters.iter().enumerate() {
             if char.1 == &true {
-                self.buffer.pixels[self.get_pixel_index(x + char.0 % 5, y + char.0 / 5)].write(self.terminal_foreground_color);
+                self.buffer.pixels[self.get_pixel_index(x + char.0 % 5, y + char.0 / 5)].write(foreground);
             } else {
-                self.buffer.pixels[self.get_pixel_index(x + char.0 % 5, y + char.0 / 5)].write(self.terminal_background_color);
+                self.buffer.pixels[self.get_pixel_index(x + char.0 % 5, y + char.0 / 5)].write(background);
             }
         }
     }
     
     fn clear_characters(&mut self, line: usize) {
         for i in 0..26 {
-            self.draw_character(0, 2 + i * 6, 183 - 10 * line);
-            self.terminal_character_buffer[line][i] = 0;
+            self.draw_character(0, 2 + i * 6, 183 - 10 * line, 15, 0);
+            self.terminal_character_buffer[line][i] = (0, 15, 0);
         }
     }
     
@@ -167,7 +167,7 @@ impl ScreenWriter {
             for i in 0..26 {
                 let character = self.terminal_character_buffer[18 - line][i];
                 self.terminal_character_buffer[19 - line][i] = character;
-                self.draw_character(character, 2 + i * 6, 183 - 10 * (19 - line));
+                self.draw_character(character.0, 2 + i * 6, 183 - 10 * (19 - line), character.1, character.2);
             }
         }
         self.clear_characters(0);
@@ -191,13 +191,15 @@ impl ScreenWriter {
         if char_writing >= CHARACTERS.len() as u8 {
             char_writing = 0;
         }
-        self.draw_character(char_writing,  2 + self.terminal_column_position * 6, 183);
-        self.terminal_character_buffer[0][self.terminal_column_position] = char_writing;
+        self.draw_character(char_writing,  2 + self.terminal_column_position * 6, 183, 15, 0);
+        self.terminal_character_buffer[0][self.terminal_column_position] = (
+            char_writing, self.terminal_foreground_color, self.terminal_background_color
+        );
         self.terminal_column_position += 1;
     }
 
     fn draw_clock_character(&mut self, char: u8) {
-        self.draw_character(char,  162 + self.clock_column_position * 6, 191);
+        self.draw_character(char,  162 + self.clock_column_position * 6, 191, 15, 0);
         self.clock_column_position += 1;
         if char == 32 {
             self.clock_column_position = 0;
@@ -222,7 +224,7 @@ lazy_static! {
         //frames: [(0, 0, 160, 100); 4],
         clock_column_position: 0,
         terminal_column_position: 0,
-        terminal_character_buffer: [[0; 27]; 19],
+        terminal_character_buffer: [[(0, 15, 0); 27]; 19],
         terminal_background_color: 0,
         terminal_foreground_color: 15
     });
