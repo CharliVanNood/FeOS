@@ -20,7 +20,7 @@ use bootloader::BootInfo;
 
 use alloc::{read_byte, write_byte};
 use fem_dos::alloc::alloc;
-use vec::Vec;
+use vec::{Vec, BigVec};
 
 const VERSION: &str = env!("VERSION");
 
@@ -120,6 +120,14 @@ pub extern "C" fn _start(boot_info: &'static BootInfo) -> ! {
     } else {
         warnln!("[AWW] Heap vectors");
     }
+
+    let mut test_vec_3 = BigVec::new();
+    for _ in 0..100*100 {
+        test_vec_3.add(255);
+    }
+    test_vec_3.get(100 * 100);
+    test_vec_3.remove();
+    infoln!("[YAY] Big addresses");
 
     /*for region in boot_info.memory_map.iter() {
         println!(
