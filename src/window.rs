@@ -289,17 +289,20 @@ fn get_int(numbers: [usize; 3]) -> u8 {
 pub fn render_image(image_data: Vec) {
     let window_offset_x = 160;
 
+    let image_width = get_int([image_data.get(0), image_data.get(1), image_data.get(2)]) as usize;
+    let image_height = get_int([image_data.get(3), image_data.get(4), image_data.get(5)]) as usize;
+
     let window_width = BUFFER_WIDTH - window_offset_x;
     let window_height = BUFFER_HEIGHT;
-    let image_width = image_data.get(0) - 48;
-    let image_height = image_data.get(2) - 48;
     let image_start_x = window_width/2 - image_width/2;
     let image_start_y = window_height/2 - image_height/2;
     let image_end_x = image_start_x + image_width;
     let image_end_y = image_start_y + image_height;
-    let mut char = 4;
+    let mut char = 6;
 
     let mut screen_writer = SCREEN_WRITER.lock();
+
+    image_data.get(image_width*image_height*9);
 
     for y in (0..BUFFER_HEIGHT).rev() {
         if (y >= image_start_y) && (y < image_end_y) {
