@@ -11,7 +11,27 @@ pub static CHARACTERS: [[bool; CHARACTER_SIZE]; 123] = [
     [false; CHARACTER_SIZE], [false; CHARACTER_SIZE], [false; CHARACTER_SIZE], [false; CHARACTER_SIZE], [false; CHARACTER_SIZE],
     [false; CHARACTER_SIZE], [false; CHARACTER_SIZE], [false; CHARACTER_SIZE], [false; CHARACTER_SIZE], [false; CHARACTER_SIZE],
 
-    [false; CHARACTER_SIZE], [false; CHARACTER_SIZE], [false; CHARACTER_SIZE], [false; CHARACTER_SIZE], [false; CHARACTER_SIZE],
+    [false; CHARACTER_SIZE], [false; CHARACTER_SIZE], [false; CHARACTER_SIZE], 
+    
+    [ // character ,
+        false, false, false, false, false,
+        false, false, true,  false, false,
+        false, false, true,  false, false,
+        false, false, true,  false, false,
+        false, false, true,  false, false,
+        false, false, false, false, false,
+        false, false, true,  false, false,
+    ],
+    [ // character ,
+        false, false, false, false, false,
+        false, true,  false, true,  false,
+        false, true,  false, true,  false,
+        false, false, false, false, false,
+        false, false, false, false, false,
+        false, false, false, false, false,
+        false, false, false, false, false,
+    ],
+    
     [false; CHARACTER_SIZE], [false; CHARACTER_SIZE], [false; CHARACTER_SIZE], [false; CHARACTER_SIZE], [false; CHARACTER_SIZE],
 
     [false; CHARACTER_SIZE], [false; CHARACTER_SIZE], [false; CHARACTER_SIZE], [false; CHARACTER_SIZE],
@@ -150,7 +170,16 @@ pub static CHARACTERS: [[bool; CHARACTER_SIZE]; 123] = [
         false, false, true,  false, false,
         false, false, false, false, false,
     ],
-    [false; CHARACTER_SIZE], [false; CHARACTER_SIZE],
+    [false; CHARACTER_SIZE], 
+    [ // character <
+        false, false, false, false, false,
+        false, false, false, true,  false,
+        false, false, true,  false, false,
+        false, true,  false, false, false,
+        false, false, true,  false, false,
+        false, false, false, true,  false,
+        false, false, false, false, false,
+    ],
     [ // character =
         false, false, false, false, false,
         false, false, false, false, false,
@@ -169,8 +198,17 @@ pub static CHARACTERS: [[bool; CHARACTER_SIZE]; 123] = [
         false, true,  false, false, false,
         false, false, false, false, false,
     ],
+    [ // character .
+        false, false, false, false, false,
+        false, false, true,  false, false,
+        false, true,  false, true,  false,
+        false, false, false, true,  false,
+        false, false, true,  false, false,
+        false, false, false, false, false,
+        false, false, true,  false, false,
+    ],
     
-    [false; CHARACTER_SIZE], [false; CHARACTER_SIZE],
+    [false; CHARACTER_SIZE],
 
     [ // character A
         false, false, false, false, false,
@@ -426,7 +464,19 @@ pub static CHARACTERS: [[bool; CHARACTER_SIZE]; 123] = [
         false, true,  true,  false, false,
     ],
 
-    [false; CHARACTER_SIZE], [false; CHARACTER_SIZE], [false; CHARACTER_SIZE],
+    [false; CHARACTER_SIZE], 
+
+    [ // character ]
+        false, false, false, false, false,
+        false, false, false, false, false,
+        false, false, false, false, false,
+        false, false, false, false, false,
+        false, false, false, false, false,
+        false, false, false, false, false,
+        true,  true,  true,  true,  false,
+    ],
+    
+    [false; CHARACTER_SIZE],
     
     [ // character a
         false, false, false, false, false,
