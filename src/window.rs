@@ -6,7 +6,7 @@ use spin::Mutex;
 use core::fmt::Write;
 
 use crate::renderer::{colors, text::CHARACTERS};
-use crate::vec::Vec;
+use crate::vec::BigVec;
 
 const BUFFER_WIDTH: usize = 320;
 const BUFFER_HEIGHT: usize = 200;
@@ -286,7 +286,7 @@ fn get_int(numbers: [usize; 3]) -> u8 {
     int_val as u8
 }
 
-pub fn render_image(image_data: Vec) {
+pub fn render_image(image_data: BigVec) {
     let window_offset_x = 160;
 
     let image_width = get_int([image_data.get(0), image_data.get(1), image_data.get(2)]) as usize;
