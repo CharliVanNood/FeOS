@@ -17,6 +17,26 @@ struct Buffer {
 }
 
 #[macro_export]
+macro_rules! warn {
+    ($($arg:tt)*) => ($crate::window::_warn(format_args!($($arg)*)));
+}
+#[macro_export]
+macro_rules! warnln {
+    () => ($crate::warn!("\n"));
+    ($($arg:tt)*) => ($crate::warn!("{}\n", format_args!($($arg)*)));
+}
+
+#[macro_export]
+macro_rules! info {
+    ($($arg:tt)*) => ($crate::window::_info(format_args!($($arg)*)));
+}
+#[macro_export]
+macro_rules! infoln {
+    () => ($crate::info!("\n"));
+    ($($arg:tt)*) => ($crate::info!("{}\n", format_args!($($arg)*)));
+}
+
+#[macro_export]
 macro_rules! print {
     ($($arg:tt)*) => ($crate::window::_print(format_args!($($arg)*)));
 }
@@ -29,6 +49,29 @@ macro_rules! println {
 pub fn _print(args: fmt::Arguments) {
     interrupts::without_interrupts(|| {
         SCREEN_WRITER.lock().write_fmt(args).unwrap();
+    });
+}
+#[doc(hidden)]
+pub fn _warn(args: fmt::Arguments) {
+    interrupts::without_interrupts(|| {
+        let color = {
+            SCREEN_WRITER.lock().terminal_background_color
+        };
+        SCREEN_WRITER.lock().set_color(4, color, 0);
+        SCREEN_WRITER.lock().write_fmt(args).unwrap();
+        SCREEN_WRITER.lock().set_color(15, color, 0);
+    });
+}
+
+#[doc(hidden)]
+pub fn _info(args: fmt::Arguments) {
+    interrupts::without_interrupts(|| {
+        let color = {
+            SCREEN_WRITER.lock().terminal_background_color
+        };
+        SCREEN_WRITER.lock().set_color(5, color, 0);
+        SCREEN_WRITER.lock().write_fmt(args).unwrap();
+        SCREEN_WRITER.lock().set_color(15, color, 0);
     });
 }
 
@@ -58,6 +101,8 @@ pub struct ScreenWriter {
     clock_column_position: usize,
     terminal_column_position: usize,
     terminal_character_buffer: [[u8; 27]; 19],
+    terminal_background_color: u8,
+    terminal_foreground_color: u8,
 }
 impl ScreenWriter {
     #[allow(dead_code)]
@@ -84,15 +129,28 @@ impl ScreenWriter {
     fn get_pixel_index(&self, x: usize, y: usize) -> usize {
         x + y * BUFFER_WIDTH
     }
+
+    fn set_color(&mut self, foreground: u8, background: u8, frame: u8) {
+        match frame {
+            0 => {
+                self.terminal_background_color = background;
+                self.terminal_foreground_color = foreground;
+            },
+            _ => {
+                self.terminal_background_color = background;
+                self.terminal_foreground_color = foreground;
+            }
+        }
+    }
     
     fn draw_character(&mut self, character: u8, x: usize, y: usize) {
         let characters = CHARACTERS[character as usize];
     
         for char in characters.iter().enumerate() {
             if char.1 == &true {
-                self.buffer.pixels[self.get_pixel_index(x + char.0 % 5, y + char.0 / 5)].write(15);
+                self.buffer.pixels[self.get_pixel_index(x + char.0 % 5, y + char.0 / 5)].write(self.terminal_foreground_color);
             } else {
-                self.buffer.pixels[self.get_pixel_index(x + char.0 % 5, y + char.0 / 5)].write(0);
+                self.buffer.pixels[self.get_pixel_index(x + char.0 % 5, y + char.0 / 5)].write(self.terminal_background_color);
             }
         }
     }
@@ -164,7 +222,9 @@ lazy_static! {
         //frames: [(0, 0, 160, 100); 4],
         clock_column_position: 0,
         terminal_column_position: 0,
-        terminal_character_buffer: [[0; 27]; 19]
+        terminal_character_buffer: [[0; 27]; 19],
+        terminal_background_color: 0,
+        terminal_foreground_color: 15
     });
 }
 

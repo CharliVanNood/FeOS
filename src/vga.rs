@@ -10,7 +10,7 @@ macro_rules! print {
     ($($arg:tt)*) => ($crate::vga::_print(format_args!($($arg)*)));
 }*/
 
-#[macro_export]
+/*#[macro_export]
 macro_rules! warn {
     ($($arg:tt)*) => ($crate::vga::_warn(format_args!($($arg)*)));
 }
@@ -18,7 +18,7 @@ macro_rules! warn {
 #[macro_export]
 macro_rules! info {
     ($($arg:tt)*) => ($crate::vga::_info(format_args!($($arg)*)));
-}
+}*/
 
 /*#[macro_export]
 macro_rules! println {
@@ -26,7 +26,7 @@ macro_rules! println {
     ($($arg:tt)*) => ($crate::print!("{}\n", format_args!($($arg)*)));
 }*/
 
-#[macro_export]
+/*#[macro_export]
 macro_rules! warnln {
     () => ($crate::warn!("\n"));
     ($($arg:tt)*) => ($crate::warn!("{}\n", format_args!($($arg)*)));
@@ -36,7 +36,7 @@ macro_rules! warnln {
 macro_rules! infoln {
     () => ($crate::info!("\n"));
     ($($arg:tt)*) => ($crate::info!("{}\n", format_args!($($arg)*)));
-}
+}*/
 
 /*#[doc(hidden)]
 pub fn _print(args: fmt::Arguments) {
