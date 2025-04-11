@@ -80,10 +80,6 @@ pub fn remove_byte() {
     WRITER.lock().remove_byte();
 }
 
-pub fn set_header(time: (u8, u8, u8)) {
-    WRITER.lock().set_header(time);
-}
-
 impl fmt::Write for Writer {
     fn write_str(&mut self, s: &str) -> fmt::Result {
         self.write_string(s);
@@ -229,70 +225,5 @@ impl Writer {
         self.text_color = foreground;
         self.back_color = background;
         self.color_code = ColorCode::new_base(foreground, background);
-    }
-
-    pub fn set_header(&mut self, time: (u8, u8, u8)) {
-        for i in 12..BUFFER_WIDTH {
-            self.buffer.chars[0][i].write(ScreenChar {
-                ascii_character: 0,
-                color_code: ColorCode::new_color(Color::White, Color::Magenta)
-            });
-        }
-
-        let hour_number_1 = time.0 / 10;
-        let hour_number_2 = time.0 % 10;
-        let min_number_1 = time.1 / 10;
-        let min_number_2 = time.1 % 10;
-        let sec_number_1 = time.2 / 10;
-        let sec_number_2 = time.2 % 10;
-
-        self.buffer.chars[0][0].write(ScreenChar {
-            ascii_character: 0,
-            color_code: ColorCode::new_color(Color::White, Color::White)
-        });
-        self.buffer.chars[0][1].write(ScreenChar {
-            ascii_character: 0,
-            color_code: ColorCode::new_color(Color::White, Color::Magenta)
-        });
-        self.buffer.chars[0][2].write(ScreenChar {
-            ascii_character: hour_number_1 + 48,
-            color_code: ColorCode::new_color(Color::White, Color::Magenta)
-        });
-        self.buffer.chars[0][3].write(ScreenChar {
-            ascii_character: hour_number_2 + 48,
-            color_code: ColorCode::new_color(Color::White, Color::Magenta)
-        });
-        self.buffer.chars[0][4].write(ScreenChar {
-            ascii_character: ':' as u8,
-            color_code: ColorCode::new_color(Color::White, Color::Magenta)
-        });
-        self.buffer.chars[0][5].write(ScreenChar {
-            ascii_character: min_number_1 + 48,
-            color_code: ColorCode::new_color(Color::White, Color::Magenta)
-        });
-        self.buffer.chars[0][6].write(ScreenChar {
-            ascii_character: min_number_2 + 48,
-            color_code: ColorCode::new_color(Color::White, Color::Magenta)
-        });
-        self.buffer.chars[0][7].write(ScreenChar {
-            ascii_character: ':' as u8,
-            color_code: ColorCode::new_color(Color::White, Color::Magenta)
-        });
-        self.buffer.chars[0][8].write(ScreenChar {
-            ascii_character: sec_number_1 + 48,
-            color_code: ColorCode::new_color(Color::White, Color::Magenta)
-        });
-        self.buffer.chars[0][9].write(ScreenChar {
-            ascii_character: sec_number_2 + 48,
-            color_code: ColorCode::new_color(Color::White, Color::Magenta)
-        });
-        self.buffer.chars[0][10].write(ScreenChar {
-            ascii_character: 0,
-            color_code: ColorCode::new_color(Color::White, Color::Magenta)
-        });
-        self.buffer.chars[0][11].write(ScreenChar {
-            ascii_character: 0,
-            color_code: ColorCode::new_color(Color::White, Color::White)
-        });
     }
 }
