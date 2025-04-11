@@ -136,7 +136,7 @@ impl ScreenWriter {
             }
         }
     
-        closest_color.0 as u8 + 1
+        closest_color.0 as u8
     }
     
     fn get_pixel_index(&self, x: usize, y: usize) -> usize {
