@@ -416,12 +416,12 @@ pub static CHARACTERS: [[bool; CHARACTER_SIZE]; 123] = [
     ],
     [ // character e
         false, false, false, false, false,
-        false, false,  false,  false,  false,
-        false, true,  true, false, false,
-        false, true,  false,  true,  false,
-        false, true,  true, true, false,
+        false, false, false, false, false,
+        false, true,  true,  false, false,
+        false, true,  false, true,  false,
+        false, true,  true,  true,  false,
         false, true,  false, false, false,
-        false, false,  true,  true,  false,
+        false, false, true,  true,  false,
     ],
     [ // character F
         false, false, false, false, false,
