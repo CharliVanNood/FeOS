@@ -82,20 +82,20 @@ fn remove_byte() {
 
 fn print_help_command() {
     println!("\nWe have these general commands");
-    println!("   [ping]             - Just a simple test command");
-    println!("   [femc] [code]      - Run femc commands");
-    println!("   [basic] [code]     - Run BASIC commands");
-    println!("   [color]            - Toggle the background color");
-    println!("   [clear]            - Clear the screen");
-    println!("   [fl]               - Show the items in the current flow");
-    println!("   [go] [flow name]   - Change to a different flow");
-    println!("   [pong]             - The game pong");
-    println!("   [cat]              - Read a file");
-    println!("   [time]             - Time will show you the current time according to bios");
-    println!("   [timeset] [hour]   - Timeset will set the current hour");
-    println!("   [per]              - Performance will show you system details");
-    println!("   [run] [file name]  - Run runs the actual files");
-    println!("   [nyo] [message]    - Chat with the o so amazing nyo :D\n");
+    println!("[ping] - Pong");
+    println!("[femc] [code] - FemC");
+    println!("[basic] [code] - BASIC");
+    println!("[color] - Toggle color");
+    println!("[clear] - Clear screen");
+    println!("[fl] - Show flow files");
+    println!("[go] [flow] - Change flow");
+    println!("[pong] - The game pong");
+    println!("[cat] - Read a file");
+    println!("[time] - Shows time");
+    println!("[timeset] [hour] - Set the current hour");
+    println!("[per] - Performance");
+    println!("[run] [file] - Run code");
+    println!("[nyo] [message] - NyoBot");
 }
 
 #[allow(dead_code)]

@@ -40,7 +40,7 @@ pub extern "C" fn _start(boot_info: &'static BootInfo) -> ! {
     alloc::set_heap(boot_info.physical_memory_offset as usize + 0x8a5000, 0x7fe0000 - 0x8a5000);
     fem_dos::init(boot_info);
 
-    println!("Done initializing components!");
+    println!("Initialized components!");
 
     #[cfg(test)]
     test_main();
@@ -49,9 +49,9 @@ pub extern "C" fn _start(boot_info: &'static BootInfo) -> ! {
     write_byte(address.0, 255);
     let test_byte = read_byte(address.0);
     if test_byte == 255 {
-        infoln!("[YAY] Ram test was successfull :D");
+        infoln!("[YAY] Ram test");
     } else {
-        warnln!("[AWW] Ram test failed :c");
+        warnln!("[AWW] Ram test");
     }
 
     disk::print_ring();
@@ -68,9 +68,9 @@ pub extern "C" fn _start(boot_info: &'static BootInfo) -> ! {
     disk::read_sector(1, &mut read_buffer);
     let write_successfull = read_buffer == [0xABCDu16; 256];
     if write_successfull {
-        infoln!("[YAY] Disk write sector 1 was successfull :D");
+        infoln!("[YAY] Disk write sector 1");
     } else {
-        warnln!("[AWW] Disk write sector 1 failed :c");
+        warnln!("[AWW] Disk write sector 1");
     }
 
     let write_buffer = [0x1234u16; 256];
@@ -78,9 +78,9 @@ pub extern "C" fn _start(boot_info: &'static BootInfo) -> ! {
     disk::read_sector(2, &mut read_buffer);
     let write_successfull = read_buffer == [0x1234u16; 256];
     if write_successfull {
-        infoln!("[YAY] Disk write sector 2 was successfull :D");
+        infoln!("[YAY] Disk write sector 2");
     } else {
-        warnln!("[AWW] Disk write sector 2 failed :c");
+        warnln!("[AWW] Disk write sector 2");
     }
 
     let write_buffer = [0x5678u16; 256];
@@ -88,19 +88,19 @@ pub extern "C" fn _start(boot_info: &'static BootInfo) -> ! {
     disk::read_sector(3, &mut read_buffer);
     let write_successfull = read_buffer == [0x5678u16; 256];
     if write_successfull {
-        infoln!("[YAY] Disk write sector 3 was successfull :D");
+        infoln!("[YAY] Disk write sector 3");
     } else {
-        warnln!("[AWW] Disk write sector 3 failed :c");
+        warnln!("[AWW] Disk write sector 3");
     }
 
     let write_buffer = [0x1369u16; 256];
     disk::write_sector(4, &write_buffer);
     disk::read_sector(4, &mut read_buffer);
     let write_successfull = read_buffer == [0xABCDu16; 256];
-    if write_successfull {
-        infoln!("[YAY] Disk write sector 4 was successfull (Which should not be possible!)");
+    if !write_successfull {
+        infoln!("[YAY] Disk write sector 4");
     } else {
-        warnln!("[AWW] Disk write sector 4 failed (This was supposed to happen)");
+        warnln!("[AWW] Disk write sector 4");
     }
 
     let mut test_vec_1 = Vec::new();
@@ -117,9 +117,9 @@ pub extern "C" fn _start(boot_info: &'static BootInfo) -> ! {
 
     let ram_usage = alloc::get_usage();
     if ram_usage.0 == 8 {
-        infoln!("[YAY] Ram allocation in vectors is working! :D");
+        infoln!("[YAY] Heap vectors");
     } else {
-        warnln!("[AWW] Ram allocation in vectors is not working! :C");
+        warnln!("[AWW] Heap vectors");
     }
 
     /*for region in boot_info.memory_map.iter() {

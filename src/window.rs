@@ -76,7 +76,7 @@ pub fn _info(args: fmt::Arguments) {
 }
 
 pub fn clear_screen() {
-    for _ in 0..100 {
+    for _ in 0..19 {
         println!("");
     }
 }
