@@ -300,6 +300,10 @@ pub fn render_image(image_data: BigVec) {
     let image_end_y = image_start_y + image_height;
     let mut char = 6;
 
+    let mut screen_writer = SCREEN_WRITER.lock();
+
+    image_data.get(image_width*image_height*9);
+
     for y in (0..BUFFER_HEIGHT).rev() {
         if (y >= image_start_y) && (y < image_end_y) {
             for x in 0..window_width {
@@ -309,8 +313,8 @@ pub fn render_image(image_data: BigVec) {
                     let blue = get_int([image_data.get(char+6),image_data.get(char+7),image_data.get(char+8)]);
                     char += 9;
 
-                    let color = SCREEN_WRITER.lock().get_rgb(red, green, blue);
-                    SCREEN_WRITER.lock().set_pixel(x+window_offset_x, y, color);
+                    let color = screen_writer.get_rgb(red, green, blue);
+                    screen_writer.set_pixel(x+window_offset_x, y, color);
                 }
             }
         }
