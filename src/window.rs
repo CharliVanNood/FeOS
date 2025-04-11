@@ -103,6 +103,8 @@ pub struct ScreenWriter {
     terminal_character_buffer: [[(u8, u8, u8); 27]; 19],
     terminal_background_color: u8,
     terminal_foreground_color: u8,
+    clock_background_color: u8,
+    clock_foreground_color: u8,
 }
 impl ScreenWriter {
     #[allow(dead_code)]
@@ -135,6 +137,10 @@ impl ScreenWriter {
             0 => {
                 self.terminal_background_color = background;
                 self.terminal_foreground_color = foreground;
+            },
+            1 => {
+                self.clock_background_color = background;
+                self.clock_foreground_color = foreground;
             },
             _ => {
                 self.terminal_background_color = background;
@@ -199,7 +205,8 @@ impl ScreenWriter {
     }
 
     fn draw_clock_character(&mut self, char: u8) {
-        self.draw_character(char,  162 + self.clock_column_position * 6, 191, 15, 0);
+        self.draw_character(char,  162 + self.clock_column_position * 6, 191, 
+            self.clock_foreground_color, self.clock_background_color);
         self.clock_column_position += 1;
         if char == 32 {
             self.clock_column_position = 0;
@@ -226,7 +233,9 @@ lazy_static! {
         terminal_column_position: 0,
         terminal_character_buffer: [[(0, 15, 0); 27]; 19],
         terminal_background_color: 0,
-        terminal_foreground_color: 15
+        terminal_foreground_color: 15,
+        clock_background_color: 215,
+        clock_foreground_color: 15
     });
 }
 
