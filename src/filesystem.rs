@@ -170,26 +170,11 @@ pub fn read_image(name: [u8; 20]) -> Vec {
     let mut contents = Vec::new();
 
     for i in 0..file_size {
-        let byte = alloc::read_byte(file_start + i * 8) as u8;
+        let byte = alloc::read_byte(file_start + i * 8);
         contents.add(byte);
     }
 
     return contents
-}
-
-pub fn run_file(name: [u8; 20]) {
-    let file = find_file(name);
-    let file_start = file.2.0;
-    let file_size = file.2.2;
-
-    let mut contents = Vec::new();
-
-    for i in 0..file_size {
-        let byte = alloc::read_byte(file_start + i * 8) as u8;
-        contents.add(byte as usize);
-    }
-
-    contents
 }
 
 pub fn run_file(name: [u8; 20]) {
@@ -273,14 +258,5 @@ pub fn install_base_os() {
     int 0x80
     ");
 
-    create_file(1, "smiley", "img", "
-    100 0   100 0   100
-    100 0   100 0   100
-    100 100 100 100 100
-    0   100 100 100 0
-    100 0   0   0   100
-    100 100 100 100 100
-    ");
-
-    create_file(1, "smiley", "img", "6;6;255255255255255255255255255255255255255255255255255255255255255000000000000000000000000000255255255000000000255255255255255255255255255000000000255255255255255255255255255255255255255255255255255255000000000255255255000000000255255255255255255000000000255255255000000000255255255");
+    create_file(1, "smiley", "img", "5;6;255255255255255255255255255255255255255255255255255255000000000000000000000000000255255255000000000255255255255255255255255255000000000255255255255255255255255255255255255255255255255255255000000000255255255000000000255255255255255255000000000255255255000000000255255255");
 }

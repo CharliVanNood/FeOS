@@ -192,8 +192,6 @@ fn get_int(numbers: [usize; 3]) -> u8 {
 }
 
 pub fn render_image(image_data: Vec) {
-    let mut screen_writer = SCREEN_WRITER.lock();
-
     let window_offset_x = 160;
 
     let window_width = BUFFER_WIDTH - window_offset_x;
@@ -206,15 +204,12 @@ pub fn render_image(image_data: Vec) {
     let image_end_y = image_start_y + image_height;
     let mut char = 4;
 
-    println!("{} {}", window_width, window_height);
-    println!("{} {}", image_width, image_height);
-    println!("{} {}", image_start_x, image_start_y);
-    println!("{} {}", image_end_x, image_end_y);
+    let mut screen_writer = SCREEN_WRITER.lock();
 
-    for y in 0..BUFFER_HEIGHT {
-        if (y > image_start_y) | (y < image_end_y) {
+    for y in (0..BUFFER_HEIGHT).rev() {
+        if (y >= image_start_y) && (y < image_end_y) {
             for x in 0..window_width {
-                if (x > image_start_x) | (x < image_end_x) {
+                if (x >= image_start_x) && (x < image_end_x) {
                     let red = get_int([image_data.get(char),image_data.get(char+1),image_data.get(char+2)]);
                     let green = get_int([image_data.get(char+3),image_data.get(char+4),image_data.get(char+5)]);
                     let blue = get_int([image_data.get(char+6),image_data.get(char+7),image_data.get(char+8)]);
