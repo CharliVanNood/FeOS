@@ -167,7 +167,7 @@ pub fn read_image(name: [u8; 20]) -> Vec {
     let file_start = file.2.0;
     let file_size = file.2.2;
 
-    let mut contents = BigVec::new();
+    let mut contents = Vec::new();
 
     for i in 0..file_size {
         let byte = alloc::read_byte(file_start + i * 8);
