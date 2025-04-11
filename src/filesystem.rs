@@ -1,4 +1,4 @@
-use crate::{alloc, applications::{assembly, basic, femc}, info, print, println, string::BigString, vec::{FileVec, Vec}, warnln};
+use crate::{alloc, applications::{assembly, basic, femc}, info, print, println, string::BigString, vec::{BigVec, FileVec}, warnln};
 
 use lazy_static::lazy_static;
 use spin::Mutex;
@@ -27,7 +27,7 @@ impl FileSystem {
     pub fn create_file(&mut self, parent: i32, filename: [u8; 20], filetype: u8, data: &str) {
         let data_bytes = data.bytes();
 
-        let address = alloc::alloc(8192);
+        let address = alloc::alloc(data.bytes().len());
 
         let mut index = 0;
         for i in data_bytes {
@@ -162,7 +162,7 @@ pub fn read_file(name: [u8; 20]) {
     print!("\n");
 }
 
-pub fn read_image(name: [u8; 20]) -> Vec {
+pub fn read_image(name: [u8; 20]) -> BigVec {
     let file = find_file(name);
     let file_start = file.2.0;
     let file_size = file.2.2;
@@ -173,6 +173,8 @@ pub fn read_image(name: [u8; 20]) -> Vec {
         let byte = alloc::read_byte(file_start + i * 8);
         contents.add(byte);
     }
+
+    println!("LENGTH: {} ACTUAL: {} TEST: {}", contents.len(), file_size, contents.get(9000));
 
     return contents
 }
