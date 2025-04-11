@@ -152,7 +152,7 @@ pub struct Vec {
 impl Vec {
     #[allow(dead_code)]
     pub fn new() -> Self {
-        let heap_start = alloc::alloc(1024);
+        let heap_start = alloc::alloc(16384);
         Self {
             size: 0,
             heap_start: heap_start.0,
