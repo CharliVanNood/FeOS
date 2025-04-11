@@ -255,8 +255,6 @@ fn get_int(numbers: [usize; 3]) -> u8 {
 }
 
 pub fn render_image(image_data: Vec) {
-    let mut screen_writer = SCREEN_WRITER.lock();
-
     let window_offset_x = 160;
 
     let window_width = BUFFER_WIDTH - window_offset_x;
@@ -273,6 +271,8 @@ pub fn render_image(image_data: Vec) {
     println!("{} {}", image_width, image_height);
     println!("{} {}", image_start_x, image_start_y);
     println!("{} {}", image_end_x, image_end_y);
+
+    let mut screen_writer = SCREEN_WRITER.lock();
 
     for y in 0..BUFFER_HEIGHT {
         if (y > image_start_y) | (y < image_end_y) {
