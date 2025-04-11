@@ -174,7 +174,7 @@ pub fn read_image(name: [u8; 20]) -> Vec {
         contents.add(byte);
     }
 
-    contents
+    return contents
 }
 
 pub fn run_file(name: [u8; 20]) {
@@ -227,10 +227,6 @@ pub fn install_base_os() {
     create_file(1, "if_test_1", "fc", "if 10 == 10\nprint 10\nend\nif 10 == 5\nprint 5\nend");
     create_file(1, "color_test_1", "fc", "color 1 1");
     create_file(1, "color_test_2", "fc", "color 11 11\nprint true\ncolor 13 13\nprint true\ncolor 15 15\nprint true\ncolor 13 13\nprint true\ncolor 11 11\nprint true\ncolor 15 0");
-    create_file(1, "basic_mul", "b", "PRINT 2 * 2;");
-    create_file(1, "basic_add", "b", "PRINT 2 + 2;");
-    create_file(1, "basic_div", "b", "PRINT 2 / 2;");
-    create_file(1, "basic_sub", "b", "PRINT 2 - 2;");
 
     create_file(1, "basic", "b", "
     PRINT \"loops\"
@@ -262,12 +258,5 @@ pub fn install_base_os() {
     int 0x80
     ");
 
-    create_file(1, "smiley", "img", "
-    100 0   100 0   100
-    100 0   100 0   100
-    100 100 100 100 100
-    0   100 100 100 0
-    100 0   0   0   100
-    100 100 100 100 100
-    ");
+    create_file(1, "smiley", "img", "6;6;255255255255255255255255255255255255255255255255255255255255255000000000000000000000000000255255255000000000255255255255255255255255255000000000255255255255255255255255255255255255255255255255255255000000000255255255000000000255255255255255255000000000255255255000000000255255255");
 }
