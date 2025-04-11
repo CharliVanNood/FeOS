@@ -81,6 +81,10 @@ pub fn clear_screen() {
     }
 }
 
+pub fn remove_terminal_character() {
+    SCREEN_WRITER.lock().remove_terminal_character();
+}
+
 pub fn draw_menu_bar(time: (u8, u8, u8)) {
     SCREEN_WRITER.lock().frame = 1;
     println!("{}:{}:{} ", time.0, time.1, time.2);
@@ -202,6 +206,16 @@ impl ScreenWriter {
             char_writing, self.terminal_foreground_color, self.terminal_background_color
         );
         self.terminal_column_position += 1;
+    }
+
+    fn remove_terminal_character(&mut self) {
+        if self.terminal_column_position == 0 { return; }
+        self.terminal_column_position -= 1;
+
+        self.draw_character(0,  2 + self.terminal_column_position * 6, 183, 15, 0);
+        self.terminal_character_buffer[0][self.terminal_column_position] = (
+            0, self.terminal_foreground_color, self.terminal_background_color
+        );
     }
 
     fn draw_clock_character(&mut self, char: u8) {

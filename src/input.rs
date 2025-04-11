@@ -76,7 +76,7 @@ fn remove_byte() {
     if *text_end > 0 {
         *text_end -= 1;
         text[*text_end] = 0;
-        vga::remove_byte();
+        window::remove_terminal_character();
     }
 }
 

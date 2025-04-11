@@ -153,11 +153,11 @@ pub static CHARACTERS: [[bool; CHARACTER_SIZE]; 123] = [
     [false; CHARACTER_SIZE], [false; CHARACTER_SIZE],
     [ // character =
         false, false, false, false, false,
-        false, false,  false, false, false,
-        false, true, true,  true, false,
-        false, false, false, false,  false,
-        false, true, true,  true, false,
-        false, false,  false, false, false,
+        false, false, false, false, false,
+        false, true,  true,  true,  false,
+        false, false, false, false, false,
+        false, true,  true,  true,  false,
+        false, false, false, false, false,
         false, false, false, false, false,
     ],
     [ // character >
