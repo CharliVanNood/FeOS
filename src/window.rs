@@ -81,6 +81,13 @@ pub fn clear_screen() {
     }
 }
 
+pub fn set_terminal_color(foreground: u8, background: u8) {
+    SCREEN_WRITER.lock().set_color(foreground, background, 0);
+}
+pub fn get_terminal_color() -> u8 {
+    SCREEN_WRITER.lock().terminal_background_color
+}
+
 pub fn remove_terminal_character() {
     SCREEN_WRITER.lock().remove_terminal_character();
 }

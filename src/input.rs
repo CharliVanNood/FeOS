@@ -2,7 +2,6 @@ use crate::alloc;
 use crate::clock;
 use crate::window;
 use crate::{print, println, warnln};
-use crate::vga;
 use crate::applications;
 use crate::filesystem;
 use spin::Mutex;
@@ -134,11 +133,11 @@ pub fn match_commands() {
                 "ping" => println!("Pong"),
                 "color" => {
                     print!("Changed the color to black");
-                    let color = vga::get_color();
+                    let color = window::get_terminal_color();
                     if color == 15 {
-                        vga::set_color(13, 0);
+                        window::set_terminal_color(13, 0);
                     } else {
-                        vga::set_color(13, 15);
+                        window::set_terminal_color(13, 15);
                     }
                     print!("\n");
                 },

@@ -4,7 +4,6 @@
 #![test_runner(fem_dos::test_runner)]
 #![reexport_test_harness_main = "test_main"]
 
-mod vga;
 mod window;
 mod input;
 mod applications;
