@@ -315,4 +315,6 @@ pub fn render_image(image_data: BigVec) {
             }
         }
     }
+
+    image_data.remove();
 }
