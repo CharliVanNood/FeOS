@@ -139,12 +139,6 @@ impl Allocator {
             if (section.0, section.1) == (heap_start, heap_end) {
                 self.used[section_index].2 = true;
                 self.next -= heap_end - heap_start;
-
-                for i in 0..heap_end - heap_start {
-                    unsafe {
-                        ptr::write((heap_start + i * 8) as *mut usize, 0);
-                    }
-                }
             }
         }
     }
