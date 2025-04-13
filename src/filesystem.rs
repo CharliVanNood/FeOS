@@ -173,6 +173,7 @@ pub fn read_image(name: [u8; 20]) -> BigVec {
         let byte = alloc::read_byte(file_start + i * 8);
         contents.add(byte);
     }
+    println!("content size: {} pixels: {}", contents.len(), (contents.len() - 6) / 9);
 
     contents
 }

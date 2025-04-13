@@ -304,9 +304,9 @@ pub fn render_image(image_data: BigVec) {
         if (y >= image_start_y) && (y < image_end_y) {
             for x in 0..window_width {
                 if (x >= image_start_x) && (x < image_end_x) {
-                    let red = get_int([image_data.get(char),image_data.get(char+1),image_data.get(char+2)]);
-                    let green = get_int([image_data.get(char+3),image_data.get(char+4),image_data.get(char+5)]);
-                    let blue = get_int([image_data.get(char+6),image_data.get(char+7),image_data.get(char+8)]);
+                    let red = get_int([image_data.get_unsafe(char),image_data.get_unsafe(char+1),image_data.get_unsafe(char+2)]);
+                    let green = get_int([image_data.get_unsafe(char+3),image_data.get_unsafe(char+4),image_data.get_unsafe(char+5)]);
+                    let blue = get_int([image_data.get_unsafe(char+6),image_data.get_unsafe(char+7),image_data.get_unsafe(char+8)]);
                     char += 9;
 
                     let color = SCREEN_WRITER.lock().get_rgb(red, green, blue);
