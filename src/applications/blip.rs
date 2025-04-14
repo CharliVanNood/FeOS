@@ -1,4 +1,4 @@
-use crate::{filesystem, infoln, input, println, string::BigString, vec::BigVec, window::{BUFFER_HEIGHT, BUFFER_WIDTH, SCREEN_WRITER}};
+use crate::{filesystem::{self, create_file, file_exists, get_current_flow}, infoln, input, string::BigString, vec::BigVec, window::{BUFFER_HEIGHT, BUFFER_WIDTH, SCREEN_WRITER}};
 
 pub fn render_background(name: [u8; 20]) {
     let window_offset_x = 160;
@@ -72,7 +72,7 @@ fn draw_caret(x: usize, y: usize) {
     }
 }
 
-pub fn run(mut screen_buffer: [[u8; 25]; 128]) {
+pub fn run(mut screen_buffer: [[u8; 25]; 128], name: [u8; 20]) {
     let window_offset_x = 160;
 
     let mut previous_cursor_x = 0;
@@ -84,6 +84,9 @@ pub fn run(mut screen_buffer: [[u8; 25]; 128]) {
     let mut caret_state = false;
 
     let mut running = true;
+
+    input::KEYPRESSES.lock().0 = [0; 8];
+    input::KEYPRESSES.lock().1 = 0;
 
     while running {
         let keypresses = {
@@ -298,10 +301,10 @@ pub fn run(mut screen_buffer: [[u8; 25]; 128]) {
         }
     }
 
-    write_to_file(screen_buffer);
+    write_to_file(screen_buffer, name);
 }
 
-pub fn write_to_file(data: [[u8; 25]; 128]) {
+pub fn write_to_file(data: [[u8; 25]; 128], name: [u8; 20]) {
     let mut data_vec = BigVec::new();
 
     for line in data {
@@ -324,7 +327,9 @@ pub fn write_to_file(data: [[u8; 25]; 128]) {
         }
     }
 
-    data_vec.print();
+    if !file_exists(name) {
+        create_file(get_current_flow(), name, "txt", data_vec);
+    }
 }
 
 pub fn open(mut name: [u8; 20]) {
@@ -337,5 +342,5 @@ pub fn open(mut name: [u8; 20]) {
     }
     render_background(name);
     let screen_buffer = update_text(&mut file_data);
-    run(screen_buffer);
+    run(screen_buffer, name);
 }

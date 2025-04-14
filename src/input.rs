@@ -245,7 +245,9 @@ pub fn match_commands(command_written:[u8; 256], user_ran:bool) {
                     }
 
                     let image_data = filesystem::read_image(name);
-                    render_image(image_data);
+                    if image_data.len() > 0 {
+                        render_image(image_data);
+                    }
                 },
                 "imgtest" => {
                     let mut install: [u8; 256] = [0; 256];
