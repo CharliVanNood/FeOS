@@ -251,13 +251,20 @@ pub fn match_commands(command_written:[u8; 256], user_ran:bool) {
                         install[i] = byte;
                         i += 1;
                     }
+                    let mut go: [u8; 256] = [0; 256];
+                    let mut i = 0;
+                    for byte in "go images".bytes() {
+                        go[i] = byte;
+                        i += 1;
+                    }
                     let mut imagine: [u8; 256] = [0; 256];
                     let mut i = 0;
-                    for byte in "imagine smiley".bytes() {
+                    for byte in "imagine koi".bytes() {
                         imagine[i] = byte;
                         i += 1;
                     }
                     match_commands(install,false);
+                    match_commands(go,false);
                     match_commands(imagine,false)
                 }
                 _ => warnln!("This command is unimplemented :C")
