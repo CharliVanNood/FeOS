@@ -83,7 +83,9 @@ pub fn run(mut screen_buffer: [[u8; 25]; 128]) {
     let mut interval = 50;
     let mut caret_state = false;
 
-    loop {
+    let mut running = true;
+
+    while running {
         let keypresses = {
             let lock = input::KEYPRESSES.lock();
             lock.clone()
@@ -108,6 +110,11 @@ pub fn run(mut screen_buffer: [[u8; 25]; 128]) {
                     }
                 }
                 continue;
+            }
+
+            if key == 27 {
+                running = false;
+                break;
             }
 
             if key == 256 {
@@ -283,6 +290,18 @@ pub fn run(mut screen_buffer: [[u8; 25]; 128]) {
 
         x86_64::instructions::hlt();
     }
+
+    for x in 0..BUFFER_WIDTH - window_offset_x {
+        for y in 0..BUFFER_HEIGHT {
+            SCREEN_WRITER.lock().set_pixel(x + window_offset_x, y, 215);
+        }
+    }
+
+    write_to_file(screen_buffer);
+}
+
+pub fn write_to_file(data: [[u8; 25]; 128]) {
+
 }
 
 pub fn open(mut name: [u8; 20]) {
