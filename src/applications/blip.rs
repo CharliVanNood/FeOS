@@ -1,4 +1,4 @@
-use crate::{filesystem::{self, create_file, file_exists, get_current_flow}, infoln, input, string::BigString, vec::BigVec, window::{BUFFER_HEIGHT, BUFFER_WIDTH, SCREEN_WRITER}};
+use crate::{filesystem::{self, create_file, file_exists, get_current_flow, update_file}, infoln, input, string::BigString, vec::BigVec, window::{BUFFER_HEIGHT, BUFFER_WIDTH, SCREEN_WRITER}};
 
 pub fn render_background(name: [u8; 20]) {
     let window_offset_x = 160;
@@ -329,6 +329,8 @@ pub fn write_to_file(data: [[u8; 25]; 128], name: [u8; 20]) {
 
     if !file_exists(name) {
         create_file(get_current_flow(), name, "txt", data_vec);
+    } else {
+        update_file(name, data_vec);
     }
 }
 

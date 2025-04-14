@@ -150,6 +150,21 @@ pub fn find_file(name: [u8; 20]) -> (u32, i32, (usize, usize, usize), [u8; 20], 
     return (0, 0, (0, 0, 0), [0; 20], 0)
 }
 
+pub fn update_file(filename: [u8; 20], data: BigVec) {
+    if !file_exists(filename) {
+        warnln!("This file doesn't exist :c");
+        return;
+    }
+    
+    let file = find_file(filename);
+    let file_start = file.2.0;
+    let file_size = file.2.2;
+
+    for i in 0..file_size {
+        alloc::write_byte(file_start + i * 8, data.get(i));
+    }
+}
+
 pub fn create_file(parent: i32, mut filename: [u8; 20], filetype: &str, data: BigVec) {
     let mut filename_len = 0;
 
