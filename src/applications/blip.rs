@@ -1,4 +1,4 @@
-use crate::{filesystem, input, println, string::BigString, window::{BUFFER_HEIGHT, BUFFER_WIDTH, SCREEN_WRITER}};
+use crate::{filesystem, infoln, input, println, string::BigString, vec::BigVec, window::{BUFFER_HEIGHT, BUFFER_WIDTH, SCREEN_WRITER}};
 
 pub fn render_background(name: [u8; 20]) {
     let window_offset_x = 160;
@@ -199,6 +199,7 @@ pub fn run(mut screen_buffer: [[u8; 25]; 128]) {
             }
 
             if key as u8 == b'\n' {
+                screen_buffer[cursor_y][cursor_x] = key as u8;
                 previous_cursor_x = cursor_x;
                 previous_cursor_y = cursor_y;
                 cursor_x = 0;
@@ -301,12 +302,36 @@ pub fn run(mut screen_buffer: [[u8; 25]; 128]) {
 }
 
 pub fn write_to_file(data: [[u8; 25]; 128]) {
+    let mut data_vec = BigVec::new();
 
+    for line in data {
+        let mut character_found = false;
+        for character in line {
+            if character != 0 { character_found = true; }
+        }
+        if !character_found { continue; }
+
+        for character in line {
+            if character == 0 {
+                data_vec.add(b' ' as usize);
+                continue;
+            }
+            if character == b'\n' {
+                data_vec.add(character as usize);
+                break;
+            }
+            data_vec.add(character as usize);
+        }
+    }
+
+    data_vec.print();
 }
 
 pub fn open(mut name: [u8; 20]) {
-    println!("Starting BLIP");
     let mut file_data = filesystem::read_file(name);
+    infoln!("----- Starting BLIP -----");
+    infoln!("[esc] - quit and save");
+    infoln!("-------------------------");
     if name == [0; 20] {
         name[..7].copy_from_slice(b"unnamed")
     }
