@@ -166,6 +166,17 @@ impl BigVec {
     }
 
     #[allow(dead_code)]
+    pub fn empty() -> Self {
+        let heap_start = alloc::alloc(32);
+        Self {
+            size: 0,
+            heap_start: heap_start.0,
+            heap_size: heap_start.1 - heap_start.0,
+            heap_end: heap_start.1
+        }
+    }
+
+    #[allow(dead_code)]
     pub fn add(&mut self, value: usize) {
         if self.size >= self.heap_size {
             warnln!("Reached vec limit :c");
