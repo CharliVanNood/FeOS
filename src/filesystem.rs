@@ -166,16 +166,19 @@ pub fn create_file(parent: i32, filename: &str, filetype: &str, data: &str) {
     FILESYSTEM.lock().create_file(parent, filename_bytes, file_type, data);
 }
 
-pub fn read_file(name: [u8; 20]) {
+pub fn read_file(name: [u8; 20]) -> BigString {
     let file = find_file(name);
     let file_start = file.2.0;
     let file_size = file.2.2;
 
+    let mut data = BigString::new();
+
     for i in 0..file_size {
         let byte = alloc::read_byte(file_start + i * 8) as u8;
-        print!("{}", byte as char);
+        data.add(byte);
     }
-    print!("\n");
+    
+    data
 }
 
 pub fn read_image(name: [u8; 20]) -> BigVec {
