@@ -5,7 +5,7 @@ use spin::Mutex;
 
 pub struct FileSystem {
     files: FileVec,
-    flow: i32
+    flow: i32,
 }
 impl FileSystem {
     fn _get_item_name(&self, id: u32) -> [u8; 20] {
@@ -49,6 +49,11 @@ impl FileSystem {
     pub fn set_flow(&mut self, flow: i32) {
         self.flow = flow;
     }
+    pub fn flow_back(&mut self) {
+        let parent_flow = self.files.get(self.flow as usize).1;
+        if parent_flow == -1 { return; }
+        self.flow = parent_flow;
+    }
 
     // this being a list of 20 is the max amount of files that will be returned, why 20? sounds good to me tbh :3
     pub fn get_file_from_parent(&self, parent: i32) -> [(u32, i32, (usize, usize, usize), [u8; 20], u8); 20] {
@@ -88,12 +93,18 @@ pub fn print_current_dir_files() {
 }
 
 pub fn change_flow(name: [u8; 20]) {
+    let mut back = [0u8; 20];
+    back[..4].copy_from_slice(b"back");
+
     let files = {
         FILESYSTEM.lock().get_file_from_current_parent()
     };
     for file in files {
         if file.3 == name {
             FILESYSTEM.lock().set_flow(file.0 as i32);
+        } else if name == back {
+            FILESYSTEM.lock().flow_back();
+            break;
         }
     }
 }
@@ -119,6 +130,11 @@ pub fn find_file(name: [u8; 20]) -> (u32, i32, (usize, usize, usize), [u8; 20], 
 pub fn create_file(parent: i32, filename: &str, filetype: &str, data: &str) {
     let mut filename_bytes = [0; 20];
     let mut filename_bytes_len = 0;
+
+    if filename == "back" {
+        warnln!("{} is not a valid name", filename);
+        return;
+    }
 
     let file_type = {
         match filetype {
@@ -222,15 +238,17 @@ pub fn run_file(name: [u8; 20]) {
 pub fn install_base_os() {
     println!("Installing FemDOS");
     create_file(1, "images", "", "");
-    create_file(1, "file1", "b", "PRINT \"Hello,world\"");
-    create_file(1, "python1", "fc", "print 1 + 10 * 10\nprint 10 + 10\ntest = 10\ntest2 = 20\nprint test\nprint test2");
-    create_file(1, "loop_test_1", "fc", "do\nprint 10\nrepeat 10");
-    create_file(1, "loop_test_2", "fc", "do\nprint 10\nrepeat 0\ndo\nprint 5\nrepeat 10");
-    create_file(1, "if_test_1", "fc", "if 10 == 10\nprint 10\nend\nif 10 == 5\nprint 5\nend");
-    create_file(1, "color_test_1", "fc", "color 1 1");
-    create_file(1, "color_test_2", "fc", "color 11 11\nprint true\ncolor 13 13\nprint true\ncolor 15 15\nprint true\ncolor 13 13\nprint true\ncolor 11 11\nprint true\ncolor 15 0");
+    create_file(1, "code", "", "");
+    create_file(1, "asm", "", "");
+    create_file(3, "file1", "b", "PRINT \"Hello,world\"");
+    create_file(3, "python1", "fc", "print 1 + 10 * 10\nprint 10 + 10\ntest = 10\ntest2 = 20\nprint test\nprint test2");
+    create_file(3, "loop_test_1", "fc", "do\nprint 10\nrepeat 10");
+    create_file(3, "loop_test_2", "fc", "do\nprint 10\nrepeat 0\ndo\nprint 5\nrepeat 10");
+    create_file(3, "if_test_1", "fc", "if 10 == 10\nprint 10\nend\nif 10 == 5\nprint 5\nend");
+    create_file(3, "color_test_1", "fc", "color 1 1");
+    create_file(3, "color_test_2", "fc", "color 11 11\nprint true\ncolor 13 13\nprint true\ncolor 15 15\nprint true\ncolor 13 13\nprint true\ncolor 11 11\nprint true\ncolor 15 0");
 
-    create_file(1, "basic", "b", "
+    create_file(3, "basic", "b", "
     PRINT \"loops\"
     PRINT \"are\"
     PRINT \"amazing\"
@@ -242,7 +260,7 @@ pub fn install_base_os() {
     PRINT TRUE
     ");
 
-    create_file(1, "asm", "a", "
+    create_file(4, "asm", "a", "
     section .data
     hello db \"Hello,World!\", 0
     section .text

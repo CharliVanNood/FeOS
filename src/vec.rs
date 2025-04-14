@@ -19,6 +19,10 @@ impl FileVec {
         self.size += 1;
     }
 
+    pub fn get(&mut self, index: usize) -> (u32, i32, (usize, usize, usize), [u8; 20], u8) {
+        self.data[index]
+    }
+
     pub fn len(&self) -> usize {
         self.size
     }
