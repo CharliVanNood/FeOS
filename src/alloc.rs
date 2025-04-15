@@ -107,6 +107,25 @@ impl Allocator {
         largest_section
     }
 
+    /*fn merged_sections(&mut self) {
+        let mut previous_section_available = false;
+        for section in 0..self.used.len() {
+            if self.used[section] == (0, 0, false) { break; }
+            if section == 0 { continue; }
+
+            if self.used[section].2 && !previous_section_available {
+                self.used[section].0 = self.used[section - 1].0;
+                self.used[section - 1].2 = false;
+                /*for i in section..self.used.len()-1 {
+                    self.used[section - 1 + i] = self.used[section + i];
+                }*/
+            }
+            previous_section_available = self.used[section].2;
+        }
+
+        self.print_regions();
+    }*/
+
     fn set_heap(&mut self, heap_start: usize, heap_size: usize) {
         self.heap_start = heap_start;
         self.heap_end = heap_start + heap_size;
@@ -152,6 +171,7 @@ impl Allocator {
                 self.next -= heap_end - heap_start;
             }
         }
+        //self.merged_sections();
     }
 }
 
