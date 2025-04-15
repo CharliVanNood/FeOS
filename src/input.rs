@@ -16,20 +16,24 @@ lazy_static::lazy_static! {
 
 #[allow(dead_code)]
 pub fn check_events() {
+    // Get the current time and draw the menu bar
     let time = clock::get_time();
     window::draw_menu_bar(time);
 
+    // Get all keys pressed
     let keypresses = {
         let lock = KEYPRESSES.lock();
         lock.clone()
     };
 
+    // Add pressed keys
     for keypress in keypresses.0 {
         if keypress == 0 { break; }
         if keypress > 255 { continue; }
         add_key(keypress as u8);
     }
 
+    // Reset the buffer
     KEYPRESSES.lock().0 = [0; 8];
     KEYPRESSES.lock().1 = 0;
 }
@@ -101,6 +105,7 @@ fn print_help_command() {
 
 #[allow(dead_code)]
 pub fn match_commands(command_written:[u8; 256], user_ran:bool) {
+    // To register a command add it here
     let commands = [
         "info", "ping", "color", "clear", "help", "femc", "fl", "go", 
         "install", "pong", "cat", "run", "per", "time", "input", "timeset",
@@ -109,6 +114,7 @@ pub fn match_commands(command_written:[u8; 256], user_ran:bool) {
 
     print!("\n");
 
+    // Here commands will be matched and executed
     let mut command_processed = false;
     for command in commands {
         let command_bytes = command.bytes();
@@ -128,6 +134,7 @@ pub fn match_commands(command_written:[u8; 256], user_ran:bool) {
 
         if is_command {
             command_processed = true;
+            // Add your function as a match here
             match command {
                 "info" => print_help_command(),
                 "help" => print_help_command(),
@@ -296,6 +303,7 @@ pub fn match_commands(command_written:[u8; 256], user_ran:bool) {
 
     if user_ran { print!("-> ") }
 
+    // Reset the keys pressed buffer
     {
         let mut text = CURRENT_TEXT.lock();
         let mut text_end = CURRENT_TEXT_END.lock();

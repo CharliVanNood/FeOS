@@ -109,7 +109,9 @@ extern "x86-interrupt" fn keyboard_interrupt_handler(
 
     if let Ok(Some(key_event)) = keyboard.add_byte(scancode) {
         if let Some(key) = keyboard.process_keyevent(key_event) {
+            // Check key type
             match key {
+                // This is a normal key, add it to the pressed keys (up to 8 at the same time)
                 DecodedKey::Unicode(character) => {
                     let byte = character as u8;
                     {
@@ -122,6 +124,7 @@ extern "x86-interrupt" fn keyboard_interrupt_handler(
                         }
                     }
                 },
+                // These are function keys and should have their own code over 255
                 DecodedKey::RawKey(character) => {
                     match character {
                         KeyCode::ArrowUp => {

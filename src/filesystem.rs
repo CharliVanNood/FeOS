@@ -12,9 +12,11 @@ impl FileSystem {
         self.files.iter()[id as usize].3
     }
 
+    // Print the current path of a file
     fn print_path(&self, id: u32) {
         let file = self.files.iter()[id as usize];
         if file.1 != -1 {
+            // Recursively go up the stack of referenced files
             self.print_path(file.1 as u32);
             info!("/");
         }
@@ -24,6 +26,7 @@ impl FileSystem {
         }
     }
 
+    // Create a file and write it's contents to heap (for now, this will convert to disk)
     pub fn create_file(&mut self, parent: i32, filename: [u8; 20], filetype: u8, data: BigVec) {
         let address = alloc::alloc(data.len());
 
@@ -56,7 +59,7 @@ impl FileSystem {
     }
 
     // this being a list of 20 is the max amount of files that will be returned, why 20? sounds good to me tbh :3
-    pub fn get_file_from_parent(&self, parent: i32) -> [(u32, i32, (usize, usize, usize), [u8; 20], u8); 20] {
+    pub fn get_files_from_parent(&self, parent: i32) -> [(u32, i32, (usize, usize, usize), [u8; 20], u8); 20] {
         let mut files_returning = [(0, -1, (0, 1, 0), [1; 20], 0); 20];
         let mut files_returning_len = 0;
         for file in self.files.iter() {
@@ -68,8 +71,8 @@ impl FileSystem {
         files_returning
     }
 
-    pub fn get_file_from_current_parent(&self) -> [(u32, i32, (usize, usize, usize), [u8; 20], u8); 20] {
-        self.get_file_from_parent(self.flow)
+    pub fn get_files_from_current_parent(&self) -> [(u32, i32, (usize, usize, usize), [u8; 20], u8); 20] {
+        self.get_files_from_parent(self.flow)
     }
 }
 
@@ -80,8 +83,9 @@ lazy_static! {
     });
 }
 
+// Get all files from the current directory and print those (Used in FL command)
 pub fn print_current_dir_files() {
-    let files_found = FILESYSTEM.lock().get_file_from_current_parent();
+    let files_found = FILESYSTEM.lock().get_files_from_current_parent();
     for file in files_found {
         if file.1 == -1 { continue; }
         for char_byte in file.3 {
@@ -92,12 +96,13 @@ pub fn print_current_dir_files() {
     }
 }
 
+// Change the flow to a named flow in the same flow you're currently in
 pub fn change_flow(name: [u8; 20]) {
     let mut back = [0u8; 20];
     back[..4].copy_from_slice(b"back");
 
     let files = {
-        FILESYSTEM.lock().get_file_from_current_parent()
+        FILESYSTEM.lock().get_files_from_current_parent()
     };
     for file in files {
         if file.3 == name {
@@ -113,9 +118,10 @@ pub fn get_current_flow() -> i32 {
     FILESYSTEM.lock().flow
 }
 
+// Check if a certain file exists in the current flow
 pub fn file_exists(name: [u8; 20]) -> bool {
     let files = {
-        let files = FILESYSTEM.lock().get_file_from_current_parent();
+        let files = FILESYSTEM.lock().get_files_from_current_parent();
         files.clone()
     };
     for file in files {
@@ -131,9 +137,10 @@ pub fn file_exists(name: [u8; 20]) -> bool {
     return false;
 }
 
+// Get a certain named file in the current directory by name
 pub fn find_file(name: [u8; 20]) -> (u32, i32, (usize, usize, usize), [u8; 20], u8) {
     let files = {
-        let files = FILESYSTEM.lock().get_file_from_current_parent();
+        let files = FILESYSTEM.lock().get_files_from_current_parent();
         files.clone()
     };
     for file in files {
@@ -150,6 +157,7 @@ pub fn find_file(name: [u8; 20]) -> (u32, i32, (usize, usize, usize), [u8; 20], 
     return (0, 0, (0, 0, 0), [0; 20], 0)
 }
 
+// Write data to already existing file
 pub fn update_file(filename: [u8; 20], data: BigVec) {
     if !file_exists(filename) {
         warnln!("This file doesn't exist :c");
@@ -165,6 +173,7 @@ pub fn update_file(filename: [u8; 20], data: BigVec) {
     }
 }
 
+// Create a new file
 pub fn create_file(parent: i32, mut filename: [u8; 20], filetype: &str, data: BigVec) {
     let mut filename_len = 0;
 
@@ -206,6 +215,7 @@ pub fn create_file(parent: i32, mut filename: [u8; 20], filetype: &str, data: Bi
     FILESYSTEM.lock().create_file(parent, filename, file_type, data);
 }
 
+// Create a new file from &str, mainly used in the kernel and will be depricated some day
 pub fn create_file_from_str(parent: i32, filename: &str, filetype: &str, data: &str) {
     let mut filename_bytes = [0; 20];
     let mut filename_bytes_len = 0;
@@ -251,6 +261,7 @@ pub fn create_file_from_str(parent: i32, filename: &str, filetype: &str, data: &
     FILESYSTEM.lock().create_file(parent, filename_bytes, file_type, data_string);
 }
 
+// Read a file by name and return it's contents as a big string
 pub fn read_file(name: [u8; 20]) -> BigString {
     if !file_exists(name) {
         warnln!("This file doesn't exist :c");
@@ -272,6 +283,7 @@ pub fn read_file(name: [u8; 20]) -> BigString {
     data
 }
 
+// Convert image data to a BigVec and return this
 pub fn read_image(name: [u8; 20]) -> BigVec {
     if !file_exists(name) {
         warnln!("Image doesn't exist :C");
@@ -292,6 +304,7 @@ pub fn read_image(name: [u8; 20]) -> BigVec {
     contents
 }
 
+// Execute a file, this switches executor based on file type
 pub fn run_file(name: [u8; 20]) {
     if !file_exists(name) {
         warnln!("This file doesn't exist :c");
@@ -303,6 +316,7 @@ pub fn run_file(name: [u8; 20]) {
     let file_size = file.2.2;
     let file_type = file.4;
 
+    // Add your file type here to choose the right executor
     match file_type {
         1 => {
             let mut file_data: BigString = BigString::new();
