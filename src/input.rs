@@ -185,6 +185,7 @@ pub fn match_commands(command_written:[u8; 256], user_ran:bool) {
 
                     let file_data = filesystem::read_file(name);
                     file_data.print();
+                    file_data.remove();
                 },
                 "run" => {
                     let mut name = [0; 20];

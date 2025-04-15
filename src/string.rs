@@ -216,6 +216,11 @@ impl BigString {
             self.set(needle_index as usize + byte.0, byte.1 as usize);
         }
     }
+
+    #[allow(dead_code)]
+    pub fn remove(&self) {
+        alloc::unalloc(self.heap_start, self.heap_size);
+    }
 }
 
 #[allow(dead_code)]
@@ -392,5 +397,10 @@ impl String {
         for byte in value.bytes().enumerate() {
             self.set(needle_index as usize + byte.0, byte.1 as usize);
         }
+    }
+
+    #[allow(dead_code)]
+    pub fn remove(&self) {
+        alloc::unalloc(self.heap_start, self.heap_size);
     }
 }
