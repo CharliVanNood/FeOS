@@ -108,3 +108,11 @@ pub fn print_ring() {
         _ => warnln!("[AWW] Current ring: {}", ring)
     }
 }
+
+pub fn _read_file_indexes() {
+
+}
+
+pub fn _convert_fs_to_disk() {
+
+}
