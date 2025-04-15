@@ -8,6 +8,7 @@ mod window;
 mod input;
 mod applications;
 mod renderer;
+mod data;
 mod vec;
 mod filesystem;
 mod disk;
