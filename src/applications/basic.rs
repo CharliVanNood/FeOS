@@ -7,7 +7,8 @@ pub fn exec(input: [u8; 512]) {
         input_string.replace(";", " lnnew ");
         input_string.replace("\"", " lnlist ");
     }
-    let (tokenized_code, lists) = tokenize(input_string);
+    let (tokenized_code, lists) = tokenize(&input_string);
+    input_string.remove();
     run_tokens(tokenized_code, lists);
 }
 
@@ -105,7 +106,7 @@ fn match_token(token: [u8; 64], variables: [Vec; 64]) -> (usize, usize, [Vec; 64
     (7, 63, variables)
 }
 
-fn tokenize(input: BigString) -> ([TokenVec; 128], [TokenVec; 64]) {
+fn tokenize(input: &BigString) -> ([TokenVec; 128], [TokenVec; 64]) {
     let mut lines: [TokenVec; 128] = [TokenVec::new(); 128];
     for i in 1..128 {
         lines[i] = TokenVec::new();
@@ -179,6 +180,10 @@ fn tokenize(input: BigString) -> ([TokenVec; 128], [TokenVec; 64]) {
         if token.0 != 8 {
             lines[line].add(token.0, token.1);
         }
+    }
+
+    for variable in variables {
+        variable.remove();
     }
 
     (lines, lists)
