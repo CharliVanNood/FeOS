@@ -53,6 +53,7 @@ impl TokenVec {
         }
     }
 
+    // Add a token to the end of the list
     #[allow(dead_code)]
     pub fn add(&mut self, token: usize, value: usize) {
         if self.size >= self.heap_size {
@@ -64,6 +65,7 @@ impl TokenVec {
         self.size += 16;
     }
 
+    // Get a token at a certain index :O
     #[allow(dead_code)]
     pub fn get(&self, address: usize) -> (usize, usize) {
         if address * 16 >= self.size {
@@ -74,6 +76,7 @@ impl TokenVec {
          alloc::read_byte(self.heap_start + address * 16 + 8))
     }
 
+    // Prints the token vector
     #[allow(dead_code)]
     pub fn print(&self) {
         if self.len() == 0 {
@@ -100,6 +103,7 @@ impl TokenVec {
         print!("]\n");
     }
 
+    // Set a value in this vector
     #[allow(dead_code)]
     pub fn set(&mut self, address: usize, token: usize, value: usize) {
         if address * 16 >= self.size {
@@ -110,6 +114,7 @@ impl TokenVec {
         alloc::write_byte(self.heap_start + address * 16 + 8, value);
     }
 
+    // This is used to remove values, mainly used in the interpreters
     #[allow(dead_code)]
     pub fn shift(&mut self, index: usize, length: usize) {
         for i in index..self.len(){
@@ -123,11 +128,13 @@ impl TokenVec {
         self.size = self.size - length * 16;
     }
 
+    // Get the length of this vector
     #[allow(dead_code)]
     pub fn len(&self) -> usize {
         self.size / 16
     }
 
+    // This will create an entirely new token vector
     #[allow(dead_code)]
     pub fn copy(&self) -> TokenVec {
         let mut new_token_vec = TokenVec::new();
@@ -138,6 +145,7 @@ impl TokenVec {
         new_token_vec
     }
 
+    // Unallocate this vector (please don't forget to, I'm being serious :C)
     #[allow(dead_code)]
     pub fn remove(&self) {
         alloc::unalloc(self.heap_start, self.heap_size);
@@ -165,6 +173,8 @@ impl BigVec {
         }
     }
 
+    // Creates an empty version of this Vector, it's quite a wastefull vector if not properly used
+    // so use this when you don't need to add or read values
     #[allow(dead_code)]
     pub fn empty() -> Self {
         let heap_start = alloc::alloc(0);
@@ -176,6 +186,7 @@ impl BigVec {
         }
     }
 
+    // Add a value at the end
     #[allow(dead_code)]
     pub fn add(&mut self, value: usize) {
         if self.size >= self.heap_size {
@@ -186,6 +197,7 @@ impl BigVec {
         self.size += 8;
     }
 
+    // Get a value at a certain index
     #[allow(dead_code)]
     pub fn get(&self, address: usize) -> usize {
         if address * 8 > self.size {
@@ -195,11 +207,14 @@ impl BigVec {
         alloc::read_byte(self.heap_start + address * 8)
     }
 
+    // Please use this with caution, it can crash the system
+    // This get will read at some index, no matter if it is owned by this vec, this should strictly be kernel level
     #[allow(dead_code)]
     pub fn get_unsafe(&self, address: usize) -> usize {
         alloc::read_byte(self.heap_start + address * 8)
     }
 
+    // Set at a certain index
     #[allow(dead_code)]
     pub fn set(&mut self, address: usize, value: usize) {
         if address * 8 >= self.size {
@@ -209,6 +224,7 @@ impl BigVec {
         alloc::write_byte(self.heap_start + address * 8, value);
     }
 
+    // Another weird set function, this will pad values that haven't been added yet when you set out of range
     #[allow(dead_code)]
     pub fn set_add(&mut self, address: usize, value: usize) {
         if address * 8 >= self.size {
@@ -217,6 +233,7 @@ impl BigVec {
         alloc::write_byte(self.heap_start + address * 8, value);
     }
 
+    // Print the current vector
     #[allow(dead_code)]
     pub fn print(&self) {
         if self.len() == 0 {
@@ -233,62 +250,13 @@ impl BigVec {
         print!("]\n");
     }
 
-    #[allow(dead_code)]
-    pub fn set_as_b64(&mut self, value: [u8; 64]) {
-        for i in 0..64 {
-            alloc::write_byte(self.heap_start + i * 8, value[i] as usize);
-        }
-        self.size = 512;
-    }
-
-    #[allow(dead_code)]
-    pub fn get_as_b64(&self) -> [u8; 64] {
-        let mut b64_list = [0; 64];
-        for i in 0..self.len() {
-            b64_list[i] = alloc::read_byte(self.heap_start + i * 8) as u8;
-        }
-        b64_list
-    }
-
-    #[allow(dead_code)]
-    pub fn set_as_b128(&mut self, value: [u8; 128]) {
-        for i in 0..128 {
-            alloc::write_byte(self.heap_start + i * 8, value[i] as usize);
-        }
-        self.size = 512;
-    }
-
-    #[allow(dead_code)]
-    pub fn get_as_b128(&self) -> [u8; 128] {
-        let mut b64_list = [0; 128];
-        for i in 0..self.len() {
-            b64_list[i] = alloc::read_byte(self.heap_start + i * 8) as u8;
-        }
-        b64_list
-    }
-
-    #[allow(dead_code)]
-    pub fn set_as_b256(&mut self, value: [u8; 256]) {
-        for i in 0..256 {
-            alloc::write_byte(self.heap_start + i * 8, value[i] as usize);
-        }
-        self.size = 512;
-    }
-
-    #[allow(dead_code)]
-    pub fn get_as_b256(&self) -> [u8; 256] {
-        let mut b64_list = [0; 256];
-        for i in 0..self.len() {
-            b64_list[i] = alloc::read_byte(self.heap_start + i * 8) as u8;
-        }
-        b64_list
-    }
-
+    // Get the length of this vector
     #[allow(dead_code)]
     pub fn len(&self) -> usize {
         self.size / 8
     }
 
+    // Get the lowest value in the vector
     #[allow(dead_code)]
     pub fn min(&self) -> usize {
         let mut lowest = [0, 999999999];
@@ -304,6 +272,7 @@ impl BigVec {
         lowest[0]
     }
 
+    // Get the highest value in this vector, no support for negative values
     #[allow(dead_code)]
     pub fn max(&self) -> usize {
         let mut greatest = [0, 0];
@@ -319,6 +288,7 @@ impl BigVec {
         greatest[0]
     }
 
+    // Unallocate, DONT FORGET TO, I"M BETING SERIOUS FOR THIS ONE!!!11!!11 :D
     #[allow(dead_code)]
     pub fn remove(&self) {
         alloc::unalloc(self.heap_start, self.heap_size);
@@ -346,6 +316,7 @@ impl Vec {
         }
     }
 
+    // Add at the end of this vector
     #[allow(dead_code)]
     pub fn add(&mut self, value: usize) {
         if self.size >= self.heap_size {
@@ -356,6 +327,7 @@ impl Vec {
         self.size += 8;
     }
 
+    // Get a value at a certain index
     #[allow(dead_code)]
     pub fn get(&self, address: usize) -> usize {
         if address * 8 > self.size {
@@ -365,6 +337,7 @@ impl Vec {
         alloc::read_byte(self.heap_start + address * 8)
     }
 
+    // Set a value at a certain index
     #[allow(dead_code)]
     pub fn set(&mut self, address: usize, value: usize) {
         if address * 8 >= self.size {
@@ -374,6 +347,7 @@ impl Vec {
         alloc::write_byte(self.heap_start + address * 8, value);
     }
 
+    // set at an index and padd if doesn't exist yet
     #[allow(dead_code)]
     pub fn set_add(&mut self, address: usize, value: usize) {
         if address * 8 >= self.size {
@@ -382,6 +356,7 @@ impl Vec {
         alloc::write_byte(self.heap_start + address * 8, value);
     }
 
+    // print this vector
     #[allow(dead_code)]
     pub fn print(&self) {
         if self.len() == 0 {
@@ -398,6 +373,7 @@ impl Vec {
         print!("]\n");
     }
 
+    // convert a 64 byte list to a vector
     #[allow(dead_code)]
     pub fn set_as_b64(&mut self, value: [u8; 64]) {
         for i in 0..64 {
@@ -406,6 +382,8 @@ impl Vec {
         self.size = 512;
     }
 
+    // get this vector as a 64 byte list to loop over (DEPRICATED AND WILL BE REMOVED SOON)
+    #[deprecated(note="please use STRINGS instead!")]
     #[allow(dead_code)]
     pub fn get_as_b64(&self) -> [u8; 64] {
         let mut b64_list = [0; 64];
@@ -415,6 +393,7 @@ impl Vec {
         b64_list
     }
 
+    // convert a 128 byte list to a vector
     #[allow(dead_code)]
     pub fn set_as_b128(&mut self, value: [u8; 128]) {
         for i in 0..128 {
@@ -423,6 +402,8 @@ impl Vec {
         self.size = 512;
     }
 
+    // get this vector as a 128 byte list to loop over (DEPRICATED AND WILL BE REMOVED SOON)
+    #[deprecated(note="please use STRINGS instead!")]
     #[allow(dead_code)]
     pub fn get_as_b128(&self) -> [u8; 128] {
         let mut b64_list = [0; 128];
@@ -432,6 +413,7 @@ impl Vec {
         b64_list
     }
 
+    // convert a 256 byte list to a vector
     #[allow(dead_code)]
     pub fn set_as_b256(&mut self, value: [u8; 256]) {
         for i in 0..256 {
@@ -440,6 +422,8 @@ impl Vec {
         self.size = 512;
     }
 
+    // get this vector as a 256 byte list to loop over (DEPRICATED AND WILL BE REMOVED SOON)
+    #[deprecated(note="please use STRINGS instead!")]
     #[allow(dead_code)]
     pub fn get_as_b256(&self) -> [u8; 256] {
         let mut b64_list = [0; 256];
@@ -449,11 +433,13 @@ impl Vec {
         b64_list
     }
 
+    // Get the length of this vector
     #[allow(dead_code)]
     pub fn len(&self) -> usize {
         self.size / 8
     }
 
+    // Get the lowest value
     #[allow(dead_code)]
     pub fn min(&self) -> usize {
         let mut lowest = [0, 999999999];
@@ -469,6 +455,7 @@ impl Vec {
         lowest[0]
     }
 
+    // Get the highest value
     #[allow(dead_code)]
     pub fn max(&self) -> usize {
         let mut greatest = [0, 0];
@@ -484,6 +471,7 @@ impl Vec {
         greatest[0]
     }
 
+    // Unallocate this vector
     #[allow(dead_code)]
     pub fn remove(&self) {
         alloc::unalloc(self.heap_start, self.heap_size);

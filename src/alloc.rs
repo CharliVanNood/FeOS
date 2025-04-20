@@ -26,15 +26,20 @@ impl Allocator {
         }
     }
 
-    fn _print_regions(&self) {
+    fn print_regions(&self) {
+        let mut available_sections = 0;
+        let mut reserved_sections = 0;
+
         for section_printing in self.used {
             if section_printing == (0, 0, false) { break; }
             if section_printing.2 {
-                println!("available: {} {}", section_printing.0 - self.heap_start, section_printing.1 - self.heap_start);
+                available_sections += 1;
             } else {
-                warnln!("reserved: {} {}", section_printing.0 - self.heap_start, section_printing.1 - self.heap_start);
+                reserved_sections += 1;
             }
         }
+
+        println!("available: {} used: {}", available_sections, reserved_sections);
     }
 
     fn section_exists(&self, index: usize) -> bool {
@@ -102,6 +107,25 @@ impl Allocator {
         largest_section
     }
 
+    /*fn merged_sections(&mut self) {
+        let mut previous_section_available = false;
+        for section in 0..self.used.len() {
+            if self.used[section] == (0, 0, false) { break; }
+            if section == 0 { continue; }
+
+            if self.used[section].2 && !previous_section_available {
+                self.used[section].0 = self.used[section - 1].0;
+                self.used[section - 1].2 = false;
+                /*for i in section..self.used.len()-1 {
+                    self.used[section - 1 + i] = self.used[section + i];
+                }*/
+            }
+            previous_section_available = self.used[section].2;
+        }
+
+        self.print_regions();
+    }*/
+
     fn set_heap(&mut self, heap_start: usize, heap_size: usize) {
         self.heap_start = heap_start;
         self.heap_end = heap_start + heap_size;
@@ -135,6 +159,7 @@ impl Allocator {
         if needs_splitting {
             self.split_section(largest_section.0);
         }
+        self.print_regions();
         self.reserve_section(largest_section.0, size)
     }
 
@@ -146,6 +171,7 @@ impl Allocator {
                 self.next -= heap_end - heap_start;
             }
         }
+        //self.merged_sections();
     }
 }
 

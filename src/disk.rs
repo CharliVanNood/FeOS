@@ -2,6 +2,7 @@ use x86_64::instructions::port::Port;
 
 use crate::{infoln, warnln};
 
+// Write to sector by index
 pub fn write_sector(lba: u32, data: &[u16]) {
     assert!(data.len() == 256, "ATA sector size must be 512 bytes (256 words) :3");
 
@@ -19,24 +20,30 @@ pub fn write_sector(lba: u32, data: &[u16]) {
 
         sector_count_port.write(1);
 
+        // Set the current sector being read from
         lba_low_port.write((lba & 0xFF) as u8);
         lba_mid_port.write(((lba >> 8) & 0xFF) as u8);
         lba_high_port.write(((lba >> 16) & 0xFF) as u8);
 
+        // Send the write command
         command_port.write(0x30);
 
+        // Wait untill ready
         while status_port.read() & 0x80 != 0 {}
 
+        // Write the bytes
         for &word in data {
             data_port.write(word);
         }
 
+        // Issue the flush command to save
         command_port.write(0xE7);
     }
 
     for _ in 0..100000 { x86_64::instructions::nop(); }
 }
 
+// Read from disk
 pub fn read_sector(lba: u32, buffer: &mut [u16]) {
     assert!(buffer.len() == 256, "Buffer must hold 512 bytes (256 words):3");
 

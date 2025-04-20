@@ -216,7 +216,7 @@ fn run_tokens(mut tokens: [TokenVec; 128], mut lists: [TokenVec; 64]) {
         line_index = operation_result.1;
         running = operation_result.3;
         if operation_result.2 {
-            //tokens[line_index].remove();
+            tokens[line_index].remove();
             tokens[line_index] = operation_result.0.copy();
             line_index = indentation.get(indentation_depth as usize) as usize;
         }
