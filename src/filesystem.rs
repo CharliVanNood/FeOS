@@ -74,6 +74,10 @@ impl FileSystem {
     pub fn get_files_from_current_parent(&self) -> [(u32, i32, (usize, usize, usize), [u8; 20], u8); 20] {
         self.get_files_from_parent(self.flow)
     }
+
+    pub fn get_all_indexes(&self) -> FileVec {
+        self.files
+    }
 }
 
 lazy_static! {
