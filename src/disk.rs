@@ -139,7 +139,7 @@ pub fn convert_fs_to_bytes() -> BigVec {
 
     let file_system_size = file_system_files.len() * 26 * 2 + 131;
     let sector_amount = (file_system_size / 512) as usize + 1;
-    bytes_writing.add(0);
+    bytes_writing.add(1);
     bytes_writing.add(sector_amount);
 
     for _ in 0..128 {
@@ -193,17 +193,18 @@ pub fn write_fs_to_disk() {
 
     println!("Amount: {} Used: {}", bytes.get(1), bytes.get(0));
 
-    let mut temp_sector: [u16; 512] = [0; 512];
+    let mut temp_sector: [u16; 256] = [0; 256];
     let mut temp_sector_index = 0;
     for i in 0..bytes.len() {
         temp_sector[temp_sector_index] = bytes.get(i) as u16;
         temp_sector_index += 1;
-        if temp_sector_index == 512 {
+        if temp_sector_index == 256 {
             //write_sector(bytes.get(0) as u32, &temp_sector);
+            write_sector(bytes.get(0) as u32, &temp_sector);
             print!(".");
             bytes.set(0, bytes.get(0) + 1);
             temp_sector_index = 0;
-            temp_sector = [0; 512];
+            temp_sector = [0; 256];
         }
     }
 
