@@ -179,7 +179,7 @@ pub fn match_commands(command_written:[u8; 256], user_ran:bool) {
 
                     filesystem::change_flow(name);
                 },
-                "install" => filesystem::install_base_os(),
+                "install" => filesystem::install_base_os(true),
                 "pong" => applications::pong::play(),
                 "cat" => {
                     let mut name = [0; 20];
