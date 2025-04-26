@@ -1,5 +1,6 @@
 use pc_keyboard::KeyCode;
 use x86_64::structures::idt::{InterruptDescriptorTable, InterruptStackFrame, PageFaultErrorCode};
+use crate::clock;
 use crate::hlt_loop;
 use crate::infoln;
 use crate::warnln;
@@ -20,8 +21,6 @@ pub const PIC_2_OFFSET: u8 = PIC_1_OFFSET + 8;
 
 pub static PICS: spin::Mutex<ChainedPics> = 
     spin::Mutex::new(unsafe { ChainedPics::new(PIC_1_OFFSET, PIC_2_OFFSET) });
-
-pub static MILLISECONDS: spin::Mutex<usize> = spin::Mutex::new(0);
 
 lazy_static! {
     static ref IDT: InterruptDescriptorTable = {
@@ -66,7 +65,7 @@ extern "x86-interrupt" fn timer_interrupt_handler(
         PICS.lock()
             .notify_end_of_interrupt(InterruptIndex::Timer.as_u8());
     }
-    *MILLISECONDS.lock() += 55;
+    *clock::MILLISECONDS.lock() += 55;
 }
 
 extern "x86-interrupt" fn ata_irq_handler(_stack_frame: InterruptStackFrame) {
