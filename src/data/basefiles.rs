@@ -24,7 +24,7 @@ pub fn install_files() {
     PRINT TRUE
     ");
 
-    create_file_from_str(1, "basic", "b", "
+    create_file_from_str(1, "cookie", "b", "
     PRINT \"Cookie Clicker\"
 
     cookies = 0
