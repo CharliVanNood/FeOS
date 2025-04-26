@@ -145,7 +145,8 @@ fn tokenize(input: &BigString) -> ([TokenVec; 128], [TokenVec; 64]) {
             if token.0 == 16 {
                 is_string = !is_string;
                 if !is_string {
-                    lines[line].add(5, lists_len - 1);
+                    lines[line].add(5, lists_len);
+                    lists_len += 1;
                 }
                 temp_token = [0; 64];
                 temp_token_index = 0;
@@ -159,12 +160,12 @@ fn tokenize(input: &BigString) -> ([TokenVec; 128], [TokenVec; 64]) {
                 temp_token = [0; 64];
                 temp_token_index = 0;
             } else if is_string {
-                if !is_comment { 
+                if !is_comment {
                     for character in temp_token {
                         if character == 0 { continue; }
                         lists[lists_len].add(6, character as usize);
                     }
-                    lists_len += 1;
+                    lists[lists_len].add(6, b' ' as usize);
                 }
                 temp_token = [0; 64];
                 temp_token_index = 0;
@@ -336,6 +337,20 @@ fn run_tokens_math(mut tokens: TokenVec, variables: Vec, _lists: [TokenVec; 64],
                     }
                     (7, 7) => {
                         let operation_result = variables.get(tokens.get(token_index - 1).1) + variables.get(tokens.get(token_index + 1).1);
+                        tokens.set(token_index - 1, 1, operation_result as usize);
+                        tokens.shift(token_index, 2);
+                        token_length = tokens.len();
+                        token_index -= 1;
+                    }
+                    (7, 1) => {
+                        let operation_result = variables.get(tokens.get(token_index - 1).1) + tokens.get(token_index + 1).1;
+                        tokens.set(token_index - 1, 1, operation_result as usize);
+                        tokens.shift(token_index, 2);
+                        token_length = tokens.len();
+                        token_index -= 1;
+                    }
+                    (1, 7) => {
+                        let operation_result = tokens.get(token_index - 1).1 + variables.get(tokens.get(token_index + 1).1);
                         tokens.set(token_index - 1, 1, operation_result as usize);
                         tokens.shift(token_index, 2);
                         token_length = tokens.len();

@@ -25,17 +25,19 @@ pub fn install_files() {
     ");
 
     create_file_from_str(1, "basic", "b", "
-    PRINT \"loops\"
-    PRINT \"are\"
-    PRINT \"amazing\"
-    PRINT \"PressAKeyToContinue\"
+    PRINT \"Cookie Clicker\"
+    PRINT \"Press a key for a cookie!\"
     SLEEP
 
+    cookies = 0
+
+    PRINT cookies + 1
+
     DO
-    PRINT TRUE
-    SLEEP 100
-    PRINT FALSE
-    SLEEP 5000
+    cookies = cookies + 1
+    PRINT \"+1 cookie, now:\"
+    PRINT cookies
+    SLEEP
     LOOP
     PRINT TRUE
     ");
