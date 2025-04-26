@@ -7,7 +7,8 @@ pub fn exec(input: [u8; 512]) {
         input_string.replace(";", " lnnew ");
         input_string.replace("\"", " lnlist ");
     }
-    let (tokenized_code, lists) = tokenize(input_string);
+    let (tokenized_code, lists) = tokenize(&input_string);
+    input_string.remove();
     run_tokens(tokenized_code, lists);
 }
 
@@ -105,7 +106,7 @@ fn match_token(token: [u8; 64], variables: [Vec; 64]) -> (usize, usize, [Vec; 64
     (7, 63, variables)
 }
 
-fn tokenize(input: BigString) -> ([TokenVec; 128], [TokenVec; 64]) {
+fn tokenize(input: &BigString) -> ([TokenVec; 128], [TokenVec; 64]) {
     let mut lines: [TokenVec; 128] = [TokenVec::new(); 128];
     for i in 1..128 {
         lines[i] = TokenVec::new();
@@ -181,6 +182,10 @@ fn tokenize(input: BigString) -> ([TokenVec; 128], [TokenVec; 64]) {
         }
     }
 
+    for variable in variables {
+        variable.remove();
+    }
+
     (lines, lists)
 }
 
@@ -211,12 +216,12 @@ fn run_tokens(mut tokens: [TokenVec; 128], mut lists: [TokenVec; 64]) {
         line_index = operation_result.1;
         running = operation_result.3;
         if operation_result.2 {
-            //tokens[line_index].remove();
+            tokens[line_index].remove();
             tokens[line_index] = operation_result.0.copy();
             line_index = indentation.get(indentation_depth as usize) as usize;
         }
 
-        //line_running.remove();
+        line_running.remove();
 
         line_index += 1;
     }
@@ -595,13 +600,14 @@ fn run_tokens_last(
                 
                     for keypress in keypresses.0 {
                         if keypress == 0 { break; }
+                        if keypress > 255 { continue; }
                         if keypress == 10 && text_input_len > 0 {
                             ended = true;
                             break;
                         } else if keypress == 10 {
                             break;
                         }
-                        print!("{}", keypress as char);
+                        print!("{}", keypress as u8 as char);
                         text_input[text_input_len] = keypress;
                         text_input_len += 1;
                     }

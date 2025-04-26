@@ -5,11 +5,12 @@ use lazy_static::lazy_static;
 use spin::Mutex;
 use core::fmt::Write;
 
+use crate::alloc;
 use crate::renderer::{colors, text::CHARACTERS};
-use crate::vec::Vec;
+use crate::vec::BigVec;
 
-const BUFFER_WIDTH: usize = 320;
-const BUFFER_HEIGHT: usize = 200;
+pub const BUFFER_WIDTH: usize = 320;
+pub const BUFFER_HEIGHT: usize = 200;
 
 #[repr(transparent)]
 struct Buffer {
@@ -94,7 +95,12 @@ pub fn remove_terminal_character() {
 
 pub fn draw_menu_bar(time: (u8, u8, u8)) {
     SCREEN_WRITER.lock().frame = 1;
-    println!("{}:{}:{} ", time.0, time.1, time.2);
+    println!("{}:{}:{}\n", time.0, time.1, time.2);
+    
+    SCREEN_WRITER.lock().frame = 2;
+    let ram_usage = alloc::get_usage();
+    println!("Ram: {:.2}%\n", (ram_usage.0 as f32 / ram_usage.1 as f32) * 100.0);
+
     SCREEN_WRITER.lock().frame = 0;
 }
 
@@ -107,19 +113,22 @@ impl fmt::Write for ScreenWriter {
 
 pub struct ScreenWriter {
     buffer: &'static mut Buffer,
-    //frames: [(i32, i32, i32, i32); 4],
+    screen_buffer: [u8; BUFFER_WIDTH * BUFFER_HEIGHT],
     frame: u8,
     clock_column_position: usize,
+    ram_column_position: usize,
     terminal_column_position: usize,
     terminal_character_buffer: [[(u8, u8, u8); 27]; 19],
     terminal_background_color: u8,
     terminal_foreground_color: u8,
     clock_background_color: u8,
     clock_foreground_color: u8,
+    ram_background_color: u8,
+    ram_foreground_color: u8,
 }
 impl ScreenWriter {
     #[allow(dead_code)]
-    fn get_rgb(&self, r: u8, g: u8, b: u8) -> u8 {
+    pub fn get_rgb(&self, r: u8, g: u8, b: u8) -> u8 {
         let mut closest_color: (i16, usize) = (-1, 999999);
     
         for color in colors::COLOR_PALETTE.iter().enumerate() {
@@ -153,6 +162,10 @@ impl ScreenWriter {
                 self.clock_background_color = background;
                 self.clock_foreground_color = foreground;
             },
+            2 => {
+                self.ram_background_color = background;
+                self.ram_foreground_color = foreground;
+            },
             _ => {
                 self.terminal_background_color = background;
                 self.terminal_foreground_color = foreground;
@@ -160,14 +173,14 @@ impl ScreenWriter {
         }
     }
     
-    fn draw_character(&mut self, character: u8, x: usize, y: usize, foreground: u8, background: u8) {
+    pub fn draw_character(&mut self, character: u8, x: usize, y: usize, foreground: u8, background: u8) {
         let characters = CHARACTERS[character as usize];
     
         for char in characters.iter().enumerate() {
             if char.1 == &true {
-                self.buffer.pixels[self.get_pixel_index(x + char.0 % 5, y + char.0 / 5)].write(foreground);
+                self.set_pixel(x + char.0 % 5, y + char.0 / 5, foreground);
             } else {
-                self.buffer.pixels[self.get_pixel_index(x + char.0 % 5, y + char.0 / 5)].write(background);
+                self.set_pixel(x + char.0 % 5, y + char.0 / 5, background);
             }
         }
     }
@@ -190,8 +203,15 @@ impl ScreenWriter {
         self.clear_characters(0);
     }
 
-    fn set_pixel(&mut self, x: usize, y: usize, color: u8) {
-        self.buffer.pixels[self.get_pixel_index(x, y)].write(color);
+    pub fn set_pixel(&mut self, x: usize, y: usize, color: u8) {
+        let pixel_index = self.get_pixel_index(x, y);
+        self.buffer.pixels[pixel_index].write(color);
+        self.screen_buffer[pixel_index] = color;
+    }
+
+    pub fn get_pixel(&self, x: usize, y: usize) -> u8 {
+        let pixel_index = self.get_pixel_index(x, y);
+        self.screen_buffer[pixel_index]
     }
 
     fn draw_terminal_character(&mut self, char: u8) {
@@ -226,12 +246,24 @@ impl ScreenWriter {
     }
 
     fn draw_clock_character(&mut self, char: u8) {
-        self.draw_character(char,  162 + self.clock_column_position * 6, 191, 
+        if char == b'\n' {
+            self.clock_column_position = 0;
+            return;
+        }
+
+        self.draw_character(char,  164 + self.clock_column_position * 6, 191, 
             self.clock_foreground_color, self.clock_background_color);
         self.clock_column_position += 1;
-        if char == 32 {
-            self.clock_column_position = 0;
+    }
+    fn draw_ram_character(&mut self, char: u8) {
+        if char == b'\n' {
+            self.ram_column_position = 0;
+            return;
         }
+
+        self.draw_character(char,  252 + self.ram_column_position * 6, 191, 
+            self.ram_foreground_color, self.ram_background_color);
+        self.ram_column_position += 1;
     }
 
     pub fn write_string(&mut self, s: &str) {
@@ -239,6 +271,7 @@ impl ScreenWriter {
             match self.frame {
                 0 => self.draw_terminal_character(char),
                 1 => self.draw_clock_character(char),
+                2 => self.draw_ram_character(char),
                 _ => self.draw_terminal_character(char)
             }
         }
@@ -249,14 +282,17 @@ lazy_static! {
     pub static ref SCREEN_WRITER: Mutex<ScreenWriter> = Mutex::new(ScreenWriter {
         buffer: unsafe { &mut *(0xa0000 as *mut Buffer) },
         frame: 0,
-        //frames: [(0, 0, 160, 100); 4],
+        screen_buffer: [0; BUFFER_WIDTH * BUFFER_HEIGHT],
         clock_column_position: 0,
+        ram_column_position: 0,
         terminal_column_position: 0,
         terminal_character_buffer: [[(0, 15, 0); 27]; 19],
         terminal_background_color: 0,
         terminal_foreground_color: 15,
         clock_background_color: 215,
-        clock_foreground_color: 15
+        clock_foreground_color: 15,
+        ram_background_color: 215,
+        ram_foreground_color: 15
     });
 }
 
@@ -286,39 +322,49 @@ fn get_int(numbers: [usize; 3]) -> u8 {
     int_val as u8
 }
 
-pub fn render_image(image_data: Vec) {
+pub fn render_image(image_data: BigVec) {
     let window_offset_x = 160;
+
+    let mut image_width = get_int([image_data.get(0), image_data.get(1), image_data.get(2)]) as usize;
+    let mut image_height = get_int([image_data.get(3), image_data.get(4), image_data.get(5)]) as usize;
 
     let window_width = BUFFER_WIDTH - window_offset_x;
     let window_height = BUFFER_HEIGHT;
-    let image_width = image_data.get(0) - 48;
-    let image_height = image_data.get(2) - 48;
+
+    let mut image_padding_x = 0;
+    if image_width > window_width {
+        image_padding_x = image_width - window_width;
+        image_width = window_width;
+    }
+    if image_height > window_height {
+        image_height = window_height
+    }
+
     let image_start_x = window_width/2 - image_width/2;
     let image_start_y = window_height/2 - image_height/2;
     let image_end_x = image_start_x + image_width;
     let image_end_y = image_start_y + image_height;
-    let mut char = 4;
+    let mut char = 6;
 
-    println!("{} {}", window_width, window_height);
-    println!("{} {}", image_width, image_height);
-    println!("{} {}", image_start_x, image_start_y);
-    println!("{} {}", image_end_x, image_end_y);
-
-    let mut screen_writer = SCREEN_WRITER.lock();
-
-    for y in 0..BUFFER_HEIGHT {
-        if (y > image_start_y) | (y < image_end_y) {
+    for y in (0..BUFFER_HEIGHT).rev() {
+        if (y >= image_start_y) && (y < image_end_y) {
             for x in 0..window_width {
-                if (x > image_start_x) | (x < image_end_x) {
-                    let red = get_int([image_data.get(char),image_data.get(char+1),image_data.get(char+2)]);
-                    let green = get_int([image_data.get(char+3),image_data.get(char+4),image_data.get(char+5)]);
-                    let blue = get_int([image_data.get(char+6),image_data.get(char+7),image_data.get(char+8)]);
-                    char += 9;
+                if (x >= image_start_x) && (x < image_end_x + image_padding_x) {
+                    if x < image_end_x {
+                        let red = get_int([image_data.get_unsafe(char),image_data.get_unsafe(char+1),image_data.get_unsafe(char+2)]);
+                        let green = get_int([image_data.get_unsafe(char+3),image_data.get_unsafe(char+4),image_data.get_unsafe(char+5)]);
+                        let blue = get_int([image_data.get_unsafe(char+6),image_data.get_unsafe(char+7),image_data.get_unsafe(char+8)]);
+                        char += 9;
 
-                    let color = screen_writer.get_rgb(red, green, blue);
-                    screen_writer.set_pixel(x+window_offset_x, y, color);
+                        let color = SCREEN_WRITER.lock().get_rgb(red, green, blue);
+                        SCREEN_WRITER.lock().set_pixel(x+window_offset_x, y, color);
+                    } else {
+                        char += 9;
+                    }
                 }
             }
         }
     }
+
+    image_data.remove();
 }
