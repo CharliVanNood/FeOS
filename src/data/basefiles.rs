@@ -4,6 +4,7 @@ pub fn install_files() {
     create_file_from_str(1, "images", "", "");
     create_file_from_str(1, "code", "", "");
     create_file_from_str(1, "asm", "", "");
+    create_file_from_str(1, "games", "", "");
     create_file_from_str(3, "file1", "b", "PRINT \"Hello,world\"");
     create_file_from_str(3, "python1", "fc", "print 1 + 10 * 10\nprint 10 + 10\ntest = 10\ntest2 = 20\nprint test\nprint test2");
     create_file_from_str(3, "loop_test_1", "fc", "do\nprint 10\nrepeat 10");
@@ -24,7 +25,7 @@ pub fn install_files() {
     PRINT TRUE
     ");
 
-    create_file_from_str(1, "cookie", "b", "
+    create_file_from_str(5, "cookie", "b", "
     PRINT \"Cookie Clicker\"
 
     cookies = 0
