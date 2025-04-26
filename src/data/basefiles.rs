@@ -24,18 +24,19 @@ pub fn install_files() {
     PRINT TRUE
     ");
 
-    create_file_from_str(1, "basic", "b", "
-    PRINT \"loops\"
-    PRINT \"are\"
-    PRINT \"amazing\"
-    PRINT \"PressAKeyToContinue\"
+    create_file_from_str(1, "cookie", "b", "
+    PRINT \"Cookie Clicker\"
+
+    cookies = 0
+
+    PRINT \"Press a key for a cookie\"
     SLEEP
 
     DO
-    PRINT TRUE
-    SLEEP 100
-    PRINT FALSE
-    SLEEP 5000
+    cookies = cookies + 1
+    PRINT \"+1 cookie, now:\"
+    PRINT cookies
+    SLEEP
     LOOP
     PRINT TRUE
     ");
