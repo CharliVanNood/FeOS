@@ -1,6 +1,7 @@
 use crate::alloc;
 use crate::applications::blip;
 use crate::clock;
+use crate::disk::{convert_fs_to_bytes, write_fs_to_disk};
 use crate::window;
 use crate::{print, println, warnln};
 use crate::applications;
@@ -109,8 +110,9 @@ pub fn match_commands(command_written:[u8; 256], user_ran:bool) {
     let commands = [
         "info", "ping", "color", "clear", "help", "femc", "fl", "go", 
         "install", "pong", "cat", "run", "per", "time", "input", "timeset",
-        "basic", "nyo", "screen", "char", "imagine", "imgtest", "blip"
-        ];
+        "basic", "nyo", "screen", "char", "imagine", "imgtest", "blip",
+        "fsconvtest", "fswritetest"
+    ];
 
     print!("\n");
 
@@ -177,7 +179,13 @@ pub fn match_commands(command_written:[u8; 256], user_ran:bool) {
 
                     filesystem::change_flow(name);
                 },
-                "install" => filesystem::install_base_os(),
+                "install" => {
+                    if command_written[8] == b'a' {
+                        filesystem::install_base_os(true)
+                    } else {
+                        filesystem::install_base_os(false)
+                    }
+                },
                 "pong" => applications::pong::play(),
                 "cat" => {
                     let mut name = [0; 20];
@@ -293,6 +301,8 @@ pub fn match_commands(command_written:[u8; 256], user_ran:bool) {
 
                     blip::open(name);
                 },
+                "fsconvtest" => convert_fs_to_bytes().remove(),
+                "fswritetest" => write_fs_to_disk(),
                 _ => warnln!("This command is unimplemented :C")
             }
         }

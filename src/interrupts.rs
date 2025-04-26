@@ -1,5 +1,6 @@
 use pc_keyboard::KeyCode;
 use x86_64::structures::idt::{InterruptDescriptorTable, InterruptStackFrame, PageFaultErrorCode};
+use crate::clock;
 use crate::hlt_loop;
 use crate::infoln;
 use crate::warnln;
@@ -64,6 +65,7 @@ extern "x86-interrupt" fn timer_interrupt_handler(
         PICS.lock()
             .notify_end_of_interrupt(InterruptIndex::Timer.as_u8());
     }
+    *clock::MILLISECONDS.lock() += 55;
 }
 
 extern "x86-interrupt" fn ata_irq_handler(_stack_frame: InterruptStackFrame) {

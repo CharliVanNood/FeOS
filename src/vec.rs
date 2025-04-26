@@ -1,6 +1,8 @@
 use crate::{alloc, print, println, warnln};
 
 // THIS HAS TO BE REWRITTEN TO USE HEAP SOON!!! :C
+#[derive(Copy)]
+#[derive(Clone)]
 pub struct FileVec {
     data: [(u32, i32, (usize, usize, usize), [u8; 20], u8); 100],
     size: usize,
@@ -19,7 +21,7 @@ impl FileVec {
         self.size += 1;
     }
 
-    pub fn get(&mut self, index: usize) -> (u32, i32, (usize, usize, usize), [u8; 20], u8) {
+    pub fn get(&self, index: usize) -> (u32, i32, (usize, usize, usize), [u8; 20], u8) {
         self.data[index]
     }
 
