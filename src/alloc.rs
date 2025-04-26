@@ -26,6 +26,7 @@ impl Allocator {
         }
     }
 
+    #[allow(dead_code)]
     fn print_regions(&self) {
         let mut available_sections = 0;
         let mut reserved_sections = 0;
@@ -159,7 +160,7 @@ impl Allocator {
         if needs_splitting {
             self.split_section(largest_section.0);
         }
-        self.print_regions();
+        //self.print_regions();
         self.reserve_section(largest_section.0, size)
     }
 

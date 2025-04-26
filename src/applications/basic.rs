@@ -1,4 +1,4 @@
-use crate::{input, print, println, string::BigString, vec::{TokenVec, Vec}, warnln};
+use crate::{input, print, println, string::BigString, vec::{TokenVec, Vec}, warnln, clock};
 
 pub fn exec(input: [u8; 512]) {
     let mut input_string = BigString::from_b512(input);
@@ -15,10 +15,10 @@ pub fn exec(input: [u8; 512]) {
 fn match_token(token: [u8; 64], variables: [Vec; 64]) -> (usize, usize, [Vec; 64]) {
     let tokens_val = [
         "PRINT", "\n", "lnnew", "TRUE", "FALSE", "+", "-", "/", "*", "INPUT", "lnlist", "==", "NOT", "=",
-        "DO", "LOOP"];
+        "DO", "LOOP", "SLEEP"];
     let tokens_keys  = [
          10,      8,    8,       3,      3,       11,  12,  13,  14,  15,      16,       18,   19,    20,
-         25,   26];
+         25,   26,     27];
 
     for command_index in 0..tokens_val.len() {
         let command = tokens_val[command_index];
@@ -517,6 +517,47 @@ fn run_tokens_last(
         let token = tokens.get(token_index);
 
         match (token.0, running) {
+            (27, true) => {
+                if token_index + 1 < token_length {
+                    match tokens.get(token_index + 1).0 {
+                        1 => {
+                            let end_time = *clock::MILLISECONDS.lock() + tokens.get(token_index + 1).1;
+                            while *clock::MILLISECONDS.lock() < end_time {
+                                x86_64::instructions::hlt();
+                            }
+
+                            tokens.shift(token_index, 2);
+                            token_length = tokens.len();
+                        },
+                        _ => warnln!("This is an unsupported type conversion")
+                    }
+                } else {
+                    let mut ended = false;
+                    
+                    input::KEYPRESSES.lock().0 = [0; 8];
+                    input::KEYPRESSES.lock().1 = 0;
+
+                    while !ended {
+                        let keypresses = {
+                            let lock = input::KEYPRESSES.lock();
+                            lock.clone()
+                        };
+                    
+                        for keypress in keypresses.0 {
+                            if keypress == 0 { break; }
+                            ended = true;
+                        }
+                    
+                        input::KEYPRESSES.lock().0 = [0; 8];
+                        input::KEYPRESSES.lock().1 = 0;
+
+                        x86_64::instructions::hlt();
+                    }
+
+                    tokens.shift(token_index, 1);
+                    token_length = tokens.len();
+                }
+            },
             (26, true) | (26, false) => {
                 return_to_last_indent = true;
                 running = true;

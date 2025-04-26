@@ -3,6 +3,8 @@ use spin::Mutex;
 
 use crate::println;
 
+pub static MILLISECONDS: spin::Mutex<usize> = spin::Mutex::new(0);
+
 fn read_rtc_register(reg: u8) -> u8 {
     unsafe {
         let mut port_70 = Port::<u8>::new(0x70);

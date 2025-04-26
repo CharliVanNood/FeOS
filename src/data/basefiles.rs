@@ -24,6 +24,22 @@ pub fn install_files() {
     PRINT TRUE
     ");
 
+    create_file_from_str(1, "basic", "b", "
+    PRINT \"loops\"
+    PRINT \"are\"
+    PRINT \"amazing\"
+    PRINT \"PressAKeyToContinue\"
+    SLEEP
+
+    DO
+    PRINT TRUE
+    SLEEP 100
+    PRINT FALSE
+    SLEEP 5000
+    LOOP
+    PRINT TRUE
+    ");
+
     create_file_from_str(4, "asm", "a", "
     section .data
     hello db \"Hello,World!\", 0
