@@ -15,10 +15,10 @@ pub fn exec(input: [u8; 512]) {
 fn match_token(token: [u8; 64], variables: [Vec; 64]) -> (usize, usize, [Vec; 64]) {
     let tokens_val = [
         "PRINT", "\n", "lnnew", "TRUE", "FALSE", "+", "-", "/", "*", "INPUT", "lnlist", "==", "NOT", "=",
-        "DO", "LOOP", "SLEEP"];
+        "DO", "LOOP", "SLEEP", "END"];
     let tokens_keys  = [
          10,      8,    8,       3,      3,       11,  12,  13,  14,  15,      16,       18,   19,    20,
-         25,   26,     27];
+         25,   26,     27,      28];
 
     for command_index in 0..tokens_val.len() {
         let command = tokens_val[command_index];
@@ -222,13 +222,17 @@ fn run_tokens(mut tokens: [TokenVec; 128], mut lists: [TokenVec; 64]) {
             line_index = indentation.get(indentation_depth as usize) as usize;
         }
 
+        if operation_result.4 {
+            line_index = tokens.len();
+        }
+
         line_running.remove();
 
         line_index += 1;
     }
 }
 
-fn run_line(line: TokenVec, mut indentation: &mut Vec, line_index: usize, mut variables: &mut Vec, mut lists: &mut [TokenVec; 64], indentation_depth: u8, running: bool) -> (TokenVec, usize, bool, bool) {
+fn run_line(line: TokenVec, mut indentation: &mut Vec, line_index: usize, mut variables: &mut Vec, mut lists: &mut [TokenVec; 64], indentation_depth: u8, running: bool) -> (TokenVec, usize, bool, bool, bool) {
     if running {
         let tokens_after_fact = run_tokens_fact(line, *variables, *lists, *indentation, indentation_depth);
         let tokens_after_math = run_tokens_math(tokens_after_fact, *variables, *lists, *indentation, indentation_depth);
@@ -522,8 +526,9 @@ fn run_tokens_first(mut tokens: TokenVec, _variables: Vec, _lists: [TokenVec; 64
 
 fn run_tokens_last(
     mut tokens: TokenVec, variables: &mut Vec, lists: &mut [TokenVec; 64], indentation: &mut Vec, 
-    indentation_depth: u8, line_index: usize, mut running: bool) -> (TokenVec, usize, bool, bool) {
+    indentation_depth: u8, line_index: usize, mut running: bool) -> (TokenVec, usize, bool, bool, bool) {
     let mut return_to_last_indent = false;
+    let mut stop_program = false;
     
     let mut token_index = 0;
     let mut token_length = tokens.len();
@@ -572,6 +577,9 @@ fn run_tokens_last(
                     tokens.shift(token_index, 1);
                     token_length = tokens.len();
                 }
+            },
+            (28, true) => {
+                stop_program = true;
             },
             (26, true) | (26, false) => {
                 return_to_last_indent = true;
@@ -682,5 +690,5 @@ fn run_tokens_last(
         token_index += 1;
     }
 
-    (tokens, line_index, return_to_last_indent, running)
+    (tokens, line_index, return_to_last_indent, running, stop_program)
 }

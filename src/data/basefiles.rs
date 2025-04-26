@@ -26,12 +26,11 @@ pub fn install_files() {
 
     create_file_from_str(1, "basic", "b", "
     PRINT \"Cookie Clicker\"
-    PRINT \"Press a key for a cookie!\"
-    SLEEP
 
     cookies = 0
 
-    PRINT cookies + 1
+    PRINT \"Press a key for a cookie\"
+    SLEEP
 
     DO
     cookies = cookies + 1
