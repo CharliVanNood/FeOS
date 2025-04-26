@@ -356,7 +356,7 @@ pub fn run_file(name: [u8; 20]) {
     }
 }
 
-pub fn install_base_os() {
+pub fn install_base_os(install_images: bool) {
     println!("Installing FemDOS");
-    basefiles::install_files();
+    basefiles::install_files(install_images);
 }
