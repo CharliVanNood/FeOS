@@ -616,7 +616,19 @@ fn run_tokens_last(
                 }
             },
             (26, true) | (26, false) => {
-                return_to_last_indent = true;
+                if token_index + 1 < token_length {
+                    match tokens.get(token_index + 1).0 {
+                        1 => {
+                            if tokens.get(token_index + 1).1 > 0 {
+                                tokens.set(token_index + 1, tokens.get(token_index + 1).0, tokens.get(token_index + 1).1 - 1);
+                                return_to_last_indent = true;
+                            }
+                        },
+                        _ => warnln!("This is an unsupported type conversion")
+                    }
+                } else {
+                    return_to_last_indent = true;
+                }
                 running = true;
             },
             (25, true) => {
