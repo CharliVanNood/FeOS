@@ -64,6 +64,14 @@ pub fn install_files(install_images: bool) {
     RECT 10 30 30 10 15
     ");
 
+    create_file_from_str(1, "basic", "b", "
+    PRINT \"This is a loop test\"
+
+    DO
+    PRINT TRUE
+    LOOP 3
+    ");
+
     create_file_from_str(4, "asm", "a", "
     section .data
     hello db \"Hello,World!\", 0
