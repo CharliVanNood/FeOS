@@ -83,23 +83,7 @@ pub fn install_files(install_images: bool) {
     END
     ");
 
-    create_file_from_str(4, "asm", "a", "
-    section .data
-    hello db \"Hello,World!\", 0
-    section .text
-    global _start
-    _start:
-
-    mov eax, 4
-    mov ebx, 1
-    mov ecx, hello
-    mov edx, 13
-    int 0x80
-
-    mov eax, 1
-    xor ebx, ebx
-    int 0x80
-    ");
+    create_file_from_str(1, "a", "a", "001fun001000fun016200300016201301016202200adr4:1:");
 
     create_file_from_str(2, "smiley", "img", "005006255255255255255255255255255255255255255255255255255255000000000000000000000000000255255255000000000255255255255255255255255255000000000255255255255255255255255255255255255255255255255255255000000000255255255000000000255255255255255255000000000255255255000000000255255255");
 
