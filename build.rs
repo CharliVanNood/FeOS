@@ -1,21 +1,22 @@
-use std::fs;
+use bootimage::{builder, Config};
+use std::env;
+use std::path::PathBuf;
 
 fn main() {
-    let version_file = "version.txt";
+    // Get the output directory for build artifacts
+    let out_dir = PathBuf::from(env::var("OUT_DIR").unwrap());
+    // Get the manifest directory
+    let manifest_dir = env!("CARGO_MANIFEST_DIR");
 
-    let current_version = fs::read_to_string(version_file)
-        .unwrap_or_else(|_| "0.1.0".to_string());
+    // Set up the configuration for the bootloader
+    let config = Config::default();
+    let args = vec!["--target", "x86_64-fem_dos.json"];
+    let quiet = false;
 
-    let parts: Vec<&str> = current_version.trim().split('.').collect();
-    let mut new_number = "0".to_string();
+    // Initialize the builder for building the bootable image
+    let mut builder = builder::Builder::new(manifest_dir);
 
-    if parts.len() > 2 {
-        if let Ok(num) = parts[2].parse::<u32>() {
-            new_number = (num + 1).to_string();
-        }
-
-        let new_version = format!("{}.{}.{}", parts[0], parts[1], new_number);
-        fs::write(version_file, &new_version).expect("Failed to update version file");
-        println!("cargo:rustc-env=VERSION={}", new_version);
-    }
+    // Build the bootable image using the config and target arguments
+    builder.build_kernel(&out_dir, args, &config, quiet).unwrap();
+    println!("Bootable image has been built!");
 }

@@ -1,7 +1,7 @@
 #![no_std]
 #![no_main]
 #![feature(custom_test_frameworks)]
-#![test_runner(fem_dos::test_runner)]
+#![test_runner(kernel::test_runner)]
 #![reexport_test_harness_main = "test_main"]
 
 mod window;
@@ -17,10 +17,10 @@ mod alloc;
 mod clock;
 
 use core::panic::PanicInfo;
-use bootloader::{bootinfo::MemoryRegionType, BootInfo};
+use bootloader::{boot_info::MemoryRegionKind, BootInfo};
 
 use alloc::{read_byte, write_byte};
-use fem_dos::alloc::alloc;
+use kernel::alloc::alloc;
 use vec::Vec;
 
 const VERSION: &str = env!("VERSION");
@@ -34,27 +34,27 @@ pub extern "C" fn _start(boot_info: &'static BootInfo) -> ! {
     println!("FemDOS!");
     println!("Data:");
     println!("Version: {}", VERSION);
-    println!("Mem Offset: 0x{:x}", boot_info.physical_memory_offset);
+    println!("Mem Offset: 0x{:x}", boot_info.physical_memory_offset.into_option().unwrap());
     println!("-------------------------");
 
     // Here we check for the biggest region of ram for the Heap
     let mut biggest_region = (0, 0, 0);
-    for region in boot_info.memory_map.iter() {
-        if region.region_type == MemoryRegionType::Usable {
+    for region in boot_info.memory_regions.iter() {
+        if region.kind == MemoryRegionKind::Usable {
             // set the region to these bounds
-            let memory_region_size = region.range.end_addr() - region.range.start_addr();
+            let memory_region_size = region.end - region.start;
             println!("FOUND USABLE size {:x}", memory_region_size);
             if memory_region_size > biggest_region.0 {
                 biggest_region.0 = memory_region_size;
-                biggest_region.1 = region.range.start_addr();
-                biggest_region.2 = region.range.end_addr();
+                biggest_region.1 = region.start;
+                biggest_region.2 = region.end;
             }
         }
     }
 
     // set the sector bounds for heap :D
-    alloc::set_heap(boot_info.physical_memory_offset as usize + biggest_region.1 as usize, biggest_region.0 as usize);
-    fem_dos::init(boot_info, biggest_region);
+    alloc::set_heap(boot_info.physical_memory_offset.into_option().unwrap() as usize + biggest_region.1 as usize, biggest_region.0 as usize);
+    kernel::init(boot_info, biggest_region);
 
     println!("Initialized components!");
 
@@ -157,18 +157,18 @@ pub extern "C" fn _start(boot_info: &'static BootInfo) -> ! {
     println!("| Yippee FemDOS booted! |");
     println!("-------------------------");
 
-    fem_dos::hlt_loop();
+    kernel::hlt_loop();
 }
 
 #[cfg(not(test))]
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
     warnln!("{}", info);
-    fem_dos::hlt_loop();
+    kernel::hlt_loop();
 }
 
 #[cfg(test)]
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
-    fem_dos::test_panic_handler(info)
+    kernel::test_panic_handler(info)
 }

@@ -83,7 +83,7 @@ pub fn hlt_loop() -> ! {
 
 pub fn init(boot_info: &'static BootInfo, memory_region: (u64, u64, u64)) {
     println!("Setting heap offset");
-    alloc::set_heap(boot_info.physical_memory_offset as usize + memory_region.1 as usize, memory_region.0 as usize);
+    alloc::set_heap(boot_info.physical_memory_offset.into_option().unwrap() as usize + memory_region.1 as usize, memory_region.0 as usize);
 
     println!("Creating root directory");
     filesystem::create_file_from_str(-1, "root", "", "");

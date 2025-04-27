@@ -1,10 +1,9 @@
 use core::ptr;
-use bootloader::{bootinfo, BootInfo};
+use bootloader::BootInfo;
 use lazy_static::lazy_static;
 use spin::Mutex;
 
 use crate::{println, warnln, infoln};
-use crate::alloc::bootinfo::MemoryRegionType;
 
 pub struct Allocator {
     heap_start: usize,
@@ -247,7 +246,7 @@ pub fn _ram_test(address: usize, length: usize) {
 }
 
 pub fn _memory_regions(boot_info: &'static BootInfo) {
-    for item in boot_info.memory_map.iter() {
+    /*for item in boot_info.memory_map.iter() {
         let range = item.range;
         let start = range.start_addr();
         let end = range.end_addr();
@@ -268,5 +267,5 @@ pub fn _memory_regions(boot_info: &'static BootInfo) {
             MemoryRegionType::KernelStack => warnln!("This is the kernel stack {} to {}", start, end),
             _ => warnln!("region undefined")
         }
-    }
+    }*/
 }
