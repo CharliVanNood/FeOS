@@ -104,6 +104,10 @@ pub fn draw_menu_bar(time: (u8, u8, u8)) {
     SCREEN_WRITER.lock().frame = 0;
 }
 
+pub fn set_pixel(x: usize, y: usize, color: u8) {
+    SCREEN_WRITER.lock().set_pixel(x + 160, y, color);
+}
+
 impl fmt::Write for ScreenWriter {
     fn write_str(&mut self, s: &str) -> fmt::Result {
         self.write_string(s);
