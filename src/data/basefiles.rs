@@ -42,6 +42,28 @@ pub fn install_files(install_images: bool) {
     PRINT TRUE
     ");
 
+    create_file_from_str(3, "pixel", "b", "
+    PRINT \"This sets 9 pixels\"
+
+    PIXEL 10 10 0
+    PIXEL 11 10 1
+    PIXEL 12 10 2
+    PIXEL 10 11 3
+    PIXEL 11 11 4
+    PIXEL 12 11 5
+    PIXEL 10 12 6
+    PIXEL 11 12 7
+    PIXEL 12 12 8
+    ");
+
+    create_file_from_str(3, "rect", "b", "
+    PRINT \"This sets a rectangle\"
+
+    RECT 10 10 10 10 15
+    RECT 30 10 10 10 15
+    RECT 10 30 30 10 15
+    ");
+
     create_file_from_str(4, "asm", "a", "
     section .data
     hello db \"Hello,World!\", 0
