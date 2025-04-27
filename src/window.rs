@@ -107,6 +107,9 @@ pub fn draw_menu_bar(time: (u8, u8, u8)) {
 pub fn set_pixel(x: usize, y: usize, color: u8) {
     SCREEN_WRITER.lock().set_pixel(x + 160, y, color);
 }
+pub fn set_rect(x: usize, y: usize, size_x: usize, size_y: usize, color: u8) {
+    SCREEN_WRITER.lock().set_rect(x + 160, y, size_x, size_y, color);
+}
 
 impl fmt::Write for ScreenWriter {
     fn write_str(&mut self, s: &str) -> fmt::Result {
@@ -211,6 +214,16 @@ impl ScreenWriter {
         let pixel_index = self.get_pixel_index(x, y);
         self.buffer.pixels[pixel_index].write(color);
         self.screen_buffer[pixel_index] = color;
+    }
+
+    pub fn set_rect(&mut self, x: usize, y: usize, size_x: usize, size_y: usize, color: u8) {
+        for offset_x in 0..size_x {
+            for offset_y in 0..size_y {
+                let pixel_index = self.get_pixel_index(x + offset_x, y + offset_y);
+                self.buffer.pixels[pixel_index].write(color);
+                self.screen_buffer[pixel_index] = color;
+            }
+        }
     }
 
     pub fn get_pixel(&self, x: usize, y: usize) -> u8 {
