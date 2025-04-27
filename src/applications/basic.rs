@@ -1,4 +1,4 @@
-use crate::{input, print, println, string::BigString, vec::{TokenVec, Vec}, warnln};
+use crate::{clock, input, print, println, string::BigString, vec::{TokenVec, Vec}, warnln, window};
 
 pub fn exec(input: [u8; 512]) {
     let mut input_string = BigString::from_b512(input);
@@ -7,17 +7,18 @@ pub fn exec(input: [u8; 512]) {
         input_string.replace(";", " lnnew ");
         input_string.replace("\"", " lnlist ");
     }
-    let (tokenized_code, lists) = tokenize(input_string);
+    let (tokenized_code, lists) = tokenize(&input_string);
+    input_string.remove();
     run_tokens(tokenized_code, lists);
 }
 
 fn match_token(token: [u8; 64], variables: [Vec; 64]) -> (usize, usize, [Vec; 64]) {
     let tokens_val = [
         "PRINT", "\n", "lnnew", "TRUE", "FALSE", "+", "-", "/", "*", "INPUT", "lnlist", "==", "NOT", "=",
-        "DO", "LOOP"];
+        "DO", "LOOP", "SLEEP", "QUIT", "PIXEL", "RECT", "IF", "END"];
     let tokens_keys  = [
          10,      8,    8,       3,      3,       11,  12,  13,  14,  15,      16,       18,   19,    20,
-         25,   26];
+         25,   26,     27,      28,     29,      30,     31,   32];
 
     for command_index in 0..tokens_val.len() {
         let command = tokens_val[command_index];
@@ -105,7 +106,7 @@ fn match_token(token: [u8; 64], variables: [Vec; 64]) -> (usize, usize, [Vec; 64
     (7, 63, variables)
 }
 
-fn tokenize(input: BigString) -> ([TokenVec; 128], [TokenVec; 64]) {
+fn tokenize(input: &BigString) -> ([TokenVec; 128], [TokenVec; 64]) {
     let mut lines: [TokenVec; 128] = [TokenVec::new(); 128];
     for i in 1..128 {
         lines[i] = TokenVec::new();
@@ -144,7 +145,8 @@ fn tokenize(input: BigString) -> ([TokenVec; 128], [TokenVec; 64]) {
             if token.0 == 16 {
                 is_string = !is_string;
                 if !is_string {
-                    lines[line].add(5, lists_len - 1);
+                    lines[line].add(5, lists_len);
+                    lists_len += 1;
                 }
                 temp_token = [0; 64];
                 temp_token_index = 0;
@@ -158,12 +160,12 @@ fn tokenize(input: BigString) -> ([TokenVec; 128], [TokenVec; 64]) {
                 temp_token = [0; 64];
                 temp_token_index = 0;
             } else if is_string {
-                if !is_comment { 
+                if !is_comment {
                     for character in temp_token {
                         if character == 0 { continue; }
                         lists[lists_len].add(6, character as usize);
                     }
-                    lists_len += 1;
+                    lists[lists_len].add(6, b' ' as usize);
                 }
                 temp_token = [0; 64];
                 temp_token_index = 0;
@@ -179,6 +181,10 @@ fn tokenize(input: BigString) -> ([TokenVec; 128], [TokenVec; 64]) {
         if token.0 != 8 {
             lines[line].add(token.0, token.1);
         }
+    }
+
+    for variable in variables {
+        variable.remove();
     }
 
     (lines, lists)
@@ -211,18 +217,22 @@ fn run_tokens(mut tokens: [TokenVec; 128], mut lists: [TokenVec; 64]) {
         line_index = operation_result.1;
         running = operation_result.3;
         if operation_result.2 {
-            //tokens[line_index].remove();
+            tokens[line_index].remove();
             tokens[line_index] = operation_result.0.copy();
             line_index = indentation.get(indentation_depth as usize) as usize;
         }
 
-        //line_running.remove();
+        if operation_result.4 {
+            line_index = tokens.len();
+        }
+
+        line_running.remove();
 
         line_index += 1;
     }
 }
 
-fn run_line(line: TokenVec, mut indentation: &mut Vec, line_index: usize, mut variables: &mut Vec, mut lists: &mut [TokenVec; 64], indentation_depth: u8, running: bool) -> (TokenVec, usize, bool, bool) {
+fn run_line(line: TokenVec, mut indentation: &mut Vec, line_index: usize, mut variables: &mut Vec, mut lists: &mut [TokenVec; 64], indentation_depth: u8, running: bool) -> (TokenVec, usize, bool, bool, bool) {
     if running {
         let tokens_after_fact = run_tokens_fact(line, *variables, *lists, *indentation, indentation_depth);
         let tokens_after_math = run_tokens_math(tokens_after_fact, *variables, *lists, *indentation, indentation_depth);
@@ -331,6 +341,20 @@ fn run_tokens_math(mut tokens: TokenVec, variables: Vec, _lists: [TokenVec; 64],
                     }
                     (7, 7) => {
                         let operation_result = variables.get(tokens.get(token_index - 1).1) + variables.get(tokens.get(token_index + 1).1);
+                        tokens.set(token_index - 1, 1, operation_result as usize);
+                        tokens.shift(token_index, 2);
+                        token_length = tokens.len();
+                        token_index -= 1;
+                    }
+                    (7, 1) => {
+                        let operation_result = variables.get(tokens.get(token_index - 1).1) + tokens.get(token_index + 1).1;
+                        tokens.set(token_index - 1, 1, operation_result as usize);
+                        tokens.shift(token_index, 2);
+                        token_length = tokens.len();
+                        token_index -= 1;
+                    }
+                    (1, 7) => {
+                        let operation_result = tokens.get(token_index - 1).1 + variables.get(tokens.get(token_index + 1).1);
                         tokens.set(token_index - 1, 1, operation_result as usize);
                         tokens.shift(token_index, 2);
                         token_length = tokens.len();
@@ -502,8 +526,9 @@ fn run_tokens_first(mut tokens: TokenVec, _variables: Vec, _lists: [TokenVec; 64
 
 fn run_tokens_last(
     mut tokens: TokenVec, variables: &mut Vec, lists: &mut [TokenVec; 64], indentation: &mut Vec, 
-    indentation_depth: u8, line_index: usize, mut running: bool) -> (TokenVec, usize, bool, bool) {
+    indentation_depth: u8, line_index: usize, mut running: bool) -> (TokenVec, usize, bool, bool, bool) {
     let mut return_to_last_indent = false;
+    let mut stop_program = false;
     
     let mut token_index = 0;
     let mut token_length = tokens.len();
@@ -512,8 +537,111 @@ fn run_tokens_last(
         let token = tokens.get(token_index);
 
         match (token.0, running) {
+            (27, true) => {
+                if token_index + 1 < token_length {
+                    match tokens.get(token_index + 1).0 {
+                        1 => {
+                            let end_time = *clock::MILLISECONDS.lock() + tokens.get(token_index + 1).1;
+                            while *clock::MILLISECONDS.lock() < end_time {
+                                x86_64::instructions::hlt();
+                            }
+
+                            tokens.shift(token_index, 2);
+                            token_length = tokens.len();
+                        },
+                        _ => warnln!("This is an unsupported type conversion")
+                    }
+                } else {
+                    let mut ended = false;
+                    
+                    input::KEYPRESSES.lock().0 = [0; 8];
+                    input::KEYPRESSES.lock().1 = 0;
+
+                    while !ended {
+                        let keypresses = {
+                            let lock = input::KEYPRESSES.lock();
+                            lock.clone()
+                        };
+                    
+                        for keypress in keypresses.0 {
+                            if keypress == 0 { break; }
+                            ended = true;
+                        }
+                    
+                        input::KEYPRESSES.lock().0 = [0; 8];
+                        input::KEYPRESSES.lock().1 = 0;
+
+                        x86_64::instructions::hlt();
+                    }
+
+                    tokens.shift(token_index, 1);
+                    token_length = tokens.len();
+                }
+            },
+            (28, true) => {
+                stop_program = true;
+            },
+            (29, true) => {
+                match (
+                    tokens.get(token_index + 1).0, 
+                    tokens.get(token_index + 2).0, 
+                    tokens.get(token_index + 3).0) {
+                    (1, 1, 1) => {
+                        window::set_pixel(
+                            tokens.get(token_index + 1).1, 
+                            tokens.get(token_index + 2).1, 
+                            tokens.get(token_index + 3).1 as u8
+                        );
+                    },
+                    _ => warnln!("This is an unsupported type conversion")
+                }
+            },
+            (30, true) => {
+                match (
+                    tokens.get(token_index + 1).0, 
+                    tokens.get(token_index + 2).0, 
+                    tokens.get(token_index + 3).0,
+                    tokens.get(token_index + 4).0,
+                    tokens.get(token_index + 5).0) {
+                    (1, 1, 1, 1, 1) => {
+                        window::set_rect(
+                            tokens.get(token_index + 1).1, 
+                            tokens.get(token_index + 2).1, 
+                            tokens.get(token_index + 3).1, 
+                            tokens.get(token_index + 4).1, 
+                            tokens.get(token_index + 5).1 as u8
+                        );
+                    },
+                    _ => warnln!("This is an unsupported type conversion")
+                }
+            },
+            (31, true) => {
+                match tokens.get(token_index + 1).0 {
+                    3 => {
+                        if tokens.get(token_index + 1).1 == 0 {
+                            running = false;
+                        }
+                    },
+                    _ => warnln!("This is an unsupported type conversion")
+                }
+            },
+            (32, false) => {
+                running = true;
+            },
             (26, true) | (26, false) => {
-                return_to_last_indent = true;
+                if token_index + 1 < token_length {
+                    match tokens.get(token_index + 1).0 {
+                        1 => {
+                            if tokens.get(token_index + 1).1 > 0 {
+                                tokens.set(token_index + 1, tokens.get(token_index + 1).0, tokens.get(token_index + 1).1 - 1);
+                                return_to_last_indent = true;
+                            }
+                        },
+                        _ => warnln!("This is an unsupported type conversion")
+                    }
+                } else {
+                    return_to_last_indent = true;
+                }
                 running = true;
             },
             (25, true) => {
@@ -595,13 +723,14 @@ fn run_tokens_last(
                 
                     for keypress in keypresses.0 {
                         if keypress == 0 { break; }
+                        if keypress > 255 { continue; }
                         if keypress == 10 && text_input_len > 0 {
                             ended = true;
                             break;
                         } else if keypress == 10 {
                             break;
                         }
-                        print!("{}", keypress as char);
+                        print!("{}", keypress as u8 as char);
                         text_input[text_input_len] = keypress;
                         text_input_len += 1;
                     }
@@ -620,5 +749,5 @@ fn run_tokens_last(
         token_index += 1;
     }
 
-    (tokens, line_index, return_to_last_indent, running)
+    (tokens, line_index, return_to_last_indent, running, stop_program)
 }

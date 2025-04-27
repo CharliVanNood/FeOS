@@ -1,4 +1,6 @@
+use pc_keyboard::KeyCode;
 use x86_64::structures::idt::{InterruptDescriptorTable, InterruptStackFrame, PageFaultErrorCode};
+use crate::clock;
 use crate::hlt_loop;
 use crate::infoln;
 use crate::warnln;
@@ -52,7 +54,8 @@ extern "x86-interrupt" fn breakpoint_handler(
 extern "x86-interrupt" fn double_fault_handler(
     stack_frame: InterruptStackFrame, _error_code: u64) -> !
 {
-    panic!("EXCEPTION: DOUBLE FAULT\n{:#?}", stack_frame);
+    warnln!("EXCEPTION: DOUBLE FAULT\n{:#?}", stack_frame);
+    panic!();
 }
 
 extern "x86-interrupt" fn timer_interrupt_handler(
@@ -62,6 +65,7 @@ extern "x86-interrupt" fn timer_interrupt_handler(
         PICS.lock()
             .notify_end_of_interrupt(InterruptIndex::Timer.as_u8());
     }
+    *clock::MILLISECONDS.lock() += 55;
 }
 
 extern "x86-interrupt" fn ata_irq_handler(_stack_frame: InterruptStackFrame) {
@@ -107,20 +111,63 @@ extern "x86-interrupt" fn keyboard_interrupt_handler(
 
     if let Ok(Some(key_event)) = keyboard.add_byte(scancode) {
         if let Some(key) = keyboard.process_keyevent(key_event) {
+            // Check key type
             match key {
+                // This is a normal key, add it to the pressed keys (up to 8 at the same time)
                 DecodedKey::Unicode(character) => {
                     let byte = character as u8;
                     {
                         let mut keypresses = input::KEYPRESSES.lock();
                         let keypress_index = keypresses.1;
-                        keypresses.0[keypress_index as usize] = byte;
+                        keypresses.0[keypress_index as usize] = byte as u16;
                         keypresses.1 += 1;
                         if keypresses.1 > 7 {
                             keypresses.1 = 7;
                         }
                     }
                 },
-                DecodedKey::RawKey(_) => {},
+                // These are function keys and should have their own code over 255
+                DecodedKey::RawKey(character) => {
+                    match character {
+                        KeyCode::ArrowUp => {
+                            let mut keypresses = input::KEYPRESSES.lock();
+                            let keypress_index = keypresses.1;
+                            keypresses.0[keypress_index as usize] = 256;
+                            keypresses.1 += 1;
+                            if keypresses.1 > 7 {
+                                keypresses.1 = 7;
+                            }
+                        },
+                        KeyCode::ArrowDown => {
+                            let mut keypresses = input::KEYPRESSES.lock();
+                            let keypress_index = keypresses.1;
+                            keypresses.0[keypress_index as usize] = 257;
+                            keypresses.1 += 1;
+                            if keypresses.1 > 7 {
+                                keypresses.1 = 7;
+                            }
+                        },
+                        KeyCode::ArrowLeft => {
+                            let mut keypresses = input::KEYPRESSES.lock();
+                            let keypress_index = keypresses.1;
+                            keypresses.0[keypress_index as usize] = 258;
+                            keypresses.1 += 1;
+                            if keypresses.1 > 7 {
+                                keypresses.1 = 7;
+                            }
+                        },
+                        KeyCode::ArrowRight => {
+                            let mut keypresses = input::KEYPRESSES.lock();
+                            let keypress_index = keypresses.1;
+                            keypresses.0[keypress_index as usize] = 259;
+                            keypresses.1 += 1;
+                            if keypresses.1 > 7 {
+                                keypresses.1 = 7;
+                            }
+                        },
+                        _ => {}
+                    }
+                },
             }
         }
     }
