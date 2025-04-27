@@ -64,12 +64,23 @@ pub fn install_files(install_images: bool) {
     RECT 10 30 30 10 15
     ");
 
-    create_file_from_str(1, "basic", "b", "
+    create_file_from_str(3, "loop", "b", "
     PRINT \"This is a loop test\"
 
     DO
     PRINT TRUE
     LOOP 3
+    ");
+
+    create_file_from_str(1, "basic", "b", "
+    PRINT \"This is an if test\"
+
+    IF 1 == 2
+    PRINT \"1 is 2\"
+    END
+    IF 1 == 1
+    PRINT \"1 is 1\"
+    END
     ");
 
     create_file_from_str(4, "asm", "a", "
