@@ -43,6 +43,18 @@ impl Allocator {
         println!("available: {} used: {}", available_sections, reserved_sections);
     }
 
+    #[allow(dead_code)]
+    fn render_regions(&self) {
+        for section_printing in self.used {
+            if section_printing == (0, 0, false) { break; }
+            if section_printing.2 {
+                // available
+            } else {
+                // reserved
+            }
+        }
+    }
+
     fn section_exists(&self, index: usize) -> bool {
         if index > self.used.len() {
             warnln!("Section out of range!");
@@ -172,7 +184,8 @@ impl Allocator {
         if needs_splitting {
             self.split_section(largest_section.0);
         }
-        //self.print_regions();
+
+        self.merge_sections();
         self.reserve_section(largest_section.0, size)
     }
 
