@@ -5,6 +5,7 @@ use spin::Mutex;
 
 use crate::{println, warnln, infoln};
 use crate::alloc::bootinfo::MemoryRegionType;
+use crate::window;
 
 pub struct Allocator {
     heap_start: usize,
@@ -41,17 +42,43 @@ impl Allocator {
         }
 
         println!("available: {} used: {}", available_sections, reserved_sections);
+        self.render_regions();
     }
 
     #[allow(dead_code)]
     fn render_regions(&self) {
+        window::set_rect(
+            10, 
+            10, 
+            140, 
+            30, 
+            0
+        );
+        let mut offset = 0;
+        let mut color_index = 1;
         for section_printing in self.used {
             if section_printing == (0, 0, false) { break; }
+
+            let section_size = ((section_printing.1 - section_printing.0) as f32 / (self.heap_end - self.heap_start) as f32 * 140.0) as usize;
             if section_printing.2 {
-                // available
+                window::set_rect(
+                    offset + 10, 
+                    10, 
+                    section_size, 
+                    30, 
+                    color_index as u8
+                );
             } else {
-                // reserved
+                window::set_rect(
+                    offset + 10, 
+                    10, 
+                    section_size, 
+                    10, 
+                    color_index as u8
+                );
             }
+            offset += section_size;
+            color_index += 1;
         }
     }
 
@@ -134,7 +161,7 @@ impl Allocator {
                     section_available = false;
                     println!("merging {} {} with {} {}", self.used[i - 1].0, self.used[i - 1].1, section_printing.0, section_printing.1);
                     self.used[i - 1].1 = section_printing.1;
-                    for section_moving in i + 1..self.used.len() - 1 {
+                    for section_moving in i..self.used.len() - 1 {
                         println!("S: {} {}", self.used[section_moving].0, self.used[section_moving].1);
                         if self.used[section_moving] == (0, 0, false) { break; }
                         self.used[section_moving] = self.used[section_moving + 1];
