@@ -339,6 +339,12 @@ impl Vec {
         alloc::read_byte(self.heap_start + address * 8)
     }
 
+    // Get a value at a certain index
+    #[allow(dead_code)]
+    pub fn get_unsafe(&self, address: usize) -> usize {
+        alloc::read_byte(self.heap_start + address * 8)
+    }
+
     // Set a value at a certain index
     #[allow(dead_code)]
     pub fn set(&mut self, address: usize, value: usize) {

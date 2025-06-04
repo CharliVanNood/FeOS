@@ -9,3 +9,9 @@
 ## Known Vulnerabilities
 
 There have been no vulnerabilities found so far
+
+## Known Important Bugs
+
+| Version | Supported          |
+| ------- | ------------------ |
+| 0.1     | :white_check_mark: |

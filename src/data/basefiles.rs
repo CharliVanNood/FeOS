@@ -42,23 +42,48 @@ pub fn install_files(install_images: bool) {
     PRINT TRUE
     ");
 
-    create_file_from_str(4, "asm", "a", "
-    section .data
-    hello db \"Hello,World!\", 0
-    section .text
-    global _start
-    _start:
+    create_file_from_str(3, "pixel", "b", "
+    PRINT \"This sets 9 pixels\"
 
-    mov eax, 4
-    mov ebx, 1
-    mov ecx, hello
-    mov edx, 13
-    int 0x80
-
-    mov eax, 1
-    xor ebx, ebx
-    int 0x80
+    PIXEL 10 10 0
+    PIXEL 11 10 1
+    PIXEL 12 10 2
+    PIXEL 10 11 3
+    PIXEL 11 11 4
+    PIXEL 12 11 5
+    PIXEL 10 12 6
+    PIXEL 11 12 7
+    PIXEL 12 12 8
     ");
+
+    create_file_from_str(3, "rect", "b", "
+    PRINT \"This sets a rectangle\"
+
+    RECT 10 10 10 10 15
+    RECT 30 10 10 10 15
+    RECT 10 30 30 10 15
+    ");
+
+    create_file_from_str(3, "loop", "b", "
+    PRINT \"This is a loop test\"
+
+    DO
+    PRINT TRUE
+    LOOP 3
+    ");
+
+    create_file_from_str(1, "basic", "b", "
+    PRINT \"This is an if test\"
+
+    IF 1 == 2
+    PRINT \"1 is 2\"
+    END
+    IF 1 == 1
+    PRINT \"1 is 1\"
+    END
+    ");
+
+    create_file_from_str(1, "a", "a", "001fun001000fun016200300016201301016202200adr4:1:");
 
     create_file_from_str(2, "smiley", "img", "005006255255255255255255255255255255255255255255255255255255000000000000000000000000000255255255000000000255255255255255255255255255000000000255255255255255255255255255255255255255255255255255255000000000255255255000000000255255255255255255000000000255255255000000000255255255");
 
