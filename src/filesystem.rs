@@ -262,7 +262,6 @@ pub fn create_file_from_str(parent: i32, filename: &str, filetype: &str, data: &
         data_string.add(byte as usize);
     }
 
-    println!("halting");
     x86_64::instructions::hlt();
 
     FILESYSTEM.lock().create_file(parent, filename_bytes, file_type, data_string);

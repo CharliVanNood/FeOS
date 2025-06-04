@@ -73,6 +73,7 @@ impl Allocator {
     }
 
     fn reserve_section(&mut self, index: usize, size: usize) -> (usize, usize) {
+        self.print_regions();
         if !self.section_exists(index) { return (0, 0); }
 
         let section = self.used[index];
@@ -112,23 +113,30 @@ impl Allocator {
     }
 
     fn merge_sections(&mut self) {
-        return;
-        /*let mut previous_section_available = false;
-        for section in 0..self.used.len() {
-            if self.used[section] == (0, 0, false) { break; }
-            if section == 0 { continue; }
-
-            if self.used[section].2 && !previous_section_available {
-                self.used[section].0 = self.used[section - 1].0;
-                self.used[section - 1].2 = false;
-                /*for i in section..self.used.len()-1 {
-                    self.used[section - 1 + i] = self.used[section + i];
-                }*/
+        let mut section_available = false;
+        let mut i = 0;
+        for section_printing in self.used {
+            if section_printing == (0, 0, false) { break; }
+            if section_printing.2 {
+                if section_available {
+                    section_available = false;
+                    println!("merging {} {} with {} {}", self.used[i - 1].0, self.used[i - 1].1, section_printing.0, section_printing.1);
+                    self.used[i - 1].1 = section_printing.1;
+                    for section_moving in i + 1..self.used.len() - 1 {
+                        println!("S: {} {}", self.used[section_moving].0, self.used[section_moving].1);
+                        if self.used[section_moving] == (0, 0, false) { break; }
+                        self.used[section_moving] = self.used[section_moving + 1];
+                    }
+                } else {
+                    section_available = true;
+                }
+            } else {
+                section_available = false;
             }
-            previous_section_available = self.used[section].2;
+            i += 1;
         }
 
-        self.print_regions();*/
+        self.print_regions();
     }
 
     fn set_heap(&mut self, heap_start: usize, heap_size: usize) {
