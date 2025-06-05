@@ -15,6 +15,7 @@ mod disk;
 mod string;
 mod alloc;
 mod clock;
+mod network;
 
 use core::panic::PanicInfo;
 use bootloader::{bootinfo::MemoryRegionType, BootInfo};

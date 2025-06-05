@@ -18,6 +18,7 @@ pub mod string;
 pub mod alloc;
 pub mod clock;
 pub mod data;
+pub mod network;
 
 use core::panic::PanicInfo;
 
