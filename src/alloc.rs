@@ -5,12 +5,14 @@ use spin::Mutex;
 
 use crate::{println, warnln, infoln};
 use crate::alloc::bootinfo::MemoryRegionType;
+use crate::window;
 
 pub struct Allocator {
     heap_start: usize,
     heap_end: usize,
     next: usize,
-    used: [(usize, usize, bool); 512]
+    used: [(usize, usize, bool); 512],
+    render_ram_usage: bool
 }
 
 impl Allocator {
@@ -22,18 +24,65 @@ impl Allocator {
             heap_start,
             heap_end: heap_start + heap_size,
             next: heap_start,
-            used: used
+            used: used,
+            render_ram_usage: false
         }
     }
 
-    fn _print_regions(&self) {
+    #[allow(dead_code)]
+    fn print_regions(&self) {
+        if !self.render_ram_usage { return; }
+
+        let mut available_sections = 0;
+        let mut reserved_sections = 0;
+
         for section_printing in self.used {
             if section_printing == (0, 0, false) { break; }
             if section_printing.2 {
-                println!("available: {} {}", section_printing.0 - self.heap_start, section_printing.1 - self.heap_start);
+                available_sections += 1;
             } else {
-                warnln!("reserved: {} {}", section_printing.0 - self.heap_start, section_printing.1 - self.heap_start);
+                reserved_sections += 1;
             }
+        }
+
+        println!("available: {} used: {}", available_sections, reserved_sections);
+        self.render_regions();
+    }
+
+    #[allow(dead_code)]
+    fn render_regions(&self) {
+        window::set_rect(
+            10, 
+            10, 
+            140, 
+            30, 
+            0
+        );
+        let mut offset = 0;
+        let mut color_index = 1;
+        for section_printing in self.used {
+            if section_printing == (0, 0, false) { break; }
+            if section_printing.0 > section_printing.1 { break; }
+            let section_size = ((section_printing.1 - section_printing.0) as f32 / (self.heap_end - self.heap_start) as f32 * 140.0) as usize;
+            if section_printing.2 {
+                window::set_rect(
+                    offset + 10, 
+                    10, 
+                    section_size, 
+                    30, 
+                    color_index as u8
+                );
+            } else {
+                window::set_rect(
+                    offset + 10, 
+                    10, 
+                    section_size, 
+                    10, 
+                    color_index as u8
+                );
+            }
+            offset += section_size;
+            color_index += 1;
         }
     }
 
@@ -67,9 +116,12 @@ impl Allocator {
     }
 
     fn reserve_section(&mut self, index: usize, size: usize) -> (usize, usize) {
+        self.print_regions();
         if !self.section_exists(index) { return (0, 0); }
 
         let section = self.used[index];
+
+        if section.0 > section.1 { return (0, 0); } // if this happens you have a ram overflow
         let section_size = section.1 - section.0;
 
         self.used[index].1 = section.0 + size;
@@ -93,6 +145,9 @@ impl Allocator {
 
         for section in self.used.iter().enumerate() {
             if section.1 == &(0, 0, false) { break; }
+            if section.1.0 >= section.1.1 {
+                continue;
+            }
             let section_size = section.1.1 - section.1.0;
             if section_size > largest_section.1 && section.1.2 {
                 largest_section = (section.0, section_size);
@@ -100,6 +155,31 @@ impl Allocator {
         }
 
         largest_section
+    }
+
+    fn merge_sections(&mut self) {
+        let mut section_available = false;
+        let mut i = 0;
+        for section_printing in self.used {
+            if section_printing == (0, 0, false) { break; }
+            if section_printing.2 {
+                if section_available {
+                    section_available = false;
+                    self.used[i - 1].1 = section_printing.1;
+                    for section_moving in i..self.used.len() - 1 {
+                        if self.used[section_moving] == (0, 0, false) { break; }
+                        self.used[section_moving] = self.used[section_moving + 1];
+                    }
+                } else {
+                    section_available = true;
+                }
+            } else {
+                section_available = false;
+            }
+            i += 1;
+        }
+
+        self.print_regions();
     }
 
     fn set_heap(&mut self, heap_start: usize, heap_size: usize) {
@@ -127,9 +207,16 @@ impl Allocator {
             needs_splitting = true;
         }
 
-        if needs_splitting && size < largest_section.1 {
+        if size > largest_section.1 {
+            warnln!("No more sectors available");
+            return (0, 0);
+        }
+
+        if needs_splitting {
             self.split_section(largest_section.0);
         }
+
+        self.merge_sections();
         self.reserve_section(largest_section.0, size)
     }
 
@@ -141,11 +228,24 @@ impl Allocator {
                 self.next -= heap_end - heap_start;
             }
         }
+        self.merge_sections();
     }
 }
 
 lazy_static! {
     pub static ref ALLOCATOR: Mutex<Allocator> = Mutex::new(Allocator::new(0, 0));
+}
+
+pub fn clear_ram() {
+    let mut allocator = ALLOCATOR.lock();
+    allocator.used = [(0, 0, false); 512];
+    allocator.used[0] = (allocator.heap_start, allocator.heap_end, true);
+    if allocator.render_ram_usage { allocator.render_regions(); }
+}
+
+pub fn toggle_ram_graph() {
+    let show_ram_graph_state = ALLOCATOR.lock().render_ram_usage;
+    ALLOCATOR.lock().render_ram_usage = !show_ram_graph_state;
 }
 
 pub fn get_usage() -> (usize, usize) {
@@ -160,6 +260,7 @@ pub fn set_heap(heap_start: usize, heap_size: usize) {
 }
 
 pub fn alloc(size: usize) -> (usize, usize) {
+    if size == 0 { return (0, 0) }
     ALLOCATOR.lock().alloc(size)
 }
 

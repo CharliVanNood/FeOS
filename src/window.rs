@@ -5,11 +5,12 @@ use lazy_static::lazy_static;
 use spin::Mutex;
 use core::fmt::Write;
 
+use crate::alloc;
 use crate::renderer::{colors, text::CHARACTERS};
 use crate::vec::BigVec;
 
-const BUFFER_WIDTH: usize = 320;
-const BUFFER_HEIGHT: usize = 200;
+pub const BUFFER_WIDTH: usize = 320;
+pub const BUFFER_HEIGHT: usize = 200;
 
 #[repr(transparent)]
 struct Buffer {
@@ -94,8 +95,20 @@ pub fn remove_terminal_character() {
 
 pub fn draw_menu_bar(time: (u8, u8, u8)) {
     SCREEN_WRITER.lock().frame = 1;
-    println!("{}:{}:{} ", time.0, time.1, time.2);
+    println!("{}:{}:{}\n", time.0, time.1, time.2);
+    
+    SCREEN_WRITER.lock().frame = 2;
+    let ram_usage = alloc::get_usage();
+    println!("Ram: {:.2}%\n", (ram_usage.0 as f32 / ram_usage.1 as f32) * 100.0);
+
     SCREEN_WRITER.lock().frame = 0;
+}
+
+pub fn set_pixel(x: usize, y: usize, color: u8) {
+    SCREEN_WRITER.lock().set_pixel(x + 160, y, color);
+}
+pub fn set_rect(x: usize, y: usize, size_x: usize, size_y: usize, color: u8) {
+    SCREEN_WRITER.lock().set_rect(x + 160, y, size_x, size_y, color);
 }
 
 impl fmt::Write for ScreenWriter {
@@ -107,19 +120,22 @@ impl fmt::Write for ScreenWriter {
 
 pub struct ScreenWriter {
     buffer: &'static mut Buffer,
-    //frames: [(i32, i32, i32, i32); 4],
+    screen_buffer: [u8; BUFFER_WIDTH * BUFFER_HEIGHT],
     frame: u8,
     clock_column_position: usize,
+    ram_column_position: usize,
     terminal_column_position: usize,
     terminal_character_buffer: [[(u8, u8, u8); 27]; 19],
     terminal_background_color: u8,
     terminal_foreground_color: u8,
     clock_background_color: u8,
     clock_foreground_color: u8,
+    ram_background_color: u8,
+    ram_foreground_color: u8,
 }
 impl ScreenWriter {
     #[allow(dead_code)]
-    fn get_rgb(&self, r: u8, g: u8, b: u8) -> u8 {
+    pub fn get_rgb(&self, r: u8, g: u8, b: u8) -> u8 {
         let mut closest_color: (i16, usize) = (-1, 999999);
     
         for color in colors::COLOR_PALETTE.iter().enumerate() {
@@ -153,6 +169,10 @@ impl ScreenWriter {
                 self.clock_background_color = background;
                 self.clock_foreground_color = foreground;
             },
+            2 => {
+                self.ram_background_color = background;
+                self.ram_foreground_color = foreground;
+            },
             _ => {
                 self.terminal_background_color = background;
                 self.terminal_foreground_color = foreground;
@@ -160,14 +180,14 @@ impl ScreenWriter {
         }
     }
     
-    fn draw_character(&mut self, character: u8, x: usize, y: usize, foreground: u8, background: u8) {
+    pub fn draw_character(&mut self, character: u8, x: usize, y: usize, foreground: u8, background: u8) {
         let characters = CHARACTERS[character as usize];
     
         for char in characters.iter().enumerate() {
             if char.1 == &true {
-                self.buffer.pixels[self.get_pixel_index(x + char.0 % 5, y + char.0 / 5)].write(foreground);
+                self.set_pixel(x + char.0 % 5, y + char.0 / 5, foreground);
             } else {
-                self.buffer.pixels[self.get_pixel_index(x + char.0 % 5, y + char.0 / 5)].write(background);
+                self.set_pixel(x + char.0 % 5, y + char.0 / 5, background);
             }
         }
     }
@@ -190,8 +210,25 @@ impl ScreenWriter {
         self.clear_characters(0);
     }
 
-    fn set_pixel(&mut self, x: usize, y: usize, color: u8) {
-        self.buffer.pixels[self.get_pixel_index(x, y)].write(color);
+    pub fn set_pixel(&mut self, x: usize, y: usize, color: u8) {
+        let pixel_index = self.get_pixel_index(x, y);
+        self.buffer.pixels[pixel_index].write(color);
+        self.screen_buffer[pixel_index] = color;
+    }
+
+    pub fn set_rect(&mut self, x: usize, y: usize, size_x: usize, size_y: usize, color: u8) {
+        for offset_x in 0..size_x {
+            for offset_y in 0..size_y {
+                let pixel_index = self.get_pixel_index(x + offset_x, y + offset_y);
+                self.buffer.pixels[pixel_index].write(color);
+                self.screen_buffer[pixel_index] = color;
+            }
+        }
+    }
+
+    pub fn get_pixel(&self, x: usize, y: usize) -> u8 {
+        let pixel_index = self.get_pixel_index(x, y);
+        self.screen_buffer[pixel_index]
     }
 
     fn draw_terminal_character(&mut self, char: u8) {
@@ -226,12 +263,24 @@ impl ScreenWriter {
     }
 
     fn draw_clock_character(&mut self, char: u8) {
-        self.draw_character(char,  162 + self.clock_column_position * 6, 191, 
+        if char == b'\n' {
+            self.clock_column_position = 0;
+            return;
+        }
+
+        self.draw_character(char,  164 + self.clock_column_position * 6, 191, 
             self.clock_foreground_color, self.clock_background_color);
         self.clock_column_position += 1;
-        if char == 32 {
-            self.clock_column_position = 0;
+    }
+    fn draw_ram_character(&mut self, char: u8) {
+        if char == b'\n' {
+            self.ram_column_position = 0;
+            return;
         }
+
+        self.draw_character(char,  252 + self.ram_column_position * 6, 191, 
+            self.ram_foreground_color, self.ram_background_color);
+        self.ram_column_position += 1;
     }
 
     pub fn write_string(&mut self, s: &str) {
@@ -239,6 +288,7 @@ impl ScreenWriter {
             match self.frame {
                 0 => self.draw_terminal_character(char),
                 1 => self.draw_clock_character(char),
+                2 => self.draw_ram_character(char),
                 _ => self.draw_terminal_character(char)
             }
         }
@@ -249,14 +299,17 @@ lazy_static! {
     pub static ref SCREEN_WRITER: Mutex<ScreenWriter> = Mutex::new(ScreenWriter {
         buffer: unsafe { &mut *(0xa0000 as *mut Buffer) },
         frame: 0,
-        //frames: [(0, 0, 160, 100); 4],
+        screen_buffer: [0; BUFFER_WIDTH * BUFFER_HEIGHT],
         clock_column_position: 0,
+        ram_column_position: 0,
         terminal_column_position: 0,
         terminal_character_buffer: [[(0, 15, 0); 27]; 19],
         terminal_background_color: 0,
         terminal_foreground_color: 15,
         clock_background_color: 215,
-        clock_foreground_color: 15
+        clock_foreground_color: 15,
+        ram_background_color: 215,
+        ram_foreground_color: 15
     });
 }
 

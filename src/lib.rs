@@ -17,6 +17,7 @@ pub mod disk;
 pub mod string;
 pub mod alloc;
 pub mod clock;
+pub mod data;
 
 use core::panic::PanicInfo;
 
@@ -84,9 +85,6 @@ pub fn init(boot_info: &'static BootInfo, memory_region: (u64, u64, u64)) {
     println!("Setting heap offset");
     alloc::set_heap(boot_info.physical_memory_offset as usize + memory_region.1 as usize, memory_region.0 as usize);
 
-    println!("Creating root directory");
-    filesystem::create_file(-1, "root", "", "");
-
     println!("Enabling Global Descriptor Table");
     gdt::init();
     println!("Enabling CPU interrupts");
@@ -94,4 +92,7 @@ pub fn init(boot_info: &'static BootInfo, memory_region: (u64, u64, u64)) {
     unsafe { interrupts::PICS.lock().initialize() };
     x86_64::instructions::interrupts::enable();
     println!("Interrupts have been initialized :D");
+
+    println!("Creating root directory");
+    filesystem::create_file_from_str(-1, "root", "", "");
 }
