@@ -243,6 +243,11 @@ pub fn clear_ram() {
     if allocator.render_ram_usage { allocator.render_regions(); }
 }
 
+pub fn toggle_ram_graph() {
+    let show_ram_graph_state = ALLOCATOR.lock().render_ram_usage;
+    ALLOCATOR.lock().render_ram_usage = !show_ram_graph_state;
+}
+
 pub fn get_usage() -> (usize, usize) {
     let next = { ALLOCATOR.lock().next };
     let heap_start = { ALLOCATOR.lock().heap_start };

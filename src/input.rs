@@ -112,7 +112,7 @@ pub fn match_commands(command_written:[u8; 256], user_ran:bool) {
         "info", "ping", "color", "clear", "help", "femc", "fl", "go", 
         "install", "pong", "cat", "run", "per", "time", "input", "timeset",
         "basic", "nyo", "screen", "char", "imagine", "imgtest", "blip",
-        "fsconvtest", "fswritetest", "clram"
+        "fsconvtest", "fswritetest", "clram", "shram"
     ];
 
     print!("\n");
@@ -303,6 +303,7 @@ pub fn match_commands(command_written:[u8; 256], user_ran:bool) {
                     blip::open(name);
                 },
                 "clram" => alloc::clear_ram(),
+                "shram" => alloc::toggle_ram_graph(),
                 "fsconvtest" => convert_fs_to_bytes().remove(),
                 "fswritetest" => write_fs_to_disk(),
                 _ => warnln!("This command is unimplemented :C")
