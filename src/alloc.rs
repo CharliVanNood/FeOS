@@ -5,12 +5,14 @@ use spin::Mutex;
 
 use crate::{println, warnln, infoln};
 use crate::alloc::bootinfo::MemoryRegionType;
+use crate::window;
 
 pub struct Allocator {
     heap_start: usize,
     heap_end: usize,
     next: usize,
-    used: [(usize, usize, bool); 512]
+    used: [(usize, usize, bool); 512],
+    render_ram_usage: bool
 }
 
 impl Allocator {
@@ -22,12 +24,15 @@ impl Allocator {
             heap_start,
             heap_end: heap_start + heap_size,
             next: heap_start,
-            used: used
+            used: used,
+            render_ram_usage: false
         }
     }
 
     #[allow(dead_code)]
     fn print_regions(&self) {
+        if !self.render_ram_usage { return; }
+
         let mut available_sections = 0;
         let mut reserved_sections = 0;
 
@@ -41,6 +46,44 @@ impl Allocator {
         }
 
         println!("available: {} used: {}", available_sections, reserved_sections);
+        self.render_regions();
+    }
+
+    #[allow(dead_code)]
+    fn render_regions(&self) {
+        window::set_rect(
+            10, 
+            10, 
+            140, 
+            30, 
+            0
+        );
+        let mut offset = 0;
+        let mut color_index = 1;
+        for section_printing in self.used {
+            if section_printing == (0, 0, false) { break; }
+            if section_printing.0 > section_printing.1 { break; }
+            let section_size = ((section_printing.1 - section_printing.0) as f32 / (self.heap_end - self.heap_start) as f32 * 140.0) as usize;
+            if section_printing.2 {
+                window::set_rect(
+                    offset + 10, 
+                    10, 
+                    section_size, 
+                    30, 
+                    color_index as u8
+                );
+            } else {
+                window::set_rect(
+                    offset + 10, 
+                    10, 
+                    section_size, 
+                    10, 
+                    color_index as u8
+                );
+            }
+            offset += section_size;
+            color_index += 1;
+        }
     }
 
     fn section_exists(&self, index: usize) -> bool {
@@ -77,6 +120,8 @@ impl Allocator {
         if !self.section_exists(index) { return (0, 0); }
 
         let section = self.used[index];
+
+        if section.0 > section.1 { return (0, 0); } // if this happens you have a ram overflow
         let section_size = section.1 - section.0;
 
         self.used[index].1 = section.0 + size;
@@ -120,10 +165,8 @@ impl Allocator {
             if section_printing.2 {
                 if section_available {
                     section_available = false;
-                    println!("merging {} {} with {} {}", self.used[i - 1].0, self.used[i - 1].1, section_printing.0, section_printing.1);
                     self.used[i - 1].1 = section_printing.1;
-                    for section_moving in i + 1..self.used.len() - 1 {
-                        println!("S: {} {}", self.used[section_moving].0, self.used[section_moving].1);
+                    for section_moving in i..self.used.len() - 1 {
                         if self.used[section_moving] == (0, 0, false) { break; }
                         self.used[section_moving] = self.used[section_moving + 1];
                     }
@@ -172,7 +215,8 @@ impl Allocator {
         if needs_splitting {
             self.split_section(largest_section.0);
         }
-        //self.print_regions();
+
+        self.merge_sections();
         self.reserve_section(largest_section.0, size)
     }
 
@@ -190,6 +234,18 @@ impl Allocator {
 
 lazy_static! {
     pub static ref ALLOCATOR: Mutex<Allocator> = Mutex::new(Allocator::new(0, 0));
+}
+
+pub fn clear_ram() {
+    let mut allocator = ALLOCATOR.lock();
+    allocator.used = [(0, 0, false); 512];
+    allocator.used[0] = (allocator.heap_start, allocator.heap_end, true);
+    if allocator.render_ram_usage { allocator.render_regions(); }
+}
+
+pub fn toggle_ram_graph() {
+    let show_ram_graph_state = ALLOCATOR.lock().render_ram_usage;
+    ALLOCATOR.lock().render_ram_usage = !show_ram_graph_state;
 }
 
 pub fn get_usage() -> (usize, usize) {
