@@ -18,8 +18,8 @@ Ubuntu: `sudo apt install rustc`
 `rustup component add llvm-tools-preview --toolchain nightly`  
 `rustup component add rust-src`  
 - Install bootimage
-`cargo install cargo-xbuild`
-If this fails run `rustup default stable-x86_64-pc-windows-gnu` this will set the linker.exe to use gnu instead
+`cargo install cargo-xbuild`  
+If this fails run `rustup default stable-x86_64-pc-windows-gnu` this will set the linker.exe to use gnu instead  
 `cargo install bootimage`  
 
 - Install QEMU (virtual machine, after compiling it gets called directly)  
