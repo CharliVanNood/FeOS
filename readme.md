@@ -17,7 +17,7 @@ Ubuntu: `sudo apt install rustc`
 `rustup component add rust-src --toolchain nightly`  
 `rustup component add llvm-tools-preview --toolchain nightly`  
 `rustup component add rust-src`  
-- Install bootimage
+- Install bootimage  
 If you're on windows install the linker.exe build tools from https://visualstudio.microsoft.com/visual-cpp-build-tools/  
 `cargo install cargo-xbuild`  
 `cargo install bootimage`  
