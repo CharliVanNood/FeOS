@@ -7,7 +7,7 @@ For help please read the [wiki](https://github.com/CharliVanNood/FemDOS/wiki)
 
 # Compiling
 - Make sure you have Rustup installed, if not install it like so:  
-Windows: `winget install Rustlang.Rustup`  
+Windows: `winget install Rustlang.Rustup` and restart your command prompt for it to take effect  
 Arch: `sudo pacman -S rustup`  
 Ubuntu: `sudo apt install rustc`  
 - Install Rust Nightly  
