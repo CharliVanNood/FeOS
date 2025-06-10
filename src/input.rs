@@ -236,6 +236,7 @@ pub fn match_commands(command_written:[u8; 256], user_ran:bool) {
                         if byte == 0 { break; }
                         time[time_len] = byte as u8;
                         time_len += 1;
+                        if time_len == 3 { break; }
                     }
 
                     let mut time_number = 0;
