@@ -7,7 +7,7 @@ For help please read the [wiki](https://github.com/CharliVanNood/FemDOS/wiki)
 
 # Compiling
 - Make sure you have Rustup installed, if not install it like so:  
-Windows: `winget install Rustlang.Rustup`  
+Windows: `winget install Rustlang.Rustup` and restart your command prompt for it to take effect  
 Arch: `sudo pacman -S rustup`  
 Ubuntu: `sudo apt install rustc`  
 - Install Rust Nightly  
@@ -18,6 +18,7 @@ Ubuntu: `sudo apt install rustc`
 `rustup component add llvm-tools-preview --toolchain nightly`  
 `rustup component add rust-src`  
 - Install bootimage  
+If you're on windows install the linker.exe build tools from https://visualstudio.microsoft.com/visual-cpp-build-tools/  
 `cargo install cargo-xbuild`  
 `cargo install bootimage`  
 
@@ -30,7 +31,7 @@ Ubuntu: `sudo apt install qemu-system`
 ## Continue if you're on Windows
 - Add QEMU to the enviroment variables  
 First find the path, normally this is in `C:\Program Files\qemu`
-In powershell you could run the command `[System.Environment]::SetEnvironmentVariable("Path", $env:Path + ";C:\Program Files\qemu", [System.EnvironmentVariableTarget]::Machine)`  
+In powershell you could run the command (as administrator) `[System.Environment]::SetEnvironmentVariable("Path", $env:Path + ";C:\Program Files\qemu", [System.EnvironmentVariableTarget]::Machine)`  
 Or just open the enviroment variables and add `C:\Program Files\qemu` to `Path`
 
 # Setting up Qemu

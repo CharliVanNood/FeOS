@@ -27,7 +27,7 @@ pub fn get_time() -> (u8, u8, u8) {
     let mut current_hour = bcd_to_binary(read_rtc_register(0x04)) as i8 + time_offset.0;
 
     if current_hour > 23 {
-        current_hour = current_hour - 24;
+        current_hour = current_hour % 24;
     } else if current_hour < 0 {
         current_hour = 24 + current_hour;
     }
@@ -40,7 +40,7 @@ pub fn print_time() {
     let mut current_hour = bcd_to_binary(read_rtc_register(0x04)) as i8 + time_offset.0;
 
     if current_hour > 23 {
-        current_hour = current_hour - 24;
+        current_hour = current_hour % 24;
     } else if current_hour < 0 {
         current_hour = 24 + current_hour;
     }
