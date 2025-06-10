@@ -63,7 +63,7 @@ impl Allocator {
         for section_printing in self.used {
             if section_printing == (0, 0, false) { break; }
             if section_printing.0 > section_printing.1 { break; }
-            let section_size = ((section_printing.1 - section_printing.0) as f32 / (self.heap_end - self.heap_start) as f32 * 140.0);
+            let section_size = (section_printing.1 - section_printing.0) as f32 / (self.heap_end - self.heap_start) as f32 * 140.0;
             if section_printing.2 {
                 window::set_rect(
                     offset as usize + 10, 
