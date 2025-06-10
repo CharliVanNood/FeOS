@@ -256,9 +256,8 @@ impl ScreenWriter {
     pub fn set_rect(&mut self, x: usize, y: usize, size_x: usize, size_y: usize, color: u8) {
         for offset_x in 0..size_x {
             for offset_y in 0..size_y {
-                let pixel_index = self.get_pixel_index(x + offset_x, y + offset_y);
-                self.buffer.pixels[pixel_index].write(color);
-                self.screen_buffer[pixel_index] = color;
+                if self.get_pixel(x + offset_x, y + offset_y) == color { continue; }
+                self.set_pixel(x + offset_x, y + offset_y, color);
             }
         }
     }

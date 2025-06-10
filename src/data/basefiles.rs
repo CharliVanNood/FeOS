@@ -64,6 +64,32 @@ pub fn install_files(install_images: bool) {
     RECT 10 30 30 10 15
     ");
 
+    create_file_from_str(3, "speed", "b", "
+    PRINT \"This tests the draw speed\"
+
+    DO
+    RECT 0 0 100 100 15
+    RECT 0 0 100 100 15
+    RECT 0 0 100 100 15
+    RECT 0 0 100 100 15
+    RECT 0 0 100 100 15
+    RECT 0 0 100 100 15
+    RECT 0 0 100 100 15
+    RECT 0 0 100 100 16
+    RECT 0 0 100 100 16
+    RECT 0 0 100 100 16
+    RECT 0 0 100 100 16
+    RECT 0 0 100 100 16
+    RECT 0 0 100 100 16
+    RECT 0 0 100 100 16
+    RECT 0 0 100 100 16
+    RECT 0 0 100 100 16
+    RECT 0 0 100 100 16
+    LOOP
+
+    PRINT TRUE
+    ");
+
     create_file_from_str(3, "loop", "b", "
     PRINT \"This is a loop test\"
 

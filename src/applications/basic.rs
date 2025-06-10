@@ -219,7 +219,7 @@ fn run_tokens(mut tokens: [TokenVec; 128], mut lists: [TokenVec; 64]) {
         if operation_result.2 {
             tokens[line_index].remove();
             tokens[line_index] = operation_result.0.copy();
-            line_index = indentation.get(indentation_depth as usize) as usize;
+            line_index = indentation.get(indentation_depth as usize - 1) as usize;
         }
 
         if operation_result.4 {
@@ -646,7 +646,7 @@ fn run_tokens_last(
             },
             (25, true) => {
                 indentation.set_add(indentation_depth as usize + 1, line_index);
-                running = false;
+                running = true;
                 tokens.shift(token_index, 1);
             },
             (20, true) => {
