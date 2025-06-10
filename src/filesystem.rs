@@ -28,6 +28,12 @@ impl FileSystem {
 
     // Create a file and write it's contents to heap (for now, this will convert to disk)
     pub fn create_file(&mut self, parent: i32, filename: [u8; 20], filetype: u8, data: BigVec) {
+        let file_exists = self.file_exists_with_parent(filename, parent);
+        if file_exists {
+            data.remove();
+            return;
+        }
+
         let address = alloc::alloc(data.len());
 
         let mut index = 0;
@@ -78,6 +84,44 @@ impl FileSystem {
     pub fn get_all_indexes(&self) -> FileVec {
         self.files
     }
+
+    // Check if a certain file exists in the current flow
+    pub fn file_exists(&self, name: [u8; 20]) -> bool {
+        let files = {
+            let files = self.get_files_from_current_parent();
+            files.clone()
+        };
+        for file in files {
+            let mut file_name: [u8; 20] = [0; 20];
+            for byte in file.3.iter().enumerate() {
+                if *byte.1 == 61 { break; }
+                file_name[byte.0] = *byte.1;
+            }
+            if name == file_name || name == file.3 {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // Check if a certain file exists in the current flow
+    pub fn file_exists_with_parent(&self, name: [u8; 20], parent: i32) -> bool {
+        let files = {
+            let files = self.get_files_from_parent(parent);
+            files.clone()
+        };
+        for file in files {
+            let mut file_name: [u8; 20] = [0; 20];
+            for byte in file.3.iter().enumerate() {
+                if *byte.1 == 61 { break; }
+                file_name[byte.0] = *byte.1;
+            }
+            if name == file_name || name == file.3 {
+                return true;
+            }
+        }
+        return false;
+    }
 }
 
 lazy_static! {
@@ -85,6 +129,10 @@ lazy_static! {
         files: FileVec::new(),
         flow: 1
     });
+}
+
+pub fn file_exists(name: [u8; 20]) -> bool {
+    return FILESYSTEM.lock().file_exists(name)
 }
 
 // Get all files from the current directory and print those (Used in FL command)
@@ -120,25 +168,6 @@ pub fn change_flow(name: [u8; 20]) {
 
 pub fn get_current_flow() -> i32 {
     FILESYSTEM.lock().flow
-}
-
-// Check if a certain file exists in the current flow
-pub fn file_exists(name: [u8; 20]) -> bool {
-    let files = {
-        let files = FILESYSTEM.lock().get_files_from_current_parent();
-        files.clone()
-    };
-    for file in files {
-        let mut file_name: [u8; 20] = [0; 20];
-        for byte in file.3.iter().enumerate() {
-            if *byte.1 == 61 { break; }
-            file_name[byte.0] = *byte.1;
-        }
-        if name == file_name {
-            return true;
-        }
-    }
-    return false;
 }
 
 // Get a certain named file in the current directory by name
