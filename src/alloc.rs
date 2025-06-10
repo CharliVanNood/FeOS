@@ -58,25 +58,25 @@ impl Allocator {
             30, 
             0
         );
-        let mut offset = 0;
+        let mut offset: f32 = 0.0;
         let mut color_index = 1;
         for section_printing in self.used {
             if section_printing == (0, 0, false) { break; }
             if section_printing.0 > section_printing.1 { break; }
-            let section_size = ((section_printing.1 - section_printing.0) as f32 / (self.heap_end - self.heap_start) as f32 * 140.0) as usize;
+            let section_size = ((section_printing.1 - section_printing.0) as f32 / (self.heap_end - self.heap_start) as f32 * 140.0);
             if section_printing.2 {
                 window::set_rect(
-                    offset + 10, 
+                    offset as usize + 10, 
                     10, 
-                    section_size, 
+                    section_size as usize, 
                     30, 
                     color_index as u8
                 );
             } else {
                 window::set_rect(
-                    offset + 10, 
+                    offset as usize + 10, 
                     10, 
-                    section_size, 
+                    section_size as usize, 
                     10, 
                     color_index as u8
                 );
@@ -109,7 +109,7 @@ impl Allocator {
 
         for section_new_index in 0..self.used.len() {
             if self.used[section_new_index] == (0, 0, false) {
-                self.used[section_new_index] = (section.0 + section_size_new, section_size + section.0, true);
+                self.used[section_new_index] = (section.0 + section_size_new + 8, section_size + section.0, true);
                 break;
             }
         }
@@ -241,6 +241,10 @@ pub fn clear_ram() {
     allocator.used = [(0, 0, false); 512];
     allocator.used[0] = (allocator.heap_start, allocator.heap_end, true);
     if allocator.render_ram_usage { allocator.render_regions(); }
+}
+
+pub fn merge_ram() {
+    ALLOCATOR.lock().merge_sections();
 }
 
 pub fn toggle_ram_graph() {

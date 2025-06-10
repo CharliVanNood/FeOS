@@ -95,7 +95,37 @@ pub fn remove_terminal_character() {
 
 pub fn draw_menu_bar(time: (u8, u8, u8)) {
     SCREEN_WRITER.lock().frame = 1;
-    println!("{}:{}:{}\n", time.0, time.1, time.2);
+
+    // just making sure the clock wont have 1:1:1 cause that'd be weird
+    match time {
+        (h, m, s) if h < 10 && m < 10 && s < 10 => {
+            println!("0{}:0{}:0{}\n", time.0, time.1, time.2);
+        },
+        (h, m, s) if h > 10 && m < 10 && s < 10 => {
+            println!("{}:0{}:0{}\n", time.0, time.1, time.2);
+        },
+        (h, m, s) if h < 10 && m < 10 && s > 10 => {
+            println!("0{}:0{}:{}\n", time.0, time.1, time.2);
+        },
+        (h, m, s) if h < 10 && m > 10 && s < 10 => {
+            println!("0{}:{}:0{}\n", time.0, time.1, time.2);
+        },
+        (h, m, s) if h > 10 && m > 10 && s < 10 => {
+            println!("{}:{}:0{}\n", time.0, time.1, time.2);
+        },
+        (h, m, s) if h > 10 && m < 10 && s > 10 => {
+            println!("{}:0{}:{}\n", time.0, time.1, time.2);
+        },
+        (h, m, s) if h < 10 && m > 10 && s > 10 => {
+            println!("0{}:{}:{}\n", time.0, time.1, time.2);
+        },
+        (h, m, s) if h > 10 && m > 10 && s > 10 => {
+            println!("{}:{}:{}\n", time.0, time.1, time.2);
+        },
+        _ => {
+            println!("{}:{}:{}\n", time.0, time.1, time.2);
+        }
+    }
     
     SCREEN_WRITER.lock().frame = 2;
     let ram_usage = alloc::get_usage();
