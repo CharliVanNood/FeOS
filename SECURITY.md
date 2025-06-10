@@ -14,4 +14,5 @@ There have been no vulnerabilities found so far
 
 | Version     | Bug                |
 | ----------- | ------------------ |
+|  < 0.1.6819 | Weird clock format |
 |  < 0.1.6697 | Unstable Ram usage |
