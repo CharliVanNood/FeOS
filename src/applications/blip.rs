@@ -1,18 +1,12 @@
-use crate::{filesystem::{self, create_file, file_exists, get_current_flow, update_file}, infoln, input, string::BigString, vec::BigVec, window::{BUFFER_HEIGHT, BUFFER_WIDTH, SCREEN_WRITER}};
+use crate::{filesystem::{self, create_file, file_exists, get_current_flow, update_file}, infoln, input, string::BigString, vec::BigVec, window::SCREEN_WRITER};
 
 pub fn render_background(name: [u8; 20]) {
     let window_offset_x = 160;
 
     let header_color = SCREEN_WRITER.lock().get_rgb(100, 100, 100);
-    for x in 0..BUFFER_WIDTH - window_offset_x {
-        for y in 0..BUFFER_HEIGHT {
-            if y > 10 {
-                SCREEN_WRITER.lock().set_pixel(x + window_offset_x, y, 15);
-            } else {
-                SCREEN_WRITER.lock().set_pixel(x + window_offset_x, y, header_color);
-            }
-        }
-    }
+    let window_size = SCREEN_WRITER.lock().get_screen_size();
+    SCREEN_WRITER.lock().set_rect(window_offset_x, 0, window_size.0 - window_offset_x, 10, header_color);
+    SCREEN_WRITER.lock().set_rect(window_offset_x, 10, window_size.0 - window_offset_x, window_size.1 - 10, 15);
 
     for character in name.iter().enumerate() {
         if *character.1 == 0 { break; }
@@ -295,11 +289,8 @@ pub fn run(mut screen_buffer: [[u8; 25]; 128], name: [u8; 20]) {
         x86_64::instructions::hlt();
     }
 
-    for x in 0..BUFFER_WIDTH - window_offset_x {
-        for y in 0..BUFFER_HEIGHT {
-            SCREEN_WRITER.lock().set_pixel(x + window_offset_x, y, 215);
-        }
-    }
+    let window_size = SCREEN_WRITER.lock().get_screen_size();
+    SCREEN_WRITER.lock().set_rect(window_offset_x, 0, window_size.0 - window_offset_x, window_size.1, 215);
 
     write_to_file(screen_buffer, name);
 }
