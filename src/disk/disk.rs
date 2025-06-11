@@ -1,6 +1,7 @@
 use x86_64::instructions::port::Port;
 
-use crate::{filesystem::FILESYSTEM, infoln, print, println, vec::BigVec, warnln};
+use crate::{infoln, print, println, vec::BigVec, warnln};
+use crate::disk::filesystem::FILESYSTEM;
 
 // Write to sector by index
 pub fn write_sector(lba: u32, data: &[u16]) {

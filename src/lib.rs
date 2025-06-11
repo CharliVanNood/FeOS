@@ -11,7 +11,6 @@ pub mod gdt;
 pub mod input;
 pub mod applications;
 pub mod renderer;
-pub mod filesystem;
 pub mod vec;
 pub mod disk;
 pub mod string;
@@ -95,5 +94,5 @@ pub fn init(boot_info: &'static BootInfo, memory_region: (u64, u64, u64)) {
     println!("Interrupts have been initialized :D");
 
     println!("Creating root directory");
-    filesystem::create_file_from_str(-1, "root", "", "");
+    disk::filesystem::create_file_from_str(-1, "root", "", "");
 }

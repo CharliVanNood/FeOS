@@ -1,4 +1,4 @@
-use crate::filesystem::create_file_from_str;
+use crate::disk::filesystem::create_file_from_str;
 
 pub fn install_files(install_images: bool) {
     create_file_from_str(1, "images", "", "");

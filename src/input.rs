@@ -1,11 +1,11 @@
 use crate::alloc;
 use crate::applications::blip;
 use crate::clock;
-use crate::disk::{convert_fs_to_bytes, write_fs_to_disk};
+use crate::disk::disk::{convert_fs_to_bytes, write_fs_to_disk};
+use crate::disk::filesystem;
 use crate::window;
 use crate::{print, println, warnln};
 use crate::applications;
-use crate::filesystem;
 use spin::Mutex;
 use crate::renderer::image::render_image;
 
