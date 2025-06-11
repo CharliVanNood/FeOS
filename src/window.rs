@@ -94,6 +94,8 @@ pub fn remove_terminal_character() {
 }
 
 pub fn draw_menu_bar(time: (u8, u8, u8)) {
+    let status_background_color = SCREEN_WRITER.lock().status_bar_background_color;
+    set_rect(0, BUFFER_HEIGHT - 10, BUFFER_WIDTH / 2, 10, status_background_color);
     SCREEN_WRITER.lock().frame = 1;
 
     // just making sure the clock wont have 1:1:1 cause that'd be weird
@@ -162,9 +164,9 @@ pub struct ScreenWriter {
     clock_foreground_color: u8,
     ram_background_color: u8,
     ram_foreground_color: u8,
+    status_bar_background_color: u8,
 }
 impl ScreenWriter {
-    #[allow(dead_code)]
     pub fn get_rgb(&self, r: u8, g: u8, b: u8) -> u8 {
         let mut closest_color: (i16, usize) = (-1, 999999);
     
@@ -202,6 +204,11 @@ impl ScreenWriter {
             2 => {
                 self.ram_background_color = background;
                 self.ram_foreground_color = foreground;
+            },
+            3 => {
+                self.clock_background_color = background;
+                self.ram_background_color = background;
+                self.status_bar_background_color = background;
             },
             _ => {
                 self.terminal_background_color = background;
@@ -249,9 +256,8 @@ impl ScreenWriter {
     pub fn set_rect(&mut self, x: usize, y: usize, size_x: usize, size_y: usize, color: u8) {
         for offset_x in 0..size_x {
             for offset_y in 0..size_y {
-                let pixel_index = self.get_pixel_index(x + offset_x, y + offset_y);
-                self.buffer.pixels[pixel_index].write(color);
-                self.screen_buffer[pixel_index] = color;
+                if self.get_pixel(x + offset_x, y + offset_y) == color { continue; }
+                self.set_pixel(x + offset_x, y + offset_y, color);
             }
         }
     }
@@ -336,27 +342,29 @@ lazy_static! {
         terminal_character_buffer: [[(0, 15, 0); 27]; 19],
         terminal_background_color: 0,
         terminal_foreground_color: 15,
-        clock_background_color: 215,
+        clock_background_color: 17,
         clock_foreground_color: 15,
-        ram_background_color: 215,
-        ram_foreground_color: 15
+        ram_background_color: 17,
+        ram_foreground_color: 15,
+        status_bar_background_color: 17
     });
 }
 
-#[allow(dead_code)]
 pub fn init() {
     let mut screen_writer = SCREEN_WRITER.lock();
-
     let background_color = screen_writer.get_rgb(0, 0, 0);
     for x in 0..BUFFER_WIDTH {
         for y in 0..BUFFER_HEIGHT {
-            if x > 160 {
+            if x >= 160 {
                 screen_writer.set_pixel(x, y, 215);
             } else {
                 screen_writer.set_pixel(x, y, background_color);
             }
         }
     }
+
+    let status_background_color = screen_writer.get_rgb(0, 0, 0);
+    screen_writer.set_color(0, status_background_color, 3);
 }
 
 fn get_int(numbers: [usize; 3]) -> u8 {
@@ -398,9 +406,9 @@ pub fn render_image(image_data: BigVec) {
             for x in 0..window_width {
                 if (x >= image_start_x) && (x < image_end_x + image_padding_x) {
                     if x < image_end_x {
-                        let red = get_int([image_data.get_unsafe(char),image_data.get_unsafe(char+1),image_data.get_unsafe(char+2)]);
-                        let green = get_int([image_data.get_unsafe(char+3),image_data.get_unsafe(char+4),image_data.get_unsafe(char+5)]);
-                        let blue = get_int([image_data.get_unsafe(char+6),image_data.get_unsafe(char+7),image_data.get_unsafe(char+8)]);
+                        let red = get_int([image_data.get(char),image_data.get(char+1),image_data.get(char+2)]);
+                        let green = get_int([image_data.get(char+3),image_data.get(char+4),image_data.get(char+5)]);
+                        let blue = get_int([image_data.get(char+6),image_data.get(char+7),image_data.get(char+8)]);
                         char += 9;
 
                         let color = SCREEN_WRITER.lock().get_rgb(red, green, blue);

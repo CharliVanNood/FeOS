@@ -166,7 +166,7 @@ impl Allocator {
                 if section_available {
                     section_available = false;
                     self.used[i - 1].1 = section_printing.1;
-                    for section_moving in i..self.used.len() - 1 {
+                    for section_moving in i..self.used.len() {
                         if self.used[section_moving] == (0, 0, false) { break; }
                         self.used[section_moving] = self.used[section_moving + 1];
                     }
