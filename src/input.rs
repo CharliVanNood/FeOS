@@ -7,7 +7,7 @@ use crate::{print, println, warnln};
 use crate::applications;
 use crate::filesystem;
 use spin::Mutex;
-use crate::window::render_image;
+use crate::renderer::image::render_image;
 
 lazy_static::lazy_static! {
     static ref CURRENT_TEXT: Mutex<[u8; 256]> = Mutex::new([0; 256]);
