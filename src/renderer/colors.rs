@@ -218,3 +218,23 @@ pub const COLOR_PALETTE: [(u8, u8, u8); 217] = [
     (40, 64, 32),
     (32, 64, 32),
 ];
+
+pub fn get_rgb(r: u8, g: u8, b: u8) -> u8 {
+    let mut closest_color: (i16, usize) = (-1, 999999);
+
+    for color in COLOR_PALETTE.iter().enumerate() {
+        let dr = r as isize - color.1.0 as isize;
+        let dg = g as isize - color.1.1 as isize;
+        let db = b as isize - color.1.2 as isize;
+        let color_distance = (dr * dr + dg * dg + db * db) as usize;
+
+        if color_distance < closest_color.1 {
+            closest_color = (color.0 as i16, color_distance);
+            if color_distance < 100 {
+                return closest_color.0 as u8
+            }
+        }
+    }
+
+    closest_color.0 as u8
+}

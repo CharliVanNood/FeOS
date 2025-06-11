@@ -1,7 +1,7 @@
 use crate::vec::BigVec;
 use crate::window::get_int;
 use crate::window::get_screen_size;
-use crate::window::get_rgb;
+use crate::renderer::colors::get_rgb;
 use crate::window::set_pixel;
 
 pub fn render_image(image_data: BigVec) {

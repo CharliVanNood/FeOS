@@ -1,9 +1,10 @@
 use crate::{filesystem::{self, create_file, file_exists, get_current_flow, update_file}, infoln, input, string::BigString, vec::BigVec, window::SCREEN_WRITER};
+use crate::renderer::colors::get_rgb;
 
 pub fn render_background(name: [u8; 20]) {
     let window_offset_x = 160;
 
-    let header_color = SCREEN_WRITER.lock().get_rgb(100, 100, 100);
+    let header_color = get_rgb(100, 100, 100);
     let window_size = SCREEN_WRITER.lock().get_screen_size();
     SCREEN_WRITER.lock().set_rect(window_offset_x, 0, window_size.0 - window_offset_x, 10, header_color);
     SCREEN_WRITER.lock().set_rect(window_offset_x, 10, window_size.0 - window_offset_x, window_size.1 - 10, 15);

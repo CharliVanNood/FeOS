@@ -1,4 +1,4 @@
-use crate::renderer::{colors, text::CHARACTERS};
+use crate::renderer::text::CHARACTERS;
 use volatile::Volatile;
 
 pub const BUFFER_WIDTH: usize = 320;
@@ -66,26 +66,6 @@ impl ScreenWriter {
 
     pub fn get_screen_size(&self) -> (usize, usize) {
         (BUFFER_WIDTH, BUFFER_HEIGHT)
-    }
-
-    pub fn get_rgb(&self, r: u8, g: u8, b: u8) -> u8 {
-        let mut closest_color: (i16, usize) = (-1, 999999);
-    
-        for color in colors::COLOR_PALETTE.iter().enumerate() {
-            let dr = r as isize - color.1.0 as isize;
-            let dg = g as isize - color.1.1 as isize;
-            let db = b as isize - color.1.2 as isize;
-            let color_distance = (dr * dr + dg * dg + db * db) as usize;
-    
-            if color_distance < closest_color.1 {
-                closest_color = (color.0 as i16, color_distance);
-                if color_distance < 100 {
-                    return closest_color.0 as u8
-                }
-            }
-        }
-    
-        closest_color.0 as u8
     }
     
     fn get_pixel_index(&self, x: usize, y: usize) -> usize {

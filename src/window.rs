@@ -5,6 +5,7 @@ use spin::Mutex;
 use core::fmt::Write;
 
 use crate::renderer::vga::writer::ScreenWriter;
+use crate::renderer::colors::get_rgb;
 use crate::alloc;
 
 #[macro_export]
@@ -158,7 +159,7 @@ lazy_static! {
 pub fn init() {
     let mut screen_writer = SCREEN_WRITER.lock();
     let screen_size = screen_writer.get_screen_size();
-    let background_color = screen_writer.get_rgb(0, 0, 0);
+    let background_color = get_rgb(0, 0, 0);
     for x in 0..screen_size.0 {
         for y in 0..screen_size.1 {
             if x >= 160 {
@@ -169,7 +170,7 @@ pub fn init() {
         }
     }
 
-    let status_background_color = screen_writer.get_rgb(0, 0, 0);
+    let status_background_color = get_rgb(0, 0, 0);
     screen_writer.set_color(0, status_background_color, 3);
 }
 
@@ -185,8 +186,4 @@ pub fn get_int(numbers: [usize; 3]) -> u8 {
 
 pub fn get_screen_size() -> (usize, usize) {
     SCREEN_WRITER.lock().get_screen_size()
-}
-
-pub fn get_rgb(r: u8, g: u8, b: u8) -> u8 {
-    SCREEN_WRITER.lock().get_rgb(r, g, b)
 }
