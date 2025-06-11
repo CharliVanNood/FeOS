@@ -391,7 +391,6 @@ impl Vec {
     }
 
     // get this vector as a 64 byte list to loop over (DEPRICATED AND WILL BE REMOVED SOON)
-    #[deprecated(note="please use STRINGS instead!")]
     #[allow(dead_code)]
     pub fn get_as_b64(&self) -> [u8; 64] {
         let mut b64_list = [0; 64];
@@ -411,7 +410,6 @@ impl Vec {
     }
 
     // get this vector as a 128 byte list to loop over (DEPRICATED AND WILL BE REMOVED SOON)
-    #[deprecated(note="please use STRINGS instead!")]
     #[allow(dead_code)]
     pub fn get_as_b128(&self) -> [u8; 128] {
         let mut b64_list = [0; 128];
@@ -431,7 +429,6 @@ impl Vec {
     }
 
     // get this vector as a 256 byte list to loop over (DEPRICATED AND WILL BE REMOVED SOON)
-    #[deprecated(note="please use STRINGS instead!")]
     #[allow(dead_code)]
     pub fn get_as_b256(&self) -> [u8; 256] {
         let mut b64_list = [0; 256];
