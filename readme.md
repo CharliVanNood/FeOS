@@ -13,7 +13,7 @@ Ubuntu: `sudo apt install rustc`
 - Install Rust Nightly  
 `rustup install nightly`
 - Set nightly as default in this project  
-`rustup override set nightly`  
+`rustup override set nightly` <-- don't forget this  
 `rustup component add rust-src --toolchain nightly`  
 `rustup component add llvm-tools-preview --toolchain nightly`  
 `rustup component add rust-src`  
@@ -25,7 +25,7 @@ If you're on windows install the linker.exe build tools from https://visualstudi
 - Install QEMU (virtual machine, after compiling it gets called directly)  
 Win32: https://qemu.weilnetz.de/w32/  
 Win64: https://qemu.weilnetz.de/w64/  
-Arch: `sudo pacman -S qemu` (system, not base)  
+Arch: `sudo pacman -S qemu` (system/full, not base)  
 Ubuntu: `sudo apt install qemu-system`  
 
 ## Continue if you're on Windows
@@ -33,10 +33,6 @@ Ubuntu: `sudo apt install qemu-system`
 First find the path, normally this is in `C:\Program Files\qemu`
 In powershell you could run the command (as administrator) `[System.Environment]::SetEnvironmentVariable("Path", $env:Path + ";C:\Program Files\qemu", [System.EnvironmentVariableTarget]::Machine)`  
 Or just open the enviroment variables and add `C:\Program Files\qemu` to `Path`
-
-# Setting up Qemu
-- Create disk image  
-`qemu-img create -f raw hdd.img 1024M`
 
 # Running
 - For compiling the project youself use  
