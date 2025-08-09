@@ -1,13 +1,13 @@
 use crate::alloc;
 use crate::applications::blip;
 use crate::clock;
-use crate::disk::{convert_fs_to_bytes, write_fs_to_disk};
+use crate::disk::disk::{convert_fs_to_bytes, write_fs_to_disk};
+use crate::disk::filesystem;
 use crate::window;
 use crate::{print, println, warnln};
 use crate::applications;
-use crate::filesystem;
 use spin::Mutex;
-use crate::window::render_image;
+use crate::renderer::image::render_image;
 
 lazy_static::lazy_static! {
     static ref CURRENT_TEXT: Mutex<[u8; 256]> = Mutex::new([0; 256]);
@@ -39,19 +39,11 @@ pub fn check_events() {
     KEYPRESSES.lock().1 = 0;
 }
 
-#[allow(dead_code)]
-pub fn set_text(characters: [u8; 256]) {
-    let mut text = CURRENT_TEXT.lock();
-    *text = characters;
-}
-
-#[allow(dead_code)]
 pub fn get_text() -> [u8; 256] {
     let text = CURRENT_TEXT.lock();
     *text
 }
 
-#[allow(dead_code)]
 pub fn add_key(character: u8) {
     match character {
         10 => {
@@ -105,7 +97,6 @@ fn print_help_command() {
     println!("[clram] - Empty the ram");
 }
 
-#[allow(dead_code)]
 pub fn match_commands(command_written:[u8; 256], user_ran:bool) {
     // To register a command add it here
     let commands = [

@@ -10,7 +10,6 @@ mod applications;
 mod renderer;
 mod data;
 mod vec;
-mod filesystem;
 mod disk;
 mod string;
 mod alloc;
@@ -75,21 +74,21 @@ pub extern "C" fn _start(boot_info: &'static BootInfo) -> ! {
     }
 
     // Check in what level the kernel is operating
-    disk::print_ring();
+    disk::disk::print_ring();
 
     // Get the size of the disk in sectors of 512 bytes :O
-    let sectors = disk::get_sector_count();
+    let sectors = disk::disk::get_sector_count();
     println!("Amount of sectors: {}", sectors);
     println!("Disk size: {} MB", sectors as u64 * 512 / 1024 / 1024);
 
     // Create a read buffer
     let mut read_buffer = [0u16; 256];
-    disk::read_sector(0, &mut read_buffer);
+    disk::disk::read_sector(0, &mut read_buffer);
 
     // Write to sector 1 and make sure it returns correctly
     let write_buffer = [0xABCDu16; 256];
-    disk::write_sector(1, &write_buffer);
-    disk::read_sector(1, &mut read_buffer);
+    disk::disk::write_sector(1, &write_buffer);
+    disk::disk::read_sector(1, &mut read_buffer);
     let write_successfull = read_buffer == [0xABCDu16; 256];
     if write_successfull {
         infoln!("[YAY] Disk write sector 1");
@@ -99,8 +98,8 @@ pub extern "C" fn _start(boot_info: &'static BootInfo) -> ! {
 
     // Write to sector 2 and make sure it returns correctly
     let write_buffer = [0x1234u16; 256];
-    disk::write_sector(2, &write_buffer);
-    disk::read_sector(2, &mut read_buffer);
+    disk::disk::write_sector(2, &write_buffer);
+    disk::disk::read_sector(2, &mut read_buffer);
     let write_successfull = read_buffer == [0x1234u16; 256];
     if write_successfull {
         infoln!("[YAY] Disk write sector 2");
@@ -110,8 +109,8 @@ pub extern "C" fn _start(boot_info: &'static BootInfo) -> ! {
 
     // Write to sector 3 and make sure it returns correctly
     let write_buffer = [0x5678u16; 256];
-    disk::write_sector(3, &write_buffer);
-    disk::read_sector(3, &mut read_buffer);
+    disk::disk::write_sector(3, &write_buffer);
+    disk::disk::read_sector(3, &mut read_buffer);
     let write_successfull = read_buffer == [0x5678u16; 256];
     if write_successfull {
         infoln!("[YAY] Disk write sector 3");
@@ -121,8 +120,8 @@ pub extern "C" fn _start(boot_info: &'static BootInfo) -> ! {
 
     // Write to sector 4 and make sure it DOES NOT returns correctly, this is intended to fail
     let write_buffer = [0x1369u16; 256];
-    disk::write_sector(4, &write_buffer);
-    disk::read_sector(4, &mut read_buffer);
+    disk::disk::write_sector(4, &write_buffer);
+    disk::disk::read_sector(4, &mut read_buffer);
     let write_successfull = read_buffer == [0xABCDu16; 256];
     if !write_successfull {
         infoln!("[YAY] Disk write sector 4");
