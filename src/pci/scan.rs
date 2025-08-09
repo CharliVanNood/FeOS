@@ -1,7 +1,5 @@
 use core::arch::asm;
 
-use crate::println;
-
 unsafe fn pci_config_read_u32(bus: u8, device: u8, function: u8, offset: u8) -> u32 {
     let address: u32 = (1 << 31)
         | ((bus as u32) << 16)
@@ -26,7 +24,10 @@ unsafe fn pci_config_read_u32(bus: u8, device: u8, function: u8, offset: u8) -> 
     value
 }
 
-pub fn scan_devices() {
+pub fn scan_devices() -> [(usize, usize); 255] {
+    let mut index = 0;
+    let mut devices_found: [(usize, usize); 255] = [(0, 0); 255];
+
     for bus in 0..=255 {
         for device in 0..32 {
             for function in 0..8 {
@@ -37,9 +38,11 @@ pub fn scan_devices() {
                 }
                 let device_id = (vendor_device >> 16) & 0xFFFF;
 
-                //println!("bus {}, device {}, function {}, vendor {:04x}, device {:04x}", bus, device, function, vendor_id, device_id);
-                println!("vendor {:04x}, device {:04x}", vendor_id, device_id);
+                devices_found[index] = (vendor_id as usize, device_id as usize);
+                index += 1;
             }
         }
     }
+
+    devices_found
 }

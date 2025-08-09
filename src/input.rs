@@ -40,7 +40,9 @@ pub fn check_events() {
     KEYPRESSES.lock().0 = [0; 8];
     KEYPRESSES.lock().1 = 0;
 
-    //network::connect();
+    if network::get_connection_type() == 0 {
+        //network::connect();
+    }
 }
 
 pub fn get_text() -> [u8; 256] {
@@ -304,7 +306,14 @@ pub fn match_commands(command_written:[u8; 256], user_ran:bool) {
                 "meram" => alloc::merge_ram(),
                 "fsconvtest" => convert_fs_to_bytes().remove(),
                 "fswritetest" => write_fs_to_disk(),
-                "scanpci" => scan_devices(),
+                "scanpci" => {
+                    let devices = scan_devices();
+
+                    for i in 0..255 {
+                        if devices[i].0 == 0 && devices[i].1 == 0 { break; }
+                        println!("vendor: {:04x} device: {:04x}", devices[i].0, devices[i].1);
+                    }
+                },
                 "network" => network::connect(),
                 _ => warnln!("This command is unimplemented :C")
             }

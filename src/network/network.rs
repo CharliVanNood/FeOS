@@ -1,7 +1,7 @@
 use lazy_static::lazy_static;
 use spin::Mutex;
 
-use crate::println;
+use crate::{pci, println};
 
 pub struct Network {
     connection_type: usize // 0 = none, 1 = ethernet, 2 = wifi
@@ -17,8 +17,25 @@ impl Network {
         self.connection_type
     }
 
+    fn get_network_devices(&mut self) {
+        let devices = pci::scan::scan_devices();
+
+        for i in 0..255 {
+            if devices[i].0 == 0 && devices[i].1 == 0 { break; }
+            match (devices[i].0, devices[i].1) {
+                (32902, 4110) => {
+                    println!("Found QEMU network card");
+                    self.connection_type = 1;
+                    break;
+                },
+                _ => {}
+            }
+        }
+    }
+
     fn connect(&mut self) {
         println!("connection attempt");
+        self.get_network_devices();
     }
 }
 
