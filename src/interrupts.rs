@@ -1,5 +1,5 @@
 use pc_keyboard::KeyCode;
-use x86_64::structures::idt::{InterruptDescriptorTable, InterruptStackFrame, PageFaultErrorCode};
+use x86_64::structures::idt::{InterruptDescriptorTable, InterruptStackFrame, PageFaultErrorCode, HandlerFuncWithErrCode, HandlerFuncType};
 use crate::clock;
 use crate::hlt_loop;
 use crate::infoln;
@@ -26,8 +26,9 @@ lazy_static! {
     static ref IDT: InterruptDescriptorTable = {
         let mut idt = InterruptDescriptorTable::new();
         idt.breakpoint.set_handler_fn(breakpoint_handler);
+        let addr = HandlerFuncType::to_virt_addr(double_fault_handler as HandlerFuncWithErrCode);
         unsafe {
-            idt.double_fault.set_handler_fn(double_fault_handler)
+            idt.double_fault.set_handler_addr(addr)
                 .set_stack_index(gdt::DOUBLE_FAULT_IST_INDEX);
         }
         idt[InterruptIndex::Timer.as_usize()]
@@ -52,8 +53,8 @@ extern "x86-interrupt" fn breakpoint_handler(
 }
 
 extern "x86-interrupt" fn double_fault_handler(
-    stack_frame: InterruptStackFrame, _error_code: u64) -> !
-{
+    stack_frame: InterruptStackFrame, _error_code: u64
+) {
     warnln!("EXCEPTION: DOUBLE FAULT\n{:#?}", stack_frame);
     panic!();
 }
