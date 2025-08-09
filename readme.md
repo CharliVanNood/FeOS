@@ -13,7 +13,7 @@ Ubuntu: `sudo apt install rustc`
 - Install Rust Nightly  
 `rustup install nightly`
 - Set nightly as default in this project  
-`rustup override set nightly`  
+`rustup override set nightly` <-- don't forget this  
 `rustup component add rust-src --toolchain nightly`  
 `rustup component add llvm-tools-preview --toolchain nightly`  
 `rustup component add rust-src`  
@@ -25,7 +25,7 @@ If you're on windows install the linker.exe build tools from https://visualstudi
 - Install QEMU (virtual machine, after compiling it gets called directly)  
 Win32: https://qemu.weilnetz.de/w32/  
 Win64: https://qemu.weilnetz.de/w64/  
-Arch: `sudo pacman -S qemu` (system, not base)  
+Arch: `sudo pacman -S qemu` (system/full, not base)  
 Ubuntu: `sudo apt install qemu-system`  
 
 ## Continue if you're on Windows
