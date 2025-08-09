@@ -34,10 +34,6 @@ First find the path, normally this is in `C:\Program Files\qemu`
 In powershell you could run the command (as administrator) `[System.Environment]::SetEnvironmentVariable("Path", $env:Path + ";C:\Program Files\qemu", [System.EnvironmentVariableTarget]::Machine)`  
 Or just open the enviroment variables and add `C:\Program Files\qemu` to `Path`
 
-# Setting up Qemu
-- Create disk image  
-`qemu-img create -f raw hdd.img 1024M`
-
 # Running
 - For compiling the project youself use  
 `cargo run`  
