@@ -23,19 +23,12 @@ use alloc::{read_byte, write_byte};
 use fem_dos::alloc::alloc;
 use vec::Vec;
 
-const VERSION: &str = env!("VERSION");
+const _VERSION: &str = env!("VERSION");
 
 #[no_mangle]
 pub extern "C" fn _start(boot_info: &'static BootInfo) -> ! {
     window::init();
     window::clear_screen();
-
-    println!("-------------------------");
-    println!("FemDOS!");
-    println!("Data:");
-    println!("Version: {}", VERSION);
-    println!("Mem Offset: 0x{:x}", boot_info.physical_memory_offset);
-    println!("-------------------------");
 
     // Here we check for the biggest region of ram for the Heap
     let mut biggest_region = (0, 0, 0);
