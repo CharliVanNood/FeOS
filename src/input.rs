@@ -3,6 +3,8 @@ use crate::applications::blip;
 use crate::clock;
 use crate::disk::disk::{convert_fs_to_bytes, write_fs_to_disk};
 use crate::disk::filesystem;
+use crate::network::network;
+use crate::pci::scan::scan_devices;
 use crate::window;
 use crate::{print, println, warnln};
 use crate::applications;
@@ -37,6 +39,8 @@ pub fn check_events() {
     // Reset the buffer
     KEYPRESSES.lock().0 = [0; 8];
     KEYPRESSES.lock().1 = 0;
+
+    //network::connect();
 }
 
 pub fn get_text() -> [u8; 256] {
@@ -103,7 +107,8 @@ pub fn match_commands(command_written:[u8; 256], user_ran:bool) {
         "info", "ping", "color", "clear", "help", "femc", "fl", "go", 
         "install", "pong", "cat", "run", "per", "time", "input", "timeset",
         "basic", "nyo", "screen", "char", "imagine", "imgtest", "blip",
-        "fsconvtest", "fswritetest", "clram", "shram", "meram"
+        "fsconvtest", "fswritetest", "clram", "shram", "meram", "scanpci",
+        "network"
     ];
 
     print!("\n");
@@ -299,6 +304,8 @@ pub fn match_commands(command_written:[u8; 256], user_ran:bool) {
                 "meram" => alloc::merge_ram(),
                 "fsconvtest" => convert_fs_to_bytes().remove(),
                 "fswritetest" => write_fs_to_disk(),
+                "scanpci" => scan_devices(),
+                "network" => network::connect(),
                 _ => warnln!("This command is unimplemented :C")
             }
         }

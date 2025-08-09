@@ -18,6 +18,7 @@ pub mod alloc;
 pub mod clock;
 pub mod data;
 pub mod network;
+pub mod pci;
 
 use core::panic::PanicInfo;
 
