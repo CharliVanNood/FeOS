@@ -8,6 +8,161 @@ use crate::alloc::bootinfo::MemoryRegionType;
 use crate::window;
 
 pub struct Allocator {
+    heap_start: usize, // the place where physical ram starts
+    heap_end: usize,   // the place where physical ram ends
+
+    bytes_used: usize, // just a counter to keep track of amount of used bytes
+
+    regions: [(usize, usize, bool); 1024], // region start, region end, available
+    render_ram_usage: bool
+}
+impl Allocator {
+    pub fn new(heap_start: usize, heap_end: usize) -> Self {
+        let mut regions = [(0, 0, false); 1024];
+        regions[0] = (heap_start, heap_end, true);
+        Self {
+            heap_start,
+            heap_end,
+
+            bytes_used: 0,
+
+            regions,
+            render_ram_usage: true
+        }
+    }
+
+    fn set_heap(&mut self, heap_start: usize, heap_end: usize) {
+        self.heap_start = heap_start;
+        self.heap_end = heap_end;
+        self.bytes_used = 0;
+
+        let mut regions = [(0, 0, false); 1024];
+        regions[0] = (heap_start, heap_end, true);
+
+        self.regions = regions;
+    }
+
+    fn find_biggest_section(&self) -> usize {
+        let mut biggest_section = (0, 0); // (index, size)
+        for (index, section) in self.regions.iter().enumerate() {
+            if section.0 == 0 && section.1 == 0 { break; }
+            if section.2 == false { continue; }
+            let section_size = section.1 - section.0;
+            if section_size > biggest_section.1 {
+                biggest_section.0 = index;
+                biggest_section.1 = section_size;
+            }
+        }
+        biggest_section.0
+    }
+
+    // move sections so sections before it can be reserved
+    fn move_sections(&mut self, start: usize) {
+        for i in start..1024 {
+            let index = 1024 - i;
+            if index + 1 >= 1024 { continue; }
+            self.regions[index + 1] = self.regions[index];
+        }
+    }
+
+    // split a section based on the index of a section
+    fn split_section(&mut self, section: usize) {
+        if self.regions[section + 1] != (0, 0, false) {
+            self.move_sections(section + 1);
+        }
+
+        let section_size = self.regions[section].1 - self.regions[section].0;
+        println!("size: {}", section_size);
+        let section_end = self.regions[section].1;
+        let offset = (section_size / 2) % 8;
+        let new_section_size = section_size / 2 - offset;
+
+        self.regions[section].1 = self.regions[section].0 + new_section_size;
+        self.regions[section + 1] = (self.regions[section].0 + new_section_size, section_end, true);
+
+        for i in 0..1024 {
+            if self.regions[i] == (0, 0, false) { break; }
+            if self.regions[i].2 {
+                println!("true region {}", self.regions[i].1 - self.regions[i].0);
+            } else {
+                println!("false region");
+            }
+        }
+    }
+
+    fn reserve_section(&mut self, section: usize, size: usize) -> (usize, usize) {
+        if self.regions[section + 1] != (0, 0, false) {
+            self.move_sections(section + 1);
+        }
+
+        let section_end = self.regions[section].1;
+
+        self.regions[section].1 = self.regions[section].0 + size;
+        self.regions[section].2 = true;
+        self.regions[section + 1] = (self.regions[section].0 + size, section_end, true);
+
+        (0, 0)
+    }
+
+    fn alloc(&mut self, size: usize) -> (usize, usize, usize) {
+        let biggest_region = self.find_biggest_section();
+        println!("biggest: {}", biggest_region);
+        self.split_section(biggest_region);
+        //self.reserve_section(biggest_region, size * 10);
+        self.render_regions();
+        (self.heap_start, self.heap_end, 0)
+    }
+
+    fn unalloc(&mut self, _start: usize, _size: usize) {
+        warnln!("unimplemented (unalloc)");
+    }
+
+    #[allow(dead_code)]
+    fn render_regions(&self) {
+        window::set_rect(
+            10, 
+            10, 
+            140, 
+            30, 
+            0
+        );
+        let mut offset: f32 = 0.0;
+        let mut color_index = 1;
+        let mut total_size = 0;
+        for section_printing in self.regions {
+            if section_printing == (0, 0, false) { break; }
+            //if section_printing.0 > section_printing.1 { break; }
+            total_size += section_printing.1 - section_printing.0;
+            let section_size = (section_printing.1 - section_printing.0) as f32 / (self.heap_end - self.heap_start) as f32 * 140.0;
+            if section_printing.2 {
+                window::set_rect(
+                    offset as usize + 10, 
+                    10, 
+                    section_size as usize, 
+                    30, 
+                    color_index as u8
+                );
+            } else {
+                window::set_rect(
+                    offset as usize + 10, 
+                    10, 
+                    section_size as usize, 
+                    20, 
+                    color_index as u8
+                );
+            }
+            offset += section_size;
+            color_index += 1;
+        }
+        println!("{} = {}", total_size, self.heap_end - self.heap_start);
+    }
+
+    fn merge_sections(&self) {
+        warnln!("unimplemented (merge)");
+    }
+}
+
+/*pub struct AllocatorOld {
     heap_start: usize,
     heap_end: usize,
     next: usize,
@@ -15,7 +170,7 @@ pub struct Allocator {
     render_ram_usage: bool
 }
 
-impl Allocator {
+impl AllocatorOld {
     pub fn new(heap_start: usize, heap_size: usize) -> Self {
         let mut used = [(0, 0, false); 512];
         used[0] = (heap_start, heap_start + heap_size, true);
@@ -230,7 +385,7 @@ impl Allocator {
         }
         self.merge_sections();
     }
-}
+}*/
 
 lazy_static! {
     pub static ref ALLOCATOR: Mutex<Allocator> = Mutex::new(Allocator::new(0, 0));
@@ -238,8 +393,14 @@ lazy_static! {
 
 pub fn clear_ram() {
     let mut allocator = ALLOCATOR.lock();
-    allocator.used = [(0, 0, false); 512];
-    allocator.used[0] = (allocator.heap_start, allocator.heap_end, true);
+    allocator.regions = [(0, 0, false); 1024];
+    allocator.regions[0] = (allocator.heap_start, allocator.heap_end, true);
+    allocator.alloc(2048);
+    allocator.alloc(2048);
+    allocator.alloc(2048);
+    allocator.alloc(2048);
+    allocator.alloc(2048);
+    //allocator.alloc(2048);
     if allocator.render_ram_usage { allocator.render_regions(); }
 }
 
@@ -253,18 +414,18 @@ pub fn toggle_ram_graph() {
 }
 
 pub fn get_usage() -> (usize, usize) {
-    let next = { ALLOCATOR.lock().next };
+    let next = { ALLOCATOR.lock().bytes_used };
     let heap_start = { ALLOCATOR.lock().heap_start };
     let heap_end = { ALLOCATOR.lock().heap_end };
-    (next - heap_start, heap_end - heap_start)
+    (next, heap_end - heap_start)
 }
 
-pub fn set_heap(heap_start: usize, heap_size: usize) {
-    ALLOCATOR.lock().set_heap(heap_start, heap_size);
+pub fn set_heap(heap_start: usize, heap_end: usize) {
+    ALLOCATOR.lock().set_heap(heap_start, heap_end);
 }
 
-pub fn alloc(size: usize) -> (usize, usize) {
-    if size == 0 { return (0, 0) }
+pub fn alloc(size: usize) -> (usize, usize, usize) {
+    if size == 0 { return (0, 0, 0) }
     ALLOCATOR.lock().alloc(size)
 }
 

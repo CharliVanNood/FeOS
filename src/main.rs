@@ -53,7 +53,10 @@ pub extern "C" fn _start(boot_info: &'static BootInfo) -> ! {
     }
 
     // set the sector bounds for heap :D
-    alloc::set_heap(boot_info.physical_memory_offset as usize + biggest_region.1 as usize, biggest_region.0 as usize);
+    alloc::set_heap(
+        boot_info.physical_memory_offset as usize + biggest_region.1 as usize, 
+        boot_info.physical_memory_offset as usize + biggest_region.1 as usize + biggest_region.0 as usize
+    );
     fem_dos::init(boot_info, biggest_region);
 
     println!("Initialized components!");
