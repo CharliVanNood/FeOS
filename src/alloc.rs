@@ -66,7 +66,7 @@ impl Allocator {
     }
 
     // split a section based on the index of a section
-    fn split_section(&mut self, section: usize) {
+    fn split_section(&mut self, section: usize) -> (usize, usize, usize) {
         if self.regions[section + 1] != (0, 0, false) {
             self.move_sections(section + 1);
         }
@@ -88,9 +88,13 @@ impl Allocator {
                 println!("false region");
             }
         }
+
+        self.render_regions();
+
+        (self.regions[section].0 + new_section_size, section_end, section_end - self.regions[section].0 + new_section_size)
     }
 
-    fn reserve_section(&mut self, section: usize, size: usize) -> (usize, usize) {
+    /*fn reserve_section(&mut self, section: usize, size: usize) -> (usize, usize, usize) {
         if self.regions[section + 1] != (0, 0, false) {
             self.move_sections(section + 1);
         }
@@ -101,20 +105,40 @@ impl Allocator {
         self.regions[section].2 = true;
         self.regions[section + 1] = (self.regions[section].0 + size, section_end, true);
 
-        (0, 0)
-    }
+        self.render_regions();
+
+        (self.regions[section].0 + size, section_end, section_end - self.regions[section].0 + size)
+    }*/
 
     fn alloc(&mut self, size: usize) -> (usize, usize, usize) {
         let biggest_region = self.find_biggest_section();
         println!("biggest: {}", biggest_region);
-        self.split_section(biggest_region);
-        //self.reserve_section(biggest_region, size * 10);
-        self.render_regions();
-        (self.heap_start, self.heap_end, 0)
+        self.split_section(biggest_region)
+        //self.reserve_section(biggest_region, size)
     }
 
-    fn unalloc(&mut self, _start: usize, _size: usize) {
+    fn unalloc(&mut self, start: usize, size: usize) {
         warnln!("unimplemented (unalloc)");
+        println!("start: {} size: {}", start, size);
+
+        let mut i = 0;
+        for region in self.regions {
+            if region.0 == start {
+                if i > 0 {
+                    println!("region exists, merging prev");
+                    println!("current size: {}", region.1 - start);
+                    self.regions[i - 1].1 = self.regions[i - 1].1 + (region.1 - region.0);
+                    self.move_sections(i);
+                    self.regions[i] = (0, 0, false);
+                } else {
+                    println!("region exists, merging next");
+                    println!("current size: {}", region.1 - start);
+                    self.regions[i].1 = self.regions[i].1 + (self.regions[i + 1].1 - self.regions[i + 1].0);
+                    self.regions[i + 1] = (0, 0, false);
+                }
+            }
+            i += 1;
+        }
     }
 
     #[allow(dead_code)]
@@ -458,7 +482,7 @@ pub fn read_byte(address: usize) -> usize {
 }
 
 pub fn _ram_test(address: usize, length: usize) {
-    for byte in 0..length {
+    /*for byte in 0..length {
         unsafe {
             if byte == 512 || byte > 516 {
                 continue;
@@ -472,7 +496,7 @@ pub fn _ram_test(address: usize, length: usize) {
                 return;
             }
         }
-    }
+    }*/
 }
 
 pub fn _memory_regions(boot_info: &'static BootInfo) {

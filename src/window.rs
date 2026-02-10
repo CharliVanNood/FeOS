@@ -175,13 +175,14 @@ pub fn init() {
 }
 
 pub fn get_int(numbers: [usize; 3]) -> u8 {
-    let mut int_val = 0;
+    /*let mut int_val = 0;
 
     for i in 0..3 {
         let byte_number = numbers[i] as i32 - 48;
         int_val += byte_number * 10_i32.pow((3 - i) as u32 - 1);
     }
-    int_val as u8
+    int_val as u8*/
+    0
 }
 
 pub fn get_screen_size() -> (usize, usize) {
